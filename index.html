@@ -74,7 +74,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .fi:focus{border-color:rgba(212,168,67,0.4)}
 .ip{position:relative}
 .ip span{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--tx3)}
-.ip .fi{padding-left:24px}
+.ip .fi{padding-left:32px}
 
 /* ── TOGGLE ── */
 .tg-grp{display:flex;background:var(--s2);border-radius:8px;padding:3px;margin-bottom:14px}
@@ -261,7 +261,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <!-- ======= CONTROLE MENSAL ======= -->
     <div class="page" id="page-mensal">
       <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
-        <div><h1>Controle mensal</h1><p>Navegue entre meses pelo seletor. Meses anteriores podem ser corrigidos.</p></div>
+        <div><h1>Controle mensal</h1><p id="ph-sub">Navegue entre meses pelo seletor. Meses anteriores podem ser corrigidos.</p></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <div class="month-nav">
             <button class="mnb" onclick="navMes(-1)" id="btn-prev">‹</button>
@@ -295,33 +295,58 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
           <div style="display:flex;flex-direction:column;gap:14px">
             <div class="card">
               <div class="ct"><i class="ti ti-trending-up"></i> Entradas</div>
-              <div class="fg"><label class="fl">Salário médio</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_sal" value="8000" oninput="calcM()"></div></div>
-              <div class="fg"><label class="fl">Extras / transferências previstas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_ext" value="0" oninput="calcM()"></div></div>
+              <div class="fg"><label class="fl">Salário médio</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_sal" value="8000" step="0.01" oninput="calcM()"></div></div>
+              <div class="fg"><label class="fl">Extras / transferências previstas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_ext" value="0" step="0.01" oninput="calcM()"></div></div>
               <div class="div"></div>
               <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:var(--tx2)">Total entradas</span><span style="font-size:15px;font-weight:600;color:var(--green)" id="m_tot_e">—</span></div>
             </div>
             <div class="card">
               <div class="ct"><i class="ti ti-receipt-2"></i> Despesas fixas</div>
               <div style="font-size:11px;color:var(--tx3);margin-bottom:10px">Aluguel, contas, assinaturas — subtraídas direto da entrada</div>
-              <div class="fg"><label class="fl">Total de despesas fixas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_fixas" value="0" oninput="calcM()"></div></div>
+              <div class="fg"><label class="fl">Total de despesas fixas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_fixas" value="0" step="0.01" oninput="calcM()"></div></div>
             </div>
             <div class="card">
               <div class="ct"><i class="ti ti-piggy-bank"></i> Metas</div>
               <div class="fg"><label class="fl">Saving (% do salário)</label>
                 <div class="sr"><input type="range" min="0" max="50" step="1" value="20" id="m_pct_s" oninput="calcM()"><div class="sv"><span id="m_pct_sv">20</span>%</div></div>
               </div>
-              <div class="fg"><label class="fl">Verba lazer</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_laz_v" value="0" oninput="calcM()"></div></div>
+              <div class="fg"><label class="fl">Verba lazer</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_laz_v" value="0" step="0.01" oninput="calcM()"></div></div>
             </div>
           </div>
-          <div class="card">
-            <div class="ct"><i class="ti ti-credit-card"></i> Faturas</div>
-            <div class="cr"><div class="cdot" style="background:#3b82f6"></div><span style="flex:1;font-size:13px" id="label-c1">Cartão 1</span><div class="ip" style="width:120px"><span>R$</span><input class="fi" type="number" id="f1" value="0" style="padding-left:24px;font-size:12px" oninput="calcM()"></div></div>
-            <div class="cr"><div class="cdot" style="background:#d4a843"></div><span style="flex:1;font-size:13px" id="label-c2">Cartão 2</span><div class="ip" style="width:120px"><span>R$</span><input class="fi" type="number" id="f2" value="0" style="padding-left:24px;font-size:12px" oninput="calcM()"></div></div>
-            <div class="cr"><div class="cdot" style="background:#22c55e"></div><span style="flex:1;font-size:13px" id="label-c3">Cartão 3</span><div class="ip" style="width:120px"><span>R$</span><input class="fi" type="number" id="f3" value="0" style="padding-left:24px;font-size:12px" oninput="calcM()"></div></div>
-            <div class="div"></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:12px;color:var(--tx2)">Total faturas</span><span style="font-size:15px;font-weight:600;color:var(--red)" id="m_tot_f">—</span></div>
-            <div id="dist_b"></div>
-            <div class="div"></div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-credit-card"></i> Faturas dos cartões</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:10px" id="faturas-sub">Faturas que vencem neste mês</div>
+              <div class="cr"><div class="cdot" style="background:#3b82f6"></div><span style="flex:1;font-size:13px" id="label-c1">Cartão 1</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="f1" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div></div>
+              <div class="cr"><div class="cdot" style="background:#d4a843"></div><span style="flex:1;font-size:13px" id="label-c2">Cartão 2</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="f2" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div></div>
+              <div class="cr"><div class="cdot" style="background:#22c55e"></div><span style="flex:1;font-size:13px" id="label-c3">Cartão 3</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="f3" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div></div>
+              <div class="div"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:12px;color:var(--tx2)">Total faturas</span><span style="font-size:15px;font-weight:600;color:var(--red)" id="m_tot_f">—</span></div>
+              <div id="dist_b"></div>
+            </div>
+
+            <div class="card">
+              <div class="ct"><i class="ti ti-arrows-transfer-down"></i> Transferências previstas</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:12px" id="transf-sub">Saídas programadas para o próximo mês</div>
+              <div class="cr" style="border:none;padding:7px 0">
+                <div class="cdot" style="background:#8b5cf6"></div>
+                <span style="flex:1;font-size:13px">Transferência 1</span>
+                <div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="tr1" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div>
+              </div>
+              <div class="cr" style="border:none;padding:7px 0">
+                <div class="cdot" style="background:#ec4899"></div>
+                <span style="flex:1;font-size:13px">Transferência 2</span>
+                <div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="tr2" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div>
+              </div>
+              <div class="cr" style="border:none;padding:7px 0">
+                <div class="cdot" style="background:#f97316"></div>
+                <span style="flex:1;font-size:13px">Transferência 3</span>
+                <div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="tr3" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div>
+              </div>
+              <div class="div"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;color:var(--tx2)">Total transferências</span><span style="font-size:15px;font-weight:600;color:#8b5cf6" id="m_tot_tr">R$ 0,00</span></div>
+            </div>
+
             <div class="rb gold"><div class="rl">Projeção do mês</div><div style="font-size:12px;color:var(--tx2);margin-top:5px" id="m_proj_txt">—</div></div>
           </div>
         </div>
@@ -331,12 +356,12 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <div id="tab_fec_c" style="display:none">
         <div class="card" style="max-width:480px">
           <div class="ct"><i class="ti ti-checkup-list"></i> Fechamento do mês</div>
-          <div class="fg"><label class="fl">Entradas reais recebidas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_e" value="0" oninput="calcF()"></div></div>
-          <div class="fg"><label class="fl">Gastos reais (incluindo faturas e fixas)</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_g" value="0" oninput="calcF()"></div></div>
-          <div class="fg"><label class="fl">Quanto você guardou?</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_s" value="0" oninput="calcF()"></div></div>
+          <div class="fg"><label class="fl">Entradas reais recebidas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_e" value="0" step="0.01" oninput="calcF()"></div></div>
+          <div class="fg"><label class="fl">Gastos reais (incluindo faturas e fixas)</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_g" value="0" step="0.01" oninput="calcF()"></div></div>
+          <div class="fg"><label class="fl">Quanto você guardou?</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_s" value="0" step="0.01" oninput="calcF()"></div></div>
           <div class="fg">
             <label class="fl">Transferências não previstas no mês</label>
-            <div class="ip"><span>R$</span><input class="fi" type="number" id="fe_extra" value="0" oninput="calcF()"></div>
+            <div class="ip"><span>R$</span><input class="fi" type="number" id="fe_extra" value="0" step="0.01" oninput="calcF()"></div>
             <div style="font-size:10px;color:var(--tx3);margin-top:4px">Freela, reembolso, presente — não estava no planejamento</div>
           </div>
           <div class="div"></div>
@@ -440,8 +465,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 // ─────────────────────────────────────────────
 //  UTILIDADES
 // ─────────────────────────────────────────────
-const fmt = v => 'R$\u00a0' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
-const fmtK = v => v >= 1000 ? 'R$\u00a0' + (v/1000).toFixed(1) + 'k' : 'R$\u00a0' + v;
+const fmt  = v => 'R$\u00a0' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtK = v => v >= 1000 ? 'R$\u00a0' + (v/1000).toFixed(1) + 'k' : 'R$\u00a0' + Number(v).toFixed(2);
 const $ = id => document.getElementById(id);
 
 function showNotif(txt, tipo='ok') {
@@ -616,6 +641,14 @@ function loadMes(m) {
     ? `<div class="edit-banner"><i class="ti ti-edit"></i><span>Editando mês já fechado (${label}). Salvar substitui os dados no Google Sheets.</span></div>`
     : '';
 
+  // Contexto do mês seguinte no subtítulo e nas labels
+  const proxMes = MESES[(m + 1) % 12] + '/' + ANO_ATUAL;
+  $('ph-sub').textContent = isPast && isClosed
+    ? `Editando dados de ${label}.`
+    : `Planejando as movimentações de ${proxMes} — lançadas agora em ${label}.`;
+  if ($('faturas-sub'))  $('faturas-sub').textContent  = `Faturas que vencem em ${proxMes}`;
+  if ($('transf-sub'))   $('transf-sub').textContent   = `Transferências programadas para sair em ${proxMes}`;
+
   // Preenche campos com dados salvos ou defaults
   if (d) {
     $('m_sal').value   = d.sal   ?? 8000;
@@ -626,13 +659,17 @@ function loadMes(m) {
     $('f1').value      = d.f1    ?? 0;
     $('f2').value      = d.f2    ?? 0;
     $('f3').value      = d.f3    ?? 0;
+    $('tr1').value     = d.tr1   ?? 0;
+    $('tr2').value     = d.tr2   ?? 0;
+    $('tr3').value     = d.tr3   ?? 0;
     $('fe_e').value    = d.re    ?? 0;
     $('fe_g').value    = d.rg    ?? 0;
     $('fe_s').value    = d.rs    ?? 0;
     $('fe_extra').value= d.extra ?? 0;
   } else {
-    // defaults limpos para mês novo
-    $('m_ext').value=0; $('m_fixas').value=0; $('f1').value=0; $('f2').value=0; $('f3').value=0;
+    $('m_ext').value=0; $('m_fixas').value=0;
+    $('f1').value=0; $('f2').value=0; $('f3').value=0;
+    $('tr1').value=0; $('tr2').value=0; $('tr3').value=0;
     $('fe_e').value=0; $('fe_g').value=0; $('fe_s').value=0; $('fe_extra').value=0;
   }
 
@@ -646,10 +683,16 @@ function calcM() {
   const fixas = parseFloat($('m_fixas').value)||0;
   const pct   = parseInt($('m_pct_s').value)||0;
   const laz   = parseFloat($('m_laz_v').value)||0;
-  const f1 = parseFloat($('f1').value)||0, f2=parseFloat($('f2').value)||0, f3=parseFloat($('f3').value)||0;
+  const f1=parseFloat($('f1').value)||0, f2=parseFloat($('f2').value)||0, f3=parseFloat($('f3').value)||0;
+  const tr1=parseFloat($('tr1').value)||0, tr2=parseFloat($('tr2').value)||0, tr3=parseFloat($('tr3').value)||0;
   $('m_pct_sv').textContent = pct;
-  const totE = sal+ext-fixas, totF=f1+f2+f3, savM=Math.round(sal*(pct/100)), saldo=totE-totF-savM-laz;
+  const totF = f1+f2+f3;
+  const totTr = tr1+tr2+tr3;
+  const totE = sal+ext-fixas;
+  const savM = Math.round(sal*(pct/100));
+  const saldo = totE - totF - totTr - savM - laz;
   $('m_tot_e').textContent = fmt(totE); $('m_tot_f').textContent = fmt(totF);
+  $('m_tot_tr').textContent = fmt(totTr);
   $('m_saldo').textContent = fmt(saldo); $('m_fat').textContent = fmt(totF);
   $('m_sav').textContent = fmt(savM); $('m_laz').textContent = fmt(laz);
   const cores=['#3b82f6','#d4a843','#22c55e'], vals=[f1,f2,f3];
@@ -657,7 +700,10 @@ function calcM() {
   let dist='';
   vals.forEach((v,i)=>{const p=totF>0?(v/totF*100):0;dist+=`<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:var(--tx2)">${names[i]}</span><span style="color:${cores[i]};font-weight:600">${fmt(v)} <span style="color:var(--tx3)">(${p.toFixed(0)}%)</span></span></div><div class="pb"><div class="pf" style="width:${p.toFixed(1)}%;background:${cores[i]}"></div></div></div>`;});
   $('dist_b').innerHTML = dist;
-  $('m_proj_txt').textContent = saldo>=0 ? `Projeção positiva — ${fmt(saldo)} de folga` : `Atenção — despesas superam entradas em ${fmt(Math.abs(saldo))}`;
+  const proxMes = MESES[(currentMes+1)%12]+'/'+ANO_ATUAL;
+  $('m_proj_txt').textContent = saldo>=0
+    ? `Projeção positiva — ${fmt(saldo)} de folga em ${proxMes}`
+    : `Atenção — despesas de ${proxMes} superam entradas em ${fmt(Math.abs(saldo))}`;
   calcF();
 }
 
@@ -694,17 +740,19 @@ async function fecharMes() {
   const fixas=parseFloat($('m_fixas').value)||0, pct=parseInt($('m_pct_s').value)||0;
   const laz=parseFloat($('m_laz_v').value)||0;
   const f1=parseFloat($('f1').value)||0, f2=parseFloat($('f2').value)||0, f3=parseFloat($('f3').value)||0;
+  const tr1=parseFloat($('tr1').value)||0, tr2=parseFloat($('tr2').value)||0, tr3=parseFloat($('tr3').value)||0;
   const re=parseFloat($('fe_e').value)||0, rg=parseFloat($('fe_g').value)||0;
   const rs=parseFloat($('fe_s').value)||0, extra=parseFloat($('fe_extra').value)||0;
 
   const payload = {
     action: 'salvarMes',
-    data: { mes: currentMes, ano: ANO_ATUAL, sal, ext, fixas, pct, laz, f1, f2, f3, re, rg, rs, extra, closed: true }
+    data: { mes: currentMes, ano: ANO_ATUAL, sal, ext, fixas, pct, laz, f1, f2, f3, tr1, tr2, tr3, re, rg, rs, extra, closed: true }
   };
 
   // Salva localmente imediato
   const existIdx = histData.findIndex(d => d.mes===currentMes && d.ano===ANO_ATUAL);
-  const entry = { ...payload.data, status: 'Fechado', e: re+extra, g: rg, s: rs, meta: Math.round(sal*(pct/100)), desvio: rg-((sal+ext)-fixas-Math.round(sal*(pct/100))-laz) };
+  const totTr=tr1+tr2+tr3;
+  const entry = { ...payload.data, status: 'Fechado', e: re+extra, g: rg, s: rs, meta: Math.round(sal*(pct/100)), desvio: rg-((sal+ext)-fixas-totTr-Math.round(sal*(pct/100))-laz) };
   if(existIdx>=0) histData[existIdx]=entry; else histData.push(entry);
   $('nb-hist').textContent = histData.filter(d=>d.status==='Fechado').length;
   loadMes(currentMes);
@@ -803,6 +851,9 @@ async function carregarDoSheets() {
       f1:    parseFloat(row['Fatura Cartão 1'])   || 0,
       f2:    parseFloat(row['Fatura Cartão 2'])   || 0,
       f3:    parseFloat(row['Fatura Cartão 3'])   || 0,
+      tr1:   parseFloat(row['Transferência 1'])   || 0,
+      tr2:   parseFloat(row['Transferência 2'])   || 0,
+      tr3:   parseFloat(row['Transferência 3'])   || 0,
       pct:   parseFloat(row['% Saving'])          || 20,
       laz:   parseFloat(row['Verba Lazer'])       || 0,
       re:    parseFloat(row['Entrada Real'])       || 0,
