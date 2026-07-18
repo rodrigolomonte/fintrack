@@ -168,7 +168,35 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .notif.show{opacity:1}
 .notif.err{background:var(--red);color:#fff}
 
-/* ── RESPONSIVE MOBILE ── */
+/* ── CARTEIRA ── */
+.cart-tab-grp{display:flex;gap:4px;background:var(--s2);border-radius:9px;padding:3px;margin-bottom:20px;width:fit-content}
+.cart-tab{padding:7px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:var(--tx2);transition:all .15s}
+.cart-tab.active{background:var(--s1);color:var(--gold);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.asset-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--brd)}
+.asset-row:last-child{border-bottom:none}
+.asset-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.asset-label{flex:1;font-size:13px;color:var(--tx2)}
+.gauge-wrap{position:relative;display:flex;flex-direction:column;gap:3px}
+.gauge-bar-bg{height:6px;background:var(--s2);border-radius:3px;overflow:hidden;width:100%}
+.gauge-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.meta-indicator{display:flex;align-items:center;gap:6px;font-size:10px}
+.meta-ok{color:var(--green)}.meta-warn{color:var(--gold)}.meta-err{color:var(--red)}
+.donut-wrap{position:relative;width:160px;height:160px;flex-shrink:0}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.donut-center .val{font-size:15px;font-weight:700;color:var(--tx)}
+.donut-center .lbl{font-size:9px;color:var(--tx3);margin-top:1px}
+.pat-card{background:var(--s1);border:0.5px solid var(--brd);border-radius:var(--r);padding:16px}
+.upd-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--tx3);background:var(--s2);padding:5px 10px;border-radius:7px;border:0.5px solid var(--brd)}
+.upd-badge i{color:var(--gold);font-size:13px}
+.meta-input-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.meta-input-row label{font-size:11px;color:var(--tx2);min-width:160px}
+.meta-num{width:70px;background:var(--s2);border:0.5px solid var(--brd2);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--tx);outline:none;font-family:var(--font);text-align:right}
+.meta-num:focus{border-color:rgba(212,168,67,.4)}
+.desvio-badge{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:600;white-space:nowrap}
+.d-ok{background:var(--greend);color:var(--green)}
+.d-warn{background:rgba(251,191,36,.12);color:#fbbf24}
+.d-err{background:var(--redd);color:var(--red)}
+.d-neu{background:var(--s2);color:var(--tx3)}
 @media(max-width:700px){
   .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:100;transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
@@ -200,6 +228,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <div class="nav-item active" id="nav-calc" onclick="go('calc')"><i class="ti ti-calculator"></i> Calculadora</div>
     <div class="nav-item" id="nav-mensal" onclick="go('mensal')"><i class="ti ti-calendar-month"></i> Controle mensal <span class="nav-badge" id="nb-mes">Jun</span></div>
     <div class="nav-item" id="nav-hist" onclick="go('hist')"><i class="ti ti-chart-line"></i> Histórico <span class="nav-badge new" id="nb-hist">0</span></div>
+    <div class="nav-item" id="nav-carteira" onclick="go('carteira')"><i class="ti ti-briefcase"></i> Carteira</div>
     <div class="nav-item" id="nav-anual" onclick="go('anual')"><i class="ti ti-trending-up"></i> Visão anual <span class="nav-badge">Em breve</span></div>
     <div class="nav-sec">Conta</div>
     <div class="nav-item" id="nav-cfg" onclick="go('cfg')"><i class="ti ti-settings"></i> Configurações</div>
@@ -476,6 +505,208 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       </div>
     </div>
 
+    <!-- ======= CARTEIRA ======= -->
+    <div class="page" id="page-carteira">
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><h1>Carteira de ativos</h1><p>Composição, evolução e metas da sua carteira</p></div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="upd-badge"><i class="ti ti-clock"></i><span id="cart-upd-txt">Não atualizado</span></div>
+          <button class="btn btn-ghost btn-sm" onclick="replicarUltimo()"><i class="ti ti-copy"></i>Replicar último</button>
+          <button class="btn btn-gold btn-sm" onclick="salvarCarteira()"><i class="ti ti-device-floppy"></i>Salvar snapshot</button>
+        </div>
+      </div>
+
+      <!-- ABAS INTERNAS -->
+      <div class="cart-tab-grp">
+        <div class="cart-tab active" id="ctab-visao"    onclick="cartTab('visao')">Visão geral</div>
+        <div class="cart-tab"        id="ctab-detalhe"  onclick="cartTab('detalhe')">Detalhamento</div>
+        <div class="cart-tab"        id="ctab-evolucao" onclick="cartTab('evolucao')">Evolução</div>
+        <div class="cart-tab"        id="ctab-metas"    onclick="cartTab('metas')">Metas</div>
+      </div>
+
+      <!-- ── ABA: VISÃO GERAL ── -->
+      <div id="cart-visao">
+        <!-- KPIs topo -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+          <div class="mt" style="grid-column:1"><div class="mt-l">Patrimônio total</div><div class="mt-v" id="cv-total" style="color:var(--gold);font-size:22px">R$ 0,00</div></div>
+          <div class="mt"><div class="mt-l">Renda Fixa</div><div class="mt-v" id="cv-rf" style="color:var(--blue)">R$ 0,00</div><div style="font-size:10px;color:var(--tx3);margin-top:3px" id="cv-rf-pct">0% da carteira</div></div>
+          <div class="mt"><div class="mt-l">Renda Variável</div><div class="mt-v" id="cv-rv" style="color:var(--green)">R$ 0,00</div><div style="font-size:10px;color:var(--tx3);margin-top:3px" id="cv-rv-pct">0% da carteira</div></div>
+        </div>
+
+        <div class="g2" style="gap:14px;align-items:start">
+          <!-- Inputs de lançamento -->
+          <div class="card">
+            <div class="ct"><i class="ti ti-pencil"></i> Lançar valores atuais</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Preencha com o valor atual de cada categoria</div>
+
+            <div style="font-size:10px;font-weight:600;color:var(--blue);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px">Renda Fixa</div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#3b82f6"></div>
+              <span class="asset-label">Caixa</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-caixa" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#60a5fa"></div>
+              <span class="asset-label">Reserva de Emergência</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-reserva" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#93c5fd"></div>
+              <span class="asset-label">Viagem</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-viagem" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row" style="margin-bottom:14px">
+              <div class="asset-dot" style="background:#bfdbfe"></div>
+              <span class="asset-label">Aplic. Renda Fixa</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-rf-aplic" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+
+            <div style="font-size:10px;font-weight:600;color:var(--green);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px;margin-top:4px">Renda Variável</div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#22c55e"></div>
+              <span class="asset-label">Ações</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-acoes" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#4ade80"></div>
+              <span class="asset-label">Fundos Imobiliários</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-fii" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#86efac"></div>
+              <span class="asset-label">Investimento Exterior</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-ext" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#d4a843"></div>
+              <span class="asset-label">Cripto</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-cripto" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+
+            <div class="div"></div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <label class="fl" style="margin-bottom:0;min-width:120px">Data de atualização</label>
+              <input class="fi" type="date" id="cv-data" style="font-size:12px" oninput="calcCarteira()">
+            </div>
+          </div>
+
+          <!-- Gráfico RF vs RV -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-chart-donut"></i> RF vs. Renda Variável</div>
+              <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+                <div class="donut-wrap">
+                  <canvas id="ch-rfvrv"></canvas>
+                  <div class="donut-center"><div class="val" id="donut-total-val">R$ 0</div><div class="lbl">Total</div></div>
+                </div>
+                <div style="flex:1;min-width:120px" id="rfvrv-legend"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-table"></i> Resumo por classe</div>
+              <div id="resumo-classes"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ABA: DETALHAMENTO ── -->
+      <div id="cart-detalhe" style="display:none">
+        <div class="g2" style="gap:14px;align-items:start">
+          <div class="card">
+            <div class="ct"><i class="ti ti-chart-donut-3"></i> Detalhamento — Renda Fixa</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Distribuição interna dos ativos de RF</div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+              <div class="donut-wrap" style="width:140px;height:140px">
+                <canvas id="ch-rf-det"></canvas>
+                <div class="donut-center"><div class="val" id="donut-rf-val">R$ 0</div><div class="lbl">Renda Fixa</div></div>
+              </div>
+              <div style="flex:1" id="rf-det-legend"></div>
+            </div>
+            <div id="rf-det-bars"></div>
+          </div>
+          <div class="card">
+            <div class="ct"><i class="ti ti-chart-donut-3"></i> Detalhamento — Renda Variável</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Distribuição interna dos ativos de RV</div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+              <div class="donut-wrap" style="width:140px;height:140px">
+                <canvas id="ch-rv-det"></canvas>
+                <div class="donut-center"><div class="val" id="donut-rv-val">R$ 0</div><div class="lbl">Renda Var.</div></div>
+              </div>
+              <div style="flex:1" id="rv-det-legend"></div>
+            </div>
+            <div id="rv-det-bars"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ABA: EVOLUÇÃO ── -->
+      <div id="cart-evolucao" style="display:none">
+        <div class="card" style="margin-bottom:14px">
+          <div class="ct"><i class="ti ti-chart-area"></i> Evolução do patrimônio</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:12px">Histórico de snapshots mensais — salve um por mês para acompanhar o crescimento</div>
+          <div class="leg">
+            <span class="leg-i"><span class="leg-d" style="background:#d4a843"></span>Patrimônio total</span>
+            <span class="leg-i"><span class="leg-d" style="background:#3b82f6"></span>Renda Fixa</span>
+            <span class="leg-i"><span class="leg-d" style="background:#22c55e"></span>Renda Variável</span>
+          </div>
+          <div style="position:relative;height:240px;margin-top:10px"><canvas id="ch-evolucao"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ct"><i class="ti ti-table"></i> Histórico de snapshots</div>
+          <table class="tbl">
+            <thead><tr><th>Data</th><th class="r">Patrimônio</th><th class="r">Renda Fixa</th><th class="r">% RF</th><th class="r">Renda Variável</th><th class="r">% RV</th></tr></thead>
+            <tbody id="tbl-snapshots"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ABA: METAS ── -->
+      <div id="cart-metas" style="display:none">
+        <div class="g2" style="gap:14px;align-items:start">
+          <!-- Definição das metas -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-target"></i> Metas por classe</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Defina o percentual ideal de cada classe e o desvio máximo tolerado</div>
+
+              <div style="font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px">Alocação macro</div>
+              <div class="meta-input-row"><label>Meta Renda Fixa (%)</label><input class="meta-num" type="number" id="meta-rf" value="60" min="0" max="100" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Meta Renda Variável (%)</label><input class="meta-num" type="number" id="meta-rv" value="40" min="0" max="100" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Desvio máximo tolerado</label><input class="meta-num" type="number" id="meta-desvio-max" value="5" min="0" max="20" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+
+              <div class="div"></div>
+              <div style="font-size:10px;font-weight:600;color:var(--blue);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px">Renda Fixa — alocação interna</div>
+              <div class="meta-input-row"><label>Caixa</label><input class="meta-num" type="number" id="meta-caixa" value="10" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Reserva de Emergência</label><input class="meta-num" type="number" id="meta-reserva" value="30" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Viagem</label><input class="meta-num" type="number" id="meta-viagem" value="10" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Aplic. Renda Fixa</label><input class="meta-num" type="number" id="meta-rf-aplic" value="50" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+
+              <div class="div"></div>
+              <div style="font-size:10px;font-weight:600;color:var(--green);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px">Renda Variável — alocação interna</div>
+              <div class="meta-input-row"><label>Ações</label><input class="meta-num" type="number" id="meta-acoes" value="40" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Fundos Imobiliários</label><input class="meta-num" type="number" id="meta-fii" value="30" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Investimento Exterior</label><input class="meta-num" type="number" id="meta-ext" value="20" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Cripto</label><input class="meta-num" type="number" id="meta-cripto" value="10" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+            </div>
+          </div>
+
+          <!-- Painel visual de desvios -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-adjustments-horizontal"></i> Situação atual vs. metas</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:14px" id="metas-legenda-desvio">Verde = dentro do tolerado · Amarelo = atenção · Vermelho = rebalancear</div>
+              <div id="metas-painel"></div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-chart-bar"></i> Desvio visual por ativo</div>
+              <div style="position:relative;height:220px"><canvas id="ch-desvio-metas"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ======= ANUAL ======= -->
     <div class="page" id="page-anual">
       <div class="ph"><h1>Visão anual — 2025</h1><p>Módulo em análise</p></div>
@@ -593,7 +824,7 @@ async function testarConexao() {
 // ─────────────────────────────────────────────
 //  NAVEGAÇÃO
 // ─────────────────────────────────────────────
-const pages = ['calc','mensal','hist','anual','cfg'];
+const pages = ['calc','mensal','hist','anual','cfg','carteira'];
 function go(p) {
   pages.forEach(x => {
     $('page-'+x).classList.toggle('active', x===p);
@@ -1096,12 +1327,408 @@ async function carregarDoSheets() {
 }
 
 // ─────────────────────────────────────────────
+//  CARTEIRA DE ATIVOS
+// ─────────────────────────────────────────────
+let carteiraSnapshots = []; // [{data, caixa, reserva, viagem, rfAplic, acoes, fii, ext, cripto}]
+let cartCharts = {};
+
+const ATIVOS_RF = [
+  { id:'cv-caixa',    label:'Caixa',              cor:'#3b82f6' },
+  { id:'cv-reserva',  label:'Res. Emergência',     cor:'#60a5fa' },
+  { id:'cv-viagem',   label:'Viagem',              cor:'#93c5fd' },
+  { id:'cv-rf-aplic', label:'Aplic. Renda Fixa',   cor:'#bfdbfe' },
+];
+const ATIVOS_RV = [
+  { id:'cv-acoes',  label:'Ações',               cor:'#22c55e' },
+  { id:'cv-fii',    label:'FIIs',                cor:'#4ade80' },
+  { id:'cv-ext',    label:'Inv. Exterior',        cor:'#86efac' },
+  { id:'cv-cripto', label:'Cripto',               cor:'#d4a843' },
+];
+
+function cartTab(t) {
+  ['visao','detalhe','evolucao','metas'].forEach(x => {
+    $('cart-'+x).style.display   = x===t ? 'block' : 'none';
+    $('ctab-'+x).classList.toggle('active', x===t);
+  });
+  if (t==='evolucao') renderEvolucao();
+  if (t==='metas')    calcMetas();
+  if (t==='detalhe')  renderDetalhes();
+}
+
+function getCarteiraVals() {
+  const rf = ATIVOS_RF.map(a => parseFloat($(a.id).value)||0);
+  const rv = ATIVOS_RV.map(a => parseFloat($(a.id).value)||0);
+  const totRF = rf.reduce((a,v)=>a+v,0);
+  const totRV = rv.reduce((a,v)=>a+v,0);
+  const total = totRF + totRV;
+  return { rf, rv, totRF, totRV, total };
+}
+
+function fmtPct(v) { return v.toFixed(1)+'%'; }
+
+function calcCarteira() {
+  const { rf, rv, totRF, totRV, total } = getCarteiraVals();
+  const pctRF = total>0 ? totRF/total*100 : 0;
+  const pctRV = total>0 ? totRV/total*100 : 0;
+
+  // KPIs
+  $('cv-total').textContent  = fmt(total);
+  $('cv-rf').textContent     = fmt(totRF);
+  $('cv-rv').textContent     = fmt(totRV);
+  $('cv-rf-pct').textContent = fmtPct(pctRF)+' da carteira';
+  $('cv-rv-pct').textContent = fmtPct(pctRV)+' da carteira';
+  $('donut-total-val').textContent = total>=1000 ? 'R$'+(total/1000).toFixed(0)+'k' : fmt(total);
+
+  // Data de atualização
+  const dataVal = $('cv-data').value;
+  $('cart-upd-txt').textContent = dataVal
+    ? 'Atualizado em: '+new Date(dataVal+'T12:00:00').toLocaleDateString('pt-BR')
+    : 'Não atualizado';
+
+  // Gráfico RF vs RV (donut)
+  const rfvrvData = { labels:['Renda Fixa','Renda Variável'], datasets:[{
+    data: [totRF, totRV],
+    backgroundColor: ['#3b82f6','#22c55e'],
+    borderColor: '#0f1117', borderWidth: 3,
+    hoverOffset: 8
+  }]};
+  if (!cartCharts.rfvrv) {
+    cartCharts.rfvrv = new Chart($('ch-rfvrv'), {
+      type:'doughnut', data: rfvrvData,
+      options:{ cutout:'68%', plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.raw)+' ('+fmtPct(total>0?c.raw/total*100:0)+')'}}} }
+    });
+  } else { cartCharts.rfvrv.data = rfvrvData; cartCharts.rfvrv.update(); }
+
+  // Legenda RF vs RV
+  const legItems = [
+    { label:'Renda Fixa',     val:totRF, pct:pctRF,  cor:'#3b82f6' },
+    { label:'Renda Variável', val:totRV, pct:pctRV, cor:'#22c55e' },
+  ];
+  $('rfvrv-legend').innerHTML = legItems.map(l => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div style="width:10px;height:10px;border-radius:2px;background:${l.cor};flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--tx)">${l.label}</div>
+        <div style="font-size:11px;color:var(--tx3)">${fmt(l.val)} · ${fmtPct(l.pct)}</div>
+      </div>
+    </div>`).join('');
+
+  // Tabela resumo por classe
+  $('resumo-classes').innerHTML = legItems.map(l=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--brd)">
+      <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:${l.cor}"></div><span style="font-size:13px;color:var(--tx2)">${l.label}</span></div>
+      <div style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--tx)">${fmt(l.val)}</div><div style="font-size:10px;color:var(--tx3)">${fmtPct(l.pct)}</div></div>
+    </div>`).join('');
+
+  // Atualiza detalhes se aba estiver visível
+  if ($('cart-detalhe').style.display !== 'none') renderDetalhes();
+  if ($('cart-metas').style.display   !== 'none') calcMetas();
+}
+
+function renderDetalhes() {
+  const { rf, rv, totRF, totRV } = getCarteiraVals();
+
+  // ── Donut RF ──
+  $('donut-rf-val').textContent = totRF>=1000?'R$'+(totRF/1000).toFixed(0)+'k':fmt(totRF);
+  const rfDetData = { labels: ATIVOS_RF.map(a=>a.label), datasets:[{
+    data: rf, backgroundColor: ATIVOS_RF.map(a=>a.cor),
+    borderColor:'#0f1117', borderWidth:3, hoverOffset:6
+  }]};
+  if (!cartCharts.rfDet) {
+    cartCharts.rfDet = new Chart($('ch-rf-det'), {
+      type:'doughnut', data: rfDetData,
+      options:{ cutout:'62%', plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.raw)+' ('+fmtPct(totRF>0?c.raw/totRF*100:0)+')'}}} }
+    });
+  } else { cartCharts.rfDet.data = rfDetData; cartCharts.rfDet.update(); }
+
+  // Legenda + barras RF
+  $('rf-det-legend').innerHTML = ATIVOS_RF.map((a,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">
+      <div style="width:8px;height:8px;border-radius:2px;background:${a.cor};flex-shrink:0"></div>
+      <div><div style="font-size:11px;color:var(--tx)">${a.label}</div>
+      <div style="font-size:10px;color:var(--tx3)">${fmt(rf[i])} · ${fmtPct(totRF>0?rf[i]/totRF*100:0)}</div></div>
+    </div>`).join('');
+  $('rf-det-bars').innerHTML = ATIVOS_RF.map((a,i)=>{
+    const pct = totRF>0 ? rf[i]/totRF*100 : 0;
+    return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:var(--tx2)">${a.label}</span><span style="color:${a.cor};font-weight:600">${fmtPct(pct)}</span></div><div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:${pct.toFixed(1)}%;background:${a.cor}"></div></div></div>`;
+  }).join('');
+
+  // ── Donut RV ──
+  $('donut-rv-val').textContent = totRV>=1000?'R$'+(totRV/1000).toFixed(0)+'k':fmt(totRV);
+  const rvDetData = { labels: ATIVOS_RV.map(a=>a.label), datasets:[{
+    data: rv, backgroundColor: ATIVOS_RV.map(a=>a.cor),
+    borderColor:'#0f1117', borderWidth:3, hoverOffset:6
+  }]};
+  if (!cartCharts.rvDet) {
+    cartCharts.rvDet = new Chart($('ch-rv-det'), {
+      type:'doughnut', data: rvDetData,
+      options:{ cutout:'62%', plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.raw)+' ('+fmtPct(totRV>0?c.raw/totRV*100:0)+')'}}} }
+    });
+  } else { cartCharts.rvDet.data = rvDetData; cartCharts.rvDet.update(); }
+
+  $('rv-det-legend').innerHTML = ATIVOS_RV.map((a,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">
+      <div style="width:8px;height:8px;border-radius:2px;background:${a.cor};flex-shrink:0"></div>
+      <div><div style="font-size:11px;color:var(--tx)">${a.label}</div>
+      <div style="font-size:10px;color:var(--tx3)">${fmt(rv[i])} · ${fmtPct(totRV>0?rv[i]/totRV*100:0)}</div></div>
+    </div>`).join('');
+  $('rv-det-bars').innerHTML = ATIVOS_RV.map((a,i)=>{
+    const pct = totRV>0 ? rv[i]/totRV*100 : 0;
+    return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:var(--tx2)">${a.label}</span><span style="color:${a.cor};font-weight:600">${fmtPct(pct)}</span></div><div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:${pct.toFixed(1)}%;background:${a.cor}"></div></div></div>`;
+  }).join('');
+}
+
+function calcMetas() {
+  const { rf, rv, totRF, totRV, total } = getCarteiraVals();
+  const metaRF   = parseFloat($('meta-rf').value)   || 0;
+  const metaRV   = parseFloat($('meta-rv').value)   || 0;
+  const desvMax  = parseFloat($('meta-desvio-max').value) || 5;
+
+  const metasRF = [
+    { id:'meta-caixa',    label:'Caixa',           val:rf[0], tot:totRF },
+    { id:'meta-reserva',  label:'Res. Emergência',  val:rf[1], tot:totRF },
+    { id:'meta-viagem',   label:'Viagem',           val:rf[2], tot:totRF },
+    { id:'meta-rf-aplic', label:'Aplic. RF',        val:rf[3], tot:totRF },
+  ];
+  const metasRV = [
+    { id:'meta-acoes',  label:'Ações',         val:rv[0], tot:totRV },
+    { id:'meta-fii',    label:'FIIs',          val:rv[1], tot:totRV },
+    { id:'meta-ext',    label:'Inv. Exterior', val:rv[2], tot:totRV },
+    { id:'meta-cripto', label:'Cripto',        val:rv[3], tot:totRV },
+  ];
+
+  function desvioStatus(atual, meta, tol) {
+    const diff = atual - meta;
+    if (Math.abs(diff) <= tol) return { cls:'d-ok',   icon:'✓', txt: diff===0?'Na meta':`${diff>0?'+':''}${diff.toFixed(1)}pp` };
+    if (Math.abs(diff) <= tol*2)return { cls:'d-warn', icon:'⚠', txt:`${diff>0?'+':''}${diff.toFixed(1)}pp` };
+    return { cls:'d-err', icon:'✕', txt:`${diff>0?'+':''}${diff.toFixed(1)}pp` };
+  }
+
+  function renderMetaItem(label, atualPct, metaPct, tol, cor) {
+    const s = desvioStatus(atualPct, metaPct, tol);
+    const barPct = Math.min(100, atualPct);
+    const metaMark = Math.min(100, metaPct);
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:12px;color:var(--tx2)">${label}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;color:var(--tx3)">Atual: ${fmtPct(atualPct)} · Meta: ${fmtPct(metaPct)}</span>
+          <span class="desvio-badge ${s.cls}">${s.icon} ${s.txt}</span>
+        </div>
+      </div>
+      <div style="position:relative;height:8px;background:var(--s2);border-radius:4px;overflow:visible">
+        <div style="width:${barPct.toFixed(1)}%;height:100%;background:${cor};border-radius:4px;opacity:0.85;transition:width .4s"></div>
+        <div style="position:absolute;top:-3px;left:${metaMark.toFixed(1)}%;width:2px;height:14px;background:rgba(255,255,255,0.5);border-radius:1px"></div>
+      </div>
+    </div>`;
+  }
+
+  // Situação macro RF vs RV
+  const atualRFpct = total>0?totRF/total*100:0;
+  const atualRVpct = total>0?totRV/total*100:0;
+  let painelHtml = `<div style="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Alocação macro</div>`;
+  painelHtml += renderMetaItem('Renda Fixa',     atualRFpct, metaRF, desvMax, '#3b82f6');
+  painelHtml += renderMetaItem('Renda Variável', atualRVpct, metaRV, desvMax, '#22c55e');
+
+  painelHtml += `<div class="div"></div><div style="font-size:10px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Renda Fixa — interno</div>`;
+  metasRF.forEach(m => {
+    const meta = parseFloat($(m.id).value)||0;
+    const atual = m.tot>0 ? m.val/m.tot*100 : 0;
+    painelHtml += renderMetaItem(m.label, atual, meta, desvMax, '#3b82f6');
+  });
+
+  painelHtml += `<div class="div"></div><div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Renda Variável — interno</div>`;
+  metasRV.forEach(m => {
+    const meta = parseFloat($(m.id).value)||0;
+    const atual = m.tot>0 ? m.val/m.tot*100 : 0;
+    painelHtml += renderMetaItem(m.label, atual, meta, desvMax, '#22c55e');
+  });
+
+  $('metas-painel').innerHTML = painelHtml;
+
+  // Gráfico de barras de desvio
+  const allLabels = ['RF','RV',...metasRF.map(m=>m.label),...metasRV.map(m=>m.label)];
+  const allMetas  = [metaRF, metaRV, ...metasRF.map(m=>parseFloat($(m.id).value)||0), ...metasRV.map(m=>parseFloat($(m.id).value)||0)];
+  const allAtuais = [atualRFpct, atualRVpct,
+    ...metasRF.map(m=>m.tot>0?m.val/m.tot*100:0),
+    ...metasRV.map(m=>m.tot>0?m.val/m.tot*100:0)
+  ];
+  const allDesvios = allAtuais.map((a,i)=>a-allMetas[i]);
+  const desvBgColors = allDesvios.map(d=>Math.abs(d)<=desvMax?'rgba(34,197,94,0.7)':Math.abs(d)<=desvMax*2?'rgba(251,191,36,0.7)':'rgba(239,68,68,0.7)');
+
+  const desvOpts = {...JSON.parse(JSON.stringify({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw>0?'+':'')+c.raw.toFixed(1)+'pp'}}},scales:{x:{ticks:{color:'#5a6077',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#5a6077',font:{size:10},callback:v=>v+'pp'},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.04)'}}}}})};
+
+  if (!cartCharts.desvio) {
+    cartCharts.desvio = new Chart($('ch-desvio-metas'), {
+      type:'bar',
+      data:{ labels:allLabels, datasets:[{ label:'Desvio (pp)', data:allDesvios, backgroundColor:desvBgColors, borderRadius:4, barThickness:16 }] },
+      options: desvOpts
+    });
+  } else {
+    cartCharts.desvio.data.labels = allLabels;
+    cartCharts.desvio.data.datasets[0].data = allDesvios;
+    cartCharts.desvio.data.datasets[0].backgroundColor = desvBgColors;
+    cartCharts.desvio.update();
+  }
+}
+
+function renderEvolucao() {
+  const snaps = carteiraSnapshots;
+  const labels = snaps.map(s => s.dataLabel);
+  const totais = snaps.map(s => s.total);
+  const rfs    = snaps.map(s => s.totRF);
+  const rvs    = snaps.map(s => s.totRV);
+
+  const evoOpts = { responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1e2535', titleColor:'#e8eaf0', bodyColor:'#8b92a8', borderColor:'rgba(255,255,255,.1)', borderWidth:1, padding:9, callbacks:{label:c=>' '+c.dataset.label+': '+fmt(c.parsed.y)} } },
+    scales:{ x:{ticks:{color:'#5a6077',font:{size:10},autoSkip:false},grid:{color:'rgba(255,255,255,.05)'},border:{color:'rgba(255,255,255,.04)'}}, y:{ticks:{color:'#5a6077',font:{size:10},callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.05)'},border:{color:'rgba(255,255,255,.04)'}} }
+  };
+
+  if (!cartCharts.evolucao) {
+    cartCharts.evolucao = new Chart($('ch-evolucao'), {
+      type:'line',
+      data:{ labels, datasets:[
+        { label:'Patrimônio total', data:totais, borderColor:'#d4a843', backgroundColor:'rgba(212,168,67,0.06)', borderWidth:2, pointRadius:4, pointBackgroundColor:'#d4a843', pointBorderColor:'#0f1117', pointBorderWidth:2, tension:0.35, fill:true },
+        { label:'Renda Fixa',       data:rfs,    borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.05)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#3b82f6', pointBorderColor:'#0f1117', pointBorderWidth:2, tension:0.35, fill:false },
+        { label:'Renda Variável',   data:rvs,    borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.05)',  borderWidth:2, pointRadius:3, pointBackgroundColor:'#22c55e', pointBorderColor:'#0f1117', pointBorderWidth:2, tension:0.35, fill:false },
+      ]},
+      options: evoOpts
+    });
+  } else {
+    cartCharts.evolucao.data.labels = labels;
+    cartCharts.evolucao.data.datasets[0].data = totais;
+    cartCharts.evolucao.data.datasets[1].data = rfs;
+    cartCharts.evolucao.data.datasets[2].data = rvs;
+    cartCharts.evolucao.update();
+  }
+
+  if (snaps.length === 0) {
+    $('tbl-snapshots').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:20px">Nenhum snapshot salvo ainda. Preencha os valores e clique em "Salvar snapshot".</td></tr>';
+    return;
+  }
+  $('tbl-snapshots').innerHTML = [...snaps].reverse().map(s=>`
+    <tr>
+      <td style="color:var(--tx);font-weight:500">${s.dataLabel}</td>
+      <td class="r" style="color:var(--gold)">${fmt(s.total)}</td>
+      <td class="r" style="color:#3b82f6">${fmt(s.totRF)}</td>
+      <td class="r" style="color:var(--tx3)">${fmtPct(s.total>0?s.totRF/s.total*100:0)}</td>
+      <td class="r" style="color:#22c55e">${fmt(s.totRV)}</td>
+      <td class="r" style="color:var(--tx3)">${fmtPct(s.total>0?s.totRV/s.total*100:0)}</td>
+    </tr>`).join('');
+}
+
+async function salvarCarteira() {
+  const { rf, rv, totRF, totRV, total } = getCarteiraVals();
+  const dataVal = $('cv-data').value;
+  if (!dataVal) { showNotif('Defina a data antes de salvar', 'err'); return; }
+  const dataLabel = new Date(dataVal+'T12:00:00').toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+  const snap = {
+    dataLabel, dataRaw:dataVal, total, totRF, totRV,
+    caixa:rf[0], reserva:rf[1], viagem:rf[2], rfAplic:rf[3],
+    acoes:rv[0], fii:rv[1], ext:rv[2], cripto:rv[3]
+  };
+
+  // Atualiza lista local
+  const idx = carteiraSnapshots.findIndex(s => s.dataRaw === dataVal);
+  if (idx >= 0) carteiraSnapshots[idx] = snap; else carteiraSnapshots.push(snap);
+  carteiraSnapshots.sort((a,b) => a.dataRaw.localeCompare(b.dataRaw));
+
+  if ($('cart-evolucao').style.display !== 'none') renderEvolucao();
+  showNotif('Salvando no Google Sheets…');
+
+  // Sincroniza com Sheets
+  try {
+    setSyncStatus('Sincronizando…', 'wait');
+    await apiPost({ action: 'salvarSnapshot', data: snap });
+    setSyncStatus('Salvo no Sheets ✓', 'ok');
+    showNotif('Snapshot salvo no Sheets ✓');
+  } catch(e) {
+    setSyncStatus('Erro no Sheets', 'err');
+    showNotif('Erro ao salvar: '+e.message, 'err');
+  }
+}
+
+function replicarUltimo() {
+  if (carteiraSnapshots.length === 0) { showNotif('Nenhum snapshot anterior', 'err'); return; }
+  const last = carteiraSnapshots[carteiraSnapshots.length - 1];
+  ATIVOS_RF.forEach((a,i) => $(a.id).value = [last.caixa, last.reserva, last.viagem, last.rfAplic][i] || 0);
+  ATIVOS_RV.forEach((a,i) => $(a.id).value = [last.acoes, last.fii, last.ext, last.cripto][i] || 0);
+  // Avança a data para o mês seguinte ao último snapshot
+  const lastDate  = new Date(last.dataRaw + 'T12:00:00');
+  lastDate.setMonth(lastDate.getMonth() + 1);
+  $('cv-data').value = lastDate.toISOString().split('T')[0];
+  calcCarteira();
+  showNotif('Replicado do último snapshot — ajuste os valores e salve ✓');
+}
+
+async function carregarCarteiraDoSheets() {
+  const url = getScriptUrl();
+  if (!url) return;
+  try {
+    const res = await apiPost({ action: 'buscarSnapshots' });
+    if (!res.dados || res.dados.length === 0) return;
+    carteiraSnapshots = res.dados.map(row => {
+      const caixa   = parseFloat(row['Caixa'])    || 0;
+      const reserva = parseFloat(row['Reserva'])  || 0;
+      const viagem  = parseFloat(row['Viagem'])   || 0;
+      const rfAplic = parseFloat(row['RF Aplic']) || 0;
+      const acoes   = parseFloat(row['Ações'])    || 0;
+      const fii     = parseFloat(row['FIIs'])     || 0;
+      const ext     = parseFloat(row['Exterior']) || 0;
+      const cripto  = parseFloat(row['Cripto'])   || 0;
+      const totRF   = caixa + reserva + viagem + rfAplic;
+      const totRV   = acoes + fii + ext + cripto;
+      const total   = totRF + totRV;
+      const dataRaw = row['Data'] || '';
+      const dataLabel = dataRaw
+        ? new Date(dataRaw+'T12:00:00').toLocaleDateString('pt-BR',{month:'short',year:'2-digit'})
+        : row['Data Label'] || dataRaw;
+      return { dataRaw, dataLabel, total, totRF, totRV, caixa, reserva, viagem, rfAplic, acoes, fii, ext, cripto };
+    }).sort((a,b) => a.dataRaw.localeCompare(b.dataRaw));
+
+    // Carrega último snapshot nos campos
+    if (carteiraSnapshots.length > 0) {
+      const last = carteiraSnapshots[carteiraSnapshots.length - 1];
+      ATIVOS_RF.forEach((a,i) => $(a.id).value = [last.caixa, last.reserva, last.viagem, last.rfAplic][i] || 0);
+      ATIVOS_RV.forEach((a,i) => $(a.id).value = [last.acoes, last.fii, last.ext, last.cripto][i] || 0);
+      $('cv-data').value = last.dataRaw;
+      calcCarteira();
+    }
+  } catch(e) {
+    console.warn('Carteira offline:', e.message);
+  }
+}
+
+function carregarMetasLocal() {
+  const metas = localStorage.getItem('fintrack_carteira_metas');
+  if (metas) {
+    const m = JSON.parse(metas);
+    Object.keys(m).forEach(k => { if($(k)) $(k).value = m[k]; });
+  }
+}
+
+// Persiste metas no localStorage ao editar
+const META_IDS = ['meta-rf','meta-rv','meta-desvio-max','meta-caixa','meta-reserva','meta-viagem','meta-rf-aplic','meta-acoes','meta-fii','meta-ext','meta-cripto'];
+function salvarMetasLocal() {
+  const obj = {};
+  META_IDS.forEach(id => obj[id] = $(id) ? $(id).value : '');
+  localStorage.setItem('fintrack_carteira_metas', JSON.stringify(obj));
+}
+META_IDS.forEach(id => {
+  // Registra listener após DOM pronto
+  setTimeout(() => { const el=$(id); if(el) el.addEventListener('input', salvarMetasLocal); }, 100);
+});
+
+// ─────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────
 carregarConfigLocal();
+carregarMetasLocal();
 calcC();
 loadMes(currentMes);
+calcCarteira();
 carregarDoSheets();
+carregarCarteiraDoSheets();
 </script>
 </body>
 </html>
