@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Fintrack v2.4 -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -826,15 +827,22 @@ async function testarConexao() {
 // ─────────────────────────────────────────────
 const pages = ['calc','mensal','hist','anual','cfg','carteira'];
 function go(p) {
+  // Esconde todas as páginas e desativa todos os nav items
   pages.forEach(x => {
-    const pg = $('page-'+x);
-    if (pg) pg.classList.toggle('active', x===p);
-    const n = $('nav-'+x);
-    if (n) n.classList.toggle('active', x===p);
+    const pg = document.getElementById('page-'+x);
+    if (pg) { pg.classList.remove('active'); }
+    const nav = document.getElementById('nav-'+x);
+    if (nav) { nav.classList.remove('active'); }
   });
-  if (p === 'hist') renderHist();
-  if (p === 'carteira') calcCarteira();
-  // fecha sidebar no mobile
+  // Ativa a página e nav item selecionados
+  const target = document.getElementById('page-'+p);
+  if (target) target.classList.add('active');
+  const navTarget = document.getElementById('nav-'+p);
+  if (navTarget) navTarget.classList.add('active');
+  // Callbacks específicos por página
+  if (p === 'hist') { try { renderHist(); } catch(e){} }
+  if (p === 'carteira') { try { calcCarteira(); } catch(e){} }
+  // Fecha sidebar no mobile
   const sb = document.getElementById('sidebar');
   const ov = document.getElementById('overlay');
   if (sb) sb.classList.remove('open');
