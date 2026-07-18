@@ -855,12 +855,16 @@ function toggleSidebar() {
 }
 
 function syncS(iid, sid) {
-  const s = $(sid); $(iid).value = s.value;
-  $(sid+'v').textContent = parseFloat(s.value).toFixed(sid === 'c_cdi_s' ? 2 : 0);
+  const s = $(sid); if (!s) return;
+  const inp = $(iid); if (!inp) return;
+  inp.value = s.value;
+  const sv = $(sid+'v'); if (sv) sv.textContent = parseFloat(s.value).toFixed(sid === 'c_cdi_s' ? 2 : 0);
 }
 function syncI(iid, sid) {
-  const i = $(iid), s = $(sid); s.value = i.value;
-  $(sid+'v').textContent = parseFloat(i.value).toFixed(sid === 'c_cdi_s' ? 2 : 0);
+  const i = $(iid); if (!i) return;
+  const s = $(sid); if (!s) return;
+  s.value = i.value;
+  const sv = $(sid+'v'); if (sv) sv.textContent = parseFloat(i.value).toFixed(sid === 'c_cdi_s' ? 2 : 0);
 }
 
 // ─────────────────────────────────────────────
@@ -1045,6 +1049,7 @@ function showTab(t) {
 }
 
 function calcF() {
+  if (!$('fe_sal')) return; // elementos do fechamento não carregaram ainda
   const sal   = parseFloat($('m_sal').value)  || 0;
   const pct   = parseInt($('m_pct_s').value)  || 0;
   const metaSaving = Math.round(sal * (pct / 100));
@@ -1382,6 +1387,7 @@ function getCarteiraVals() {
 function fmtPct(v) { return v.toFixed(1)+'%'; }
 
 function calcCarteira() {
+  if (!$('ch-rfvrv')) return; // canvas não existe ainda, aborta
   const { rf, rv, totRF, totRV, total } = getCarteiraVals();
   const pctRF = total>0 ? totRF/total*100 : 0;
   const pctRV = total>0 ? totRV/total*100 : 0;
@@ -1741,7 +1747,7 @@ try { carregarConfigLocal(); } catch(e) { console.warn('carregarConfigLocal:', e
 try { carregarMetasLocal();  } catch(e) { console.warn('carregarMetasLocal:', e); }
 try { calcC();               } catch(e) { console.warn('calcC:', e); }
 try { loadMes(currentMes);   } catch(e) { console.warn('loadMes:', e); }
-try { calcCarteira();        } catch(e) { console.warn('calcCarteira:', e); }
+// calcCarteira só roda quando o utilizador navega para a aba Carteira
 try { carregarDoSheets();    } catch(e) { console.warn('carregarDoSheets:', e); }
 try { carregarCarteiraDoSheets(); } catch(e) { console.warn('carregarCarteiraDoSheets:', e); }
 </script>
