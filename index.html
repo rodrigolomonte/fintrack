@@ -827,13 +827,18 @@ async function testarConexao() {
 const pages = ['calc','mensal','hist','anual','cfg','carteira'];
 function go(p) {
   pages.forEach(x => {
-    $('page-'+x).classList.toggle('active', x===p);
-    const n = $('nav-'+x); if(n) n.classList.toggle('active', x===p);
+    const pg = $('page-'+x);
+    if (pg) pg.classList.toggle('active', x===p);
+    const n = $('nav-'+x);
+    if (n) n.classList.toggle('active', x===p);
   });
   if (p === 'hist') renderHist();
+  if (p === 'carteira') calcCarteira();
   // fecha sidebar no mobile
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('show');
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  if (sb) sb.classList.remove('open');
+  if (ov) ov.classList.remove('show');
 }
 
 function toggleSidebar() {
@@ -862,30 +867,32 @@ function togCB(on) {
   $('cb_box').style.display = on ? 'block' : 'none';
   calcC();
 }
+function set$(id, prop, val) { const el=$( id); if(el) el[prop]=val; }
 function calcC() {
+  if (!$('c_preco')) return; // página não carregou ainda
   const p = parseFloat($('c_preco').value)||0, d = parseFloat($('c_desc').value)||0;
   const n = parseInt($('c_parc').value)||12, r = parseFloat($('c_cdi').value)||0.91;
   const cb = cbOn ? (parseFloat($('c_cb').value)||0) : 0;
   const av = p*(1-d/100), rend = p*(Math.pow(1+r/100,n)-1);
   const cashback = p*(cb/100), ef = p-rend-cashback, dif = av-ef;
-  $('r_av').textContent = fmt(av); $('r_av_s').textContent = d+'% desconto';
-  $('r_parc').textContent = fmt(p); $('r_parc_s').textContent = n+'x '+fmt(p/n);
-  $('r_rend').textContent = fmt(rend); $('r_rend_s').textContent = 'por '+n+' meses';
-  $('r_ef').textContent = fmt(ef);
-  $('r_ef_s').textContent = (dif>=0?'Economiza ':'Perde ')+fmt(Math.abs(dif))+' vs. à vista';
-  if(cbOn) $('r_cb').textContent = fmt(cashback);
+  set$('r_av','textContent',fmt(av)); set$('r_av_s','textContent',d+'% desconto');
+  set$('r_parc','textContent',fmt(p)); set$('r_parc_s','textContent',n+'x '+fmt(p/n));
+  set$('r_rend','textContent',fmt(rend)); set$('r_rend_s','textContent','por '+n+' meses');
+  set$('r_ef','textContent',fmt(ef));
+  set$('r_ef_s','textContent',(dif>=0?'Economiza ':'Perde ')+fmt(Math.abs(dif))+' vs. à vista');
+  if(cbOn && $('r_cb')) $('r_cb').textContent = fmt(cashback);
   const par = ef < av;
-  $('r_vrd').className = 'vrd '+(par?'win':'neu');
-  $('v_ic').textContent = par?'✅':'💰';
-  $('v_t').textContent = par?'Parcelar vale mais':'À vista é melhor';
-  $('v_s').textContent = par ? `CDI${cbOn?'+cashback':''} compensa — economia de ${fmt(Math.abs(dif))}` : `Desconto compensa — economia de ${fmt(Math.abs(dif))}`;
+  if($('r_vrd')) $('r_vrd').className = 'vrd '+(par?'win':'neu');
+  set$('v_ic','textContent',par?'✅':'💰');
+  set$('v_t','textContent',par?'Parcelar vale mais':'À vista é melhor');
+  set$('v_s','textContent',par ? `CDI${cbOn?'+cashback':''} compensa — economia de ${fmt(Math.abs(dif))}` : `Desconto compensa — economia de ${fmt(Math.abs(dif))}`);
   let bars=''; const show = Math.min(n,6);
   for(let i=1;i<=show;i++){
     const rd=p*(Math.pow(1+r/100,i)-1), pct=Math.min(100,(rd/p)*1000);
     bars+=`<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px"><span style="font-size:10px;color:var(--tx3);min-width:26px">M${i}</span><div style="flex:1;height:5px;background:var(--s2);border-radius:3px;overflow:hidden"><div style="width:${pct.toFixed(1)}%;height:100%;background:var(--gold);border-radius:3px"></div></div><span style="font-size:10px;color:var(--gold);min-width:56px;text-align:right">${fmt(rd)}</span></div>`;
   }
   if(n>6) bars+=`<div style="font-size:10px;color:var(--tx3);text-align:center;margin-top:3px">+${n-6} meses restantes</div>`;
-  $('tl_bars').innerHTML = bars;
+  set$('tl_bars','innerHTML',bars);
 }
 
 // ─────────────────────────────────────────────
@@ -1722,13 +1729,13 @@ META_IDS.forEach(id => {
 // ─────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────
-carregarConfigLocal();
-carregarMetasLocal();
-calcC();
-loadMes(currentMes);
-calcCarteira();
-carregarDoSheets();
-carregarCarteiraDoSheets();
+try { carregarConfigLocal(); } catch(e) { console.warn('carregarConfigLocal:', e); }
+try { carregarMetasLocal();  } catch(e) { console.warn('carregarMetasLocal:', e); }
+try { calcC();               } catch(e) { console.warn('calcC:', e); }
+try { loadMes(currentMes);   } catch(e) { console.warn('loadMes:', e); }
+try { calcCarteira();        } catch(e) { console.warn('calcCarteira:', e); }
+try { carregarDoSheets();    } catch(e) { console.warn('carregarDoSheets:', e); }
+try { carregarCarteiraDoSheets(); } catch(e) { console.warn('carregarCarteiraDoSheets:', e); }
 </script>
 </body>
 </html>
