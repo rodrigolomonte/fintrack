@@ -182,7 +182,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .gauge-bar-fill{height:100%;border-radius:3px;transition:width .5s}
 .meta-indicator{display:flex;align-items:center;gap:6px;font-size:10px}
 .meta-ok{color:var(--green)}.meta-warn{color:var(--gold)}.meta-err{color:var(--red)}
-.donut-wrap{position:relative;width:160px;height:160px;flex-shrink:0}
+.donut-wrap{position:relative;width:160px;height:160px;flex-shrink:0;overflow:visible}
 .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .donut-center .val{font-size:15px;font-weight:700;color:var(--tx)}
 .donut-center .lbl{font-size:9px;color:var(--tx3);margin-top:1px}
@@ -618,8 +618,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
             <div class="ct"><i class="ti ti-chart-donut-3"></i> Detalhamento — Renda Fixa</div>
             <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Distribuição interna dos ativos de RF</div>
             <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px">
-              <div class="donut-wrap" style="width:140px;height:140px">
-                <canvas id="ch-rf-det"></canvas>
+              <div class="donut-wrap" style="width:140px;height:140px;overflow:visible">
+                <canvas id="ch-rf-det" style="overflow:visible"></canvas>
                 <div class="donut-center"><div class="val" id="donut-rf-val">R$ 0</div><div class="lbl">Renda Fixa</div></div>
               </div>
               <div style="flex:1" id="rf-det-legend"></div>
@@ -630,8 +630,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
             <div class="ct"><i class="ti ti-chart-donut-3"></i> Detalhamento — Renda Variável</div>
             <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Distribuição interna dos ativos de RV</div>
             <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px">
-              <div class="donut-wrap" style="width:140px;height:140px">
-                <canvas id="ch-rv-det"></canvas>
+              <div class="donut-wrap" style="width:140px;height:140px;overflow:visible">
+                <canvas id="ch-rv-det" style="overflow:visible"></canvas>
                 <div class="donut-center"><div class="val" id="donut-rv-val">R$ 0</div><div class="lbl">Renda Var.</div></div>
               </div>
               <div style="flex:1" id="rv-det-legend"></div>
@@ -1450,6 +1450,26 @@ function calcCarteira() {
   if ($('cart-metas').style.display   !== 'none') calcMetas();
 }
 
+// Tooltip externo para donuts — evita corte pelo canvas
+function externalTooltip(context, totalVal) {
+  const { chart, tooltip } = context;
+  let el = document.getElementById('donut-tooltip-ext');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'donut-tooltip-ext';
+    el.style.cssText = 'position:fixed;background:#1e2535;border:0.5px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;font-size:12px;color:#e8eaf0;pointer-events:none;z-index:9999;transition:opacity .15s;white-space:nowrap';
+    document.body.appendChild(el);
+  }
+  if (tooltip.opacity === 0) { el.style.opacity = '0'; return; }
+  const dp = tooltip.dataPoints[0];
+  const pct = totalVal > 0 ? (dp.raw / totalVal * 100).toFixed(1) : '0';
+  el.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${dp.label}</div><div style="color:#8b92a8">R$ ${dp.raw.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${pct}%</div>`;
+  const rect = chart.canvas.getBoundingClientRect();
+  el.style.left = (rect.left + tooltip.caretX + 12) + 'px';
+  el.style.top  = (rect.top  + tooltip.caretY - 20) + 'px';
+  el.style.opacity = '1';
+}
+
 function renderDetalhes() {
   const { rf, rv, totRF, totRV } = getCarteiraVals();
 
@@ -1462,7 +1482,7 @@ function renderDetalhes() {
   if (!cartCharts.rfDet) {
     cartCharts.rfDet = new Chart($('ch-rf-det'), {
       type:'doughnut', data: rfDetData,
-      options:{ cutout:'62%', layout:{padding:10}, plugins:{legend:{display:false},tooltip:{position:'nearest',callbacks:{label:c=>c.label+': '+fmt(c.raw)+' ('+fmtPct(totRF>0?c.raw/totRF*100:0)+')'}}} }
+      options:{ cutout:'62%', layout:{padding:20}, plugins:{ legend:{display:false}, tooltip:{ enabled:false, external: ctx => externalTooltip(ctx, totRF) } } }
     });
   } else { cartCharts.rfDet.data = rfDetData; cartCharts.rfDet.update(); }
 
@@ -1487,7 +1507,7 @@ function renderDetalhes() {
   if (!cartCharts.rvDet) {
     cartCharts.rvDet = new Chart($('ch-rv-det'), {
       type:'doughnut', data: rvDetData,
-      options:{ cutout:'62%', layout:{padding:10}, plugins:{legend:{display:false},tooltip:{position:'nearest',callbacks:{label:c=>c.label+': '+fmt(c.raw)+' ('+fmtPct(totRV>0?c.raw/totRV*100:0)+')'}}} }
+      options:{ cutout:'62%', layout:{padding:20}, plugins:{ legend:{display:false}, tooltip:{ enabled:false, external: ctx => externalTooltip(ctx, totRV) } } }
     });
   } else { cartCharts.rvDet.data = rvDetData; cartCharts.rvDet.update(); }
 
