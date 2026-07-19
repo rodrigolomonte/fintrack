@@ -1577,7 +1577,17 @@ function calcMetas() {
   const allDesvios = allAtuais.map((a,i)=>a-allMetas[i]);
   const desvBgColors = allDesvios.map(d=>Math.abs(d)<=desvMax?'rgba(34,197,94,0.7)':Math.abs(d)<=desvMax*2?'rgba(251,191,36,0.7)':'rgba(239,68,68,0.7)');
 
-  const desvOpts = {...JSON.parse(JSON.stringify({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw>0?'+':'')+c.raw.toFixed(1)+'pp'}}},scales:{x:{ticks:{color:'#5a6077',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#5a6077',font:{size:10},callback:v=>v+'pp'},grid:{color:'rgba(255,255,255,0.05)'},border:{color:'rgba(255,255,255,0.04)'}}}}})};
+  const desvOpts = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => c.dataset.label + ': ' + (c.raw > 0 ? '+' : '') + c.raw.toFixed(1) + 'pp' } }
+    },
+    scales: {
+      x: { ticks: { color: '#5a6077', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' }, border: { color: 'rgba(255,255,255,0.04)' } },
+      y: { ticks: { color: '#5a6077', font: { size: 10 }, callback: v => v + 'pp' }, grid: { color: 'rgba(255,255,255,0.05)' }, border: { color: 'rgba(255,255,255,0.04)' } }
+    }
+  };;
 
   if (!cartCharts.desvio) {
     cartCharts.desvio = new Chart($('ch-desvio-metas'), {
