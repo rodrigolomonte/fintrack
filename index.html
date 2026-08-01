@@ -55,8 +55,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .main{overflow-y:auto;overflow-x:hidden;background:var(--bg);height:100vh;min-width:0;width:100%}
 .main::-webkit-scrollbar{width:3px}
 .main::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:2px}
-.page{display:none;padding:20px;width:100%;box-sizing:border-box}
-.page.active{display:block}
+.page{padding:20px;width:100%;box-sizing:border-box}
+.page.active{}
 .ph{margin-bottom:18px}
 .ph h1{font-size:19px;font-weight:600;letter-spacing:-.4px}
 .ph p{font-size:12px;color:var(--tx2);margin-top:3px}
@@ -286,7 +286,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
   <div class="main">
 
     <!-- ======= CALCULADORA ======= -->
-    <div class="page active" id="page-calc">
+    <div class="page" id="page-calc">
       <div class="ph"><h1>Calculadora de compras</h1><p>Compare à vista vs. parcelado considerando CDI e cashback</p></div>
       <div class="g2" style="align-items:start;gap:16px">
         <div style="display:flex;flex-direction:column;gap:14px">
@@ -1028,12 +1028,12 @@ const pages = ['calc','mensal','hist','carteira','plano','lista','anual','cfg'];
 function go(p) {
   pages.forEach(x => {
     const pg = document.getElementById('page-'+x);
-    if (pg) pg.classList.remove('active');
+    if (pg) pg.style.display = 'none';
     const nav = document.getElementById('nav-'+x);
     if (nav) nav.classList.remove('active');
   });
   const target = document.getElementById('page-'+p);
-  if (target) target.classList.add('active');
+  if (target) target.style.display = 'block';
   const navTarget = document.getElementById('nav-'+p);
   if (navTarget) navTarget.classList.add('active');
   if (p === 'hist')     { try { renderHist();        } catch(e){} }
@@ -2582,6 +2582,13 @@ function lcSetFiltro(cat) { lcFiltroAtivo = cat; renderListaCompras(); }
 // ─────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────
+// Inicializar visibilidade — esconde todas, mostra só calc
+pages.forEach(x => {
+  const pg = document.getElementById('page-'+x);
+  if (pg) pg.style.display = x === 'calc' ? 'block' : 'none';
+});
+document.getElementById('nav-calc').classList.add('active');
+
 try { carregarConfigLocal();      } catch(e) { console.warn('carregarConfigLocal:', e); }
 try { carregarMetasLocal();       } catch(e) { console.warn('carregarMetasLocal:', e); }
 try { carregarPlanoLocal();       } catch(e) { console.warn('carregarPlanoLocal:', e); }
