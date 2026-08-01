@@ -24,7 +24,7 @@
   --sidebar-w:216px
 }
 html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--tx);margin:0;padding:0}
-.app{display:flex;flex-direction:row;height:100vh;width:100vw;overflow:hidden;position:fixed;top:0;left:0}
+.app{display:flex;flex-direction:row;height:100vh;overflow:hidden}
 
 /* ── SIDEBAR ── */
 .sidebar{
@@ -55,8 +55,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .main{flex:1;flex-shrink:1;overflow-y:auto;overflow-x:hidden;background:var(--bg);min-width:0;height:100vh}
 .main::-webkit-scrollbar{width:3px}
 .main::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:2px}
-.page{display:none;padding:24px;width:100%;max-width:1100px;min-height:100vh;box-sizing:border-box}
-.page.active{display:block}
+.page{display:none !important;padding:24px;width:100%;max-width:1100px;min-height:100vh;box-sizing:border-box}
+.page.active{display:block !important}
 .ph{margin-bottom:18px}
 .ph h1{font-size:19px;font-weight:600;letter-spacing:-.4px}
 .ph p{font-size:12px;color:var(--tx2);margin-top:3px}
@@ -1028,20 +1028,20 @@ function go(p) {
   // Esconde todas as páginas e desativa todos os nav items
   pages.forEach(x => {
     const pg = document.getElementById('page-'+x);
-    if (pg) { pg.classList.remove('active'); }
+    if (pg) { pg.classList.remove('active'); pg.style.display = 'none'; }
     const nav = document.getElementById('nav-'+x);
     if (nav) { nav.classList.remove('active'); }
   });
   // Ativa a página e nav item selecionados
   const target = document.getElementById('page-'+p);
-  if (target) target.classList.add('active');
+  if (target) { target.classList.add('active'); target.style.display = 'block'; }
   const navTarget = document.getElementById('nav-'+p);
   if (navTarget) navTarget.classList.add('active');
   // Callbacks específicos por página
-  if (p === 'hist')     { try { renderHist();      } catch(e){} }
-  if (p === 'carteira') { try { calcCarteira();    } catch(e){} }
+  if (p === 'hist')     { try { renderHist();        } catch(e){} }
+  if (p === 'carteira') { try { calcCarteira();      } catch(e){} }
   if (p === 'plano')    { try { renderPlanoPainel(); } catch(e){} }
-  if (p === 'lista')    { try { renderListaCompras(); } catch(e){} }
+  if (p === 'lista')    { try { renderListaCompras();} catch(e){} }
   // Fecha sidebar no mobile
   const sb = document.getElementById('sidebar');
   const ov = document.getElementById('overlay');
