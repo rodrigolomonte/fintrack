@@ -220,6 +220,21 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .tbl-scroll{overflow-x:auto;border-radius:var(--r);border:0.5px solid var(--brd);background:var(--s1)}
 .p-section{font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin:16px 0 10px}
 .p-section:first-child{margin-top:0}
+/* ── LISTA DE COMPRAS ── */
+.lc-item{display:grid;grid-template-columns:20px 1fr auto auto auto;align-items:center;gap:10px;padding:11px 14px;background:var(--s2);border-radius:8px;border:0.5px solid var(--brd);margin-bottom:8px;transition:all .2s}
+.lc-item.comprado{opacity:.5}
+.lc-item.comprado .lc-nome{text-decoration:line-through;color:var(--tx3)}
+.lc-check{width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.lc-nome{font-size:13px;color:var(--tx);font-weight:500}
+.lc-meta{font-size:10px;color:var(--tx3);margin-top:2px}
+.lc-valor{font-size:13px;font-weight:600;color:var(--gold);white-space:nowrap}
+.lc-del{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:15px;padding:3px 7px;border-radius:5px;transition:all .15s;line-height:1}
+.lc-del:hover{background:var(--redd);color:var(--red)}
+.lc-cat-badge{font-size:10px;padding:2px 7px;border-radius:7px;font-weight:600;white-space:nowrap}
+.lc-total-bar{background:var(--goldd2);border:0.5px solid rgba(212,168,67,.25);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.lc-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.lc-fbtn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:0.5px solid var(--brd2);background:var(--s2);color:var(--tx2);font-family:var(--font);transition:all .15s}
+.lc-fbtn.active{background:var(--goldd);color:var(--gold);border-color:rgba(212,168,67,.3)}
 @media(max-width:700px){
   .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:100;transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
@@ -252,7 +267,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <div class="nav-item" id="nav-mensal" onclick="go('mensal')"><i class="ti ti-calendar-month"></i> Controle mensal <span class="nav-badge" id="nb-mes">Jun</span></div>
     <div class="nav-item" id="nav-hist" onclick="go('hist')"><i class="ti ti-chart-line"></i> Histórico <span class="nav-badge new" id="nb-hist">0</span></div>
     <div class="nav-item" id="nav-carteira" onclick="go('carteira')"><i class="ti ti-briefcase"></i> Carteira</div>
-    <div class="nav-item" id="nav-plano" onclick="go('plano')"><i class="ti ti-road"></i> Plano de recuperação</div>
+    <div class="nav-item" id="nav-plano" onclick="go('plano')"><i class="ti ti-wallet"></i> Meu orçamento</div>
+    <div class="nav-item" id="nav-lista" onclick="go('lista')"><i class="ti ti-shopping-bag"></i> Lista de compras</div>
     <div class="nav-item" id="nav-anual" onclick="go('anual')"><i class="ti ti-trending-up"></i> Visão anual <span class="nav-badge">Em breve</span></div>
     <div class="nav-sec">Conta</div>
     <div class="nav-item" id="nav-cfg" onclick="go('cfg')"><i class="ti ti-settings"></i> Configurações</div>
@@ -738,8 +754,9 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <!-- ======= PLANO DE RECUPERAÇÃO ======= -->
     <div class="page" id="page-plano">
       <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
-        <div><h1>Plano de recuperação</h1><p>Fluxo de caixa mês a mês — Fase 1 (Recuperação) e Fase 2 (Estabilização)</p></div>
-        <div style="display:flex;gap:8px">
+        <div><h1>Meu orçamento</h1><p>Fluxo de caixa mensal — planejamento e acompanhamento financeiro</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="adicionarMes()"><i class="ti ti-calendar-plus"></i>Adicionar mês</button>
           <button class="btn btn-gold btn-sm" onclick="salvarPlano()"><i class="ti ti-device-floppy"></i>Salvar</button>
         </div>
       </div>
@@ -752,19 +769,40 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <!-- ── ABA PAINEL ── -->
       <div id="plano-painel">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px" id="plano-kpis"></div>
-        <div class="g2" style="gap:14px;margin-bottom:14px">
-          <div class="card">
-            <div class="ct"><i class="ti ti-calendar-event"></i> Mês atual — <span id="plano-mes-label">Ago/26</span></div>
-            <div id="plano-mes-detalhe"></div>
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;margin-bottom:14px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-calendar-event"></i> Mês atual — <span id="plano-mes-label">Ago/26</span></div>
+              <div id="plano-mes-detalhe"></div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-chart-line"></i> Evolução — Livre e Investimento</div>
+              <div class="leg" style="margin-bottom:8px">
+                <span class="leg-i"><span class="leg-d" style="background:#22c55e"></span>Livre</span>
+                <span class="leg-i"><span class="leg-d" style="background:#d4a843"></span>Investimento</span>
+              </div>
+              <div style="position:relative;height:190px"><canvas id="ch-plano-evolucao"></canvas></div>
+            </div>
           </div>
-          <div class="card">
-            <div class="ct"><i class="ti ti-chart-line"></i> Evolução do Livre e Investimento</div>
-            <div style="position:relative;height:200px"><canvas id="ch-plano-evolucao"></canvas></div>
+          <!-- Painel lateral direito -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-road"></i> Progresso do plano</div>
+              <div id="plano-progresso"></div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-info-circle"></i> Legenda</div>
+              <div style="font-size:11px;color:var(--tx2);line-height:1.8">
+                <div><span style="color:var(--gold);font-weight:600">Fase 1</span> — Recuperação: meses mais apertados, foco em zerar dívidas</div>
+                <div><span style="color:var(--green);font-weight:600">Fase 2</span> — Estabilização: investimento pleno e caixinha de viagem</div>
+                <div style="margin-top:8px;color:var(--tx3)">Campos <span style="color:#93c5fd">azuis</span> na aba "Plano completo" são editáveis — ajuste os valores reais mês a mês</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-calendar-stats"></i> Meses cadastrados</div>
+              <div id="plano-meses-lista"></div>
+            </div>
           </div>
-        </div>
-        <div class="card">
-          <div class="ct"><i class="ti ti-road"></i> Progresso do plano</div>
-          <div id="plano-progresso"></div>
         </div>
       </div>
 
@@ -772,7 +810,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <div id="plano-tabela" style="display:none">
         <div style="font-size:11px;color:var(--tx2);margin-bottom:12px">
           Campos em <span style="color:#93c5fd;font-weight:600">azul</span> são editáveis — preencha com os valores reais do mês.
-          Os demais são calculados automaticamente com base nos parâmetros.
+          Os demais são calculados automaticamente.
         </div>
         <div class="tbl-scroll">
           <table class="plano-tbl">
@@ -787,12 +825,13 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
                 <th>Fatura devida</th>
                 <th style="color:#93c5fd">Fixas pix ✎</th>
                 <th>Caixa disponível</th>
-                <th style="color:#93c5fd">Meta investimento ✎</th>
+                <th style="color:#93c5fd">Meta invest. ✎</th>
                 <th>PGBL</th>
                 <th>Outros inv.</th>
                 <th style="color:#93c5fd">Caixinha viagem ✎</th>
                 <th>Livre</th>
                 <th>% poupado</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="plano-tbody"></tbody>
@@ -801,6 +840,67 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       </div>
 
       </div>
+    </div>
+
+    <!-- ======= LISTA DE COMPRAS ======= -->
+    <div class="page" id="page-lista">
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><h1>Lista de compras</h1><p>Compre com intenção — adicione, avalie e só então compre</p></div>
+        <button class="btn btn-gold btn-sm" onclick="lcAbrirForm()"><i class="ti ti-plus"></i>Adicionar item</button>
+      </div>
+
+      <!-- Formulário de adição (colapsável) -->
+      <div id="lc-form-wrap" style="display:none">
+        <div class="lc-form">
+          <div class="ct" style="margin-bottom:12px"><i class="ti ti-pencil"></i> Novo item</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div class="fg" style="margin-bottom:0"><label class="fl">Nome do produto *</label><input class="fi" type="text" id="lc-inp-nome" placeholder="Ex: Tênis de corrida" style="font-size:13px"></div>
+            <div class="fg" style="margin-bottom:0"><label class="fl">Valor (R$) *</label><div class="ip"><span>R$</span><input class="fi" type="number" id="lc-inp-valor" placeholder="0,00" step="0.01" style="font-size:13px"></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div class="fg" style="margin-bottom:0">
+              <label class="fl">Categoria</label>
+              <select class="fi" id="lc-inp-cat" style="font-size:12px">
+                <option value="Eletrônico">🖥️ Eletrônico</option>
+                <option value="Roupa">👕 Roupa</option>
+                <option value="Casa">🏠 Casa</option>
+                <option value="Saúde">💊 Saúde</option>
+                <option value="Lazer">🎮 Lazer</option>
+                <option value="Alimentação">🍽️ Alimentação</option>
+                <option value="Viagem">✈️ Viagem</option>
+                <option value="Outro">📦 Outro</option>
+              </select>
+            </div>
+            <div class="fg" style="margin-bottom:0"><label class="fl">Link / loja (opcional)</label><input class="fi" type="url" id="lc-inp-link" placeholder="https://..." style="font-size:12px"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-gold btn-sm" onclick="lcSalvarItem()"><i class="ti ti-check"></i>Salvar</button>
+            <button class="btn btn-ghost btn-sm" onclick="lcFecharForm()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra total + filtros -->
+      <div class="lc-total-bar">
+        <div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:3px">Total da lista (pendentes)</div>
+          <div style="font-size:22px;font-weight:700;color:var(--gold)" id="lc-total">R$ 0,00</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:3px">Já comprado</div>
+          <div style="font-size:16px;font-weight:600;color:var(--green)" id="lc-total-comp">R$ 0,00</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:3px">Itens</div>
+          <div style="font-size:16px;font-weight:600;color:var(--tx)" id="lc-count">0 pendentes</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="lc-filter" id="lc-filtros"></div>
+
+      <!-- Lista de itens -->
+      <div id="lc-lista"></div>
     </div>
 
     <!-- ======= ANUAL ======= -->
@@ -920,7 +1020,7 @@ async function testarConexao() {
 // ─────────────────────────────────────────────
 //  NAVEGAÇÃO
 // ─────────────────────────────────────────────
-const pages = ['calc','mensal','hist','anual','cfg','carteira','plano'];
+const pages = ['calc','mensal','hist','anual','cfg','carteira','plano','lista'];
 function go(p) {
   // Esconde todas as páginas e desativa todos os nav items
   pages.forEach(x => {
@@ -935,9 +1035,10 @@ function go(p) {
   const navTarget = document.getElementById('nav-'+p);
   if (navTarget) navTarget.classList.add('active');
   // Callbacks específicos por página
-  if (p === 'hist')     { try { renderHist();     } catch(e){} }
-  if (p === 'carteira') { try { calcCarteira();   } catch(e){} }
+  if (p === 'hist')     { try { renderHist();      } catch(e){} }
+  if (p === 'carteira') { try { calcCarteira();    } catch(e){} }
   if (p === 'plano')    { try { renderPlanoPainel(); } catch(e){} }
+  if (p === 'lista')    { try { renderListaCompras(); } catch(e){} }
   // Fecha sidebar no mobile
   const sb = document.getElementById('sidebar');
   const ov = document.getElementById('overlay');
@@ -1948,16 +2049,54 @@ function planoTab(t) {
   if (t==='painel') renderPlanoPainel();
 }
 
-// Gera sequência de meses do plano — fixo: Ago/26 a Jan/28 (18 meses)
+// Lista dinâmica de meses do plano (expansível)
+let planoMeses = [
+  {mes:8,ano:2026},{mes:9,ano:2026},{mes:10,ano:2026},{mes:11,ano:2026},{mes:12,ano:2026},
+  {mes:1,ano:2027},{mes:2,ano:2027},{mes:3,ano:2027},{mes:4,ano:2027},{mes:5,ano:2027},
+  {mes:6,ano:2027},{mes:7,ano:2027},{mes:8,ano:2027},{mes:9,ano:2027},{mes:10,ano:2027},
+  {mes:11,ano:2027},{mes:12,ano:2027},{mes:1,ano:2028}
+];
+
 function gerarMeses() {
-  const mesI = 8, anoI = 2026, dur = 18;
-  const meses = [];
-  for (let i = 0; i < dur; i++) {
-    let m = mesI + i, a = anoI;
-    while (m > 12) { m -= 12; a++; }
-    meses.push({ mes: m, ano: a, label: MESES_NOMES_PT[m-1]+'/'+String(a).slice(2) });
-  }
-  return meses;
+  return planoMeses.map(({mes,ano}) => ({
+    mes, ano, label: MESES_NOMES_PT[mes-1]+'/'+String(ano).slice(2)
+  }));
+}
+
+function adicionarMes() {
+  const ultimo = planoMeses[planoMeses.length-1];
+  let m = ultimo.mes + 1, a = ultimo.ano;
+  if (m > 12) { m = 1; a++; }
+  planoMeses.push({mes:m, ano:a});
+  salvarPlanoLocal();
+  recalcPlano();
+  renderMesesLista();
+  showNotif(MESES_NOMES_PT[m-1]+'/'+String(a).slice(2)+' adicionado ao plano ✓');
+}
+
+function renderMesesLista() {
+  const el = $('plano-meses-lista');
+  if (!el) return;
+  el.innerHTML = planoMeses.map(({mes,ano},i) => {
+    const label = MESES_NOMES_PT[mes-1]+'/'+String(ano).slice(2);
+    const fase = getFase(mes,ano);
+    const isFirst = planoMeses.length > 1 && i === planoMeses.length-1;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--brd)">
+      <span style="font-size:12px;flex:1;color:var(--tx)">${label}</span>
+      <span class="fase-badge ${fase===1?'fase1-b':'fase2-b'}">F${fase}</span>
+      ${isFirst?`<button onclick="removerUltimoMes()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:13px;padding:2px 4px" title="Remover">✕</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+function removerUltimoMes() {
+  if (planoMeses.length <= 1) return;
+  const removido = planoMeses.pop();
+  salvarPlanoLocal();
+  recalcPlano();
+  renderMesesLista();
+  const label = MESES_NOMES_PT[removido.mes-1]+'/'+String(removido.ano).slice(2);
+  showNotif(label+' removido do plano');
 }
 
 // Calcula parcelas conhecidas para um mês específico
@@ -2111,6 +2250,7 @@ function renderPlanoTabela() {
       <td>${celEdit(row.label,'caixViagem',  row.r.caixViagem,  getMetaViagem(row.mes,row.ano,params.metaViagem))}</td>
       <td style="color:${livreCor};font-weight:700">${fmt(row.livre)}</td>
       <td style="color:${pctCor}">${(row.pctPoupado*100).toFixed(1)}%</td>
+      <td></td>
     </tr>`;
   }).join('');
 }
@@ -2199,6 +2339,7 @@ function renderPlanoPainel() {
   // Progresso
   const totalMeses = rows.length;
   const mesIdx = Math.max(0, mesAtualIdx);
+  renderMesesLista();
   const pctProg = totalMeses > 0 ? (mesIdx/totalMeses*100).toFixed(1) : 0;
   const metaAlvo = params.metaInv;
   const investAcum = rows.slice(0,mesIdx+1).reduce((a,r)=>a+r.metaInv,0);
@@ -2263,12 +2404,15 @@ function recalcPlano() {
 }
 
 function salvarPlanoLocal() {
-  localStorage.setItem('fintrack_plano_reais', JSON.stringify(planoReais));
+  localStorage.setItem('fintrack_plano_reais',  JSON.stringify(planoReais));
+  localStorage.setItem('fintrack_plano_meses',  JSON.stringify(planoMeses));
 }
 
 function carregarPlanoLocal() {
   const r = localStorage.getItem('fintrack_plano_reais');
-  if (r) planoReais = JSON.parse(r);
+  const m = localStorage.getItem('fintrack_plano_meses');
+  if (r) planoReais  = JSON.parse(r);
+  if (m) planoMeses  = JSON.parse(m);
 }
 
 async function salvarPlano() {
@@ -2276,9 +2420,10 @@ async function salvarPlano() {
   showNotif('Salvando no Google Sheets…');
   try {
     setSyncStatus('Sincronizando…', 'wait');
-    await apiPost({ action: 'salvarPlanoReais', data: planoReais });
+    // Salva reais + lista de meses juntos num único payload
+    await apiPost({ action: 'salvarPlanoReais', data: { reais: planoReais, meses: planoMeses } });
     setSyncStatus('Salvo no Sheets ✓', 'ok');
-    showNotif('Plano salvo no Google Sheets ✓');
+    showNotif('Orçamento salvo no Google Sheets ✓');
   } catch(e) {
     setSyncStatus('Erro no Sheets', 'err');
     showNotif('Local salvo, Sheets falhou: ' + e.message, 'err');
@@ -2290,8 +2435,14 @@ async function carregarPlanoDoSheets() {
   if (!url) return;
   try {
     const res = await apiPost({ action: 'buscarPlanoReais' });
-    if (res.dados && Object.keys(res.dados).length > 0) {
-      planoReais = res.dados;
+    if (res.dados) {
+      // Suporta formato novo {reais, meses} e formato legado {mes: {...}}
+      if (res.dados.reais !== undefined) {
+        planoReais = res.dados.reais || {};
+        if (res.dados.meses && res.dados.meses.length > 0) planoMeses = res.dados.meses;
+      } else if (Object.keys(res.dados).length > 0) {
+        planoReais = res.dados; // legado
+      }
       salvarPlanoLocal();
     }
   } catch(e) {
@@ -2300,16 +2451,147 @@ async function carregarPlanoDoSheets() {
 }
 
 // ─────────────────────────────────────────────
+//  LISTA DE COMPRAS
+// ─────────────────────────────────────────────
+let listaCompras = [];
+let lcNextId = 1;
+let lcFiltroAtivo = 'Todos';
+
+const LC_CAT_CORES = {
+  'Eletrônico': '#3b82f6', 'Roupa': '#ec4899', 'Casa': '#f97316',
+  'Saúde': '#22c55e', 'Lazer': '#8b5cf6', 'Alimentação': '#d4a843',
+  'Viagem': '#06b6d4', 'Outro': '#8b92a8'
+};
+
+function lcAbrirForm() {
+  $('lc-form-wrap').style.display = 'block';
+  setTimeout(() => $('lc-inp-nome') && $('lc-inp-nome').focus(), 50);
+}
+function lcFecharForm() {
+  $('lc-form-wrap').style.display = 'none';
+  ['lc-inp-nome','lc-inp-valor','lc-inp-link'].forEach(id => { if($(id)) $(id).value=''; });
+}
+
+function lcSalvarItem() {
+  const nome  = ($('lc-inp-nome').value || '').trim();
+  const valor = parseFloat($('lc-inp-valor').value) || 0;
+  const cat   = $('lc-inp-cat').value || 'Outro';
+  const link  = ($('lc-inp-link').value || '').trim();
+  if (!nome) { showNotif('Nome é obrigatório', 'err'); return; }
+  if (!valor) { showNotif('Informe o valor', 'err'); return; }
+  listaCompras.push({ id: lcNextId++, nome, valor, cat, link, comprado: false, criadoEm: new Date().toLocaleDateString('pt-BR') });
+  lcSalvarLocal();
+  lcSincronizar(); // sincroniza com Sheets ao adicionar
+  lcFecharForm();
+  renderListaCompras();
+  showNotif('Item adicionado ✓');
+}
+
+function lcToggleComprado(id) {
+  const item = listaCompras.find(i => i.id === id);
+  if (item) { item.comprado = !item.comprado; lcSalvarLocal(); lcSincronizar(); renderListaCompras(); }
+}
+
+function lcExcluir(id) {
+  listaCompras = listaCompras.filter(i => i.id !== id);
+  lcSalvarLocal(); lcSincronizar(); renderListaCompras();
+}
+
+function lcSalvarLocal() {
+  localStorage.setItem('fintrack_lista_compras', JSON.stringify(listaCompras));
+  localStorage.setItem('fintrack_lista_nextid',  lcNextId);
+}
+
+function lcCarregarLocal() {
+  const l = localStorage.getItem('fintrack_lista_compras');
+  const n = localStorage.getItem('fintrack_lista_nextid');
+  if (l) listaCompras = JSON.parse(l);
+  if (n) lcNextId = parseInt(n);
+}
+
+// Sincroniza silenciosamente com Sheets (sem notif, sem bloquear UI)
+async function lcSincronizar() {
+  const url = getScriptUrl();
+  if (!url) return;
+  try {
+    await apiPost({ action: 'salvarListaCompras', data: { itens: listaCompras, nextId: lcNextId } });
+  } catch(e) { console.warn('Lista offline:', e.message); }
+}
+
+async function carregarListaDoSheets() {
+  const url = getScriptUrl();
+  if (!url) return;
+  try {
+    const res = await apiPost({ action: 'buscarListaCompras' });
+    if (res.dados && res.dados.itens && res.dados.itens.length > 0) {
+      listaCompras = res.dados.itens;
+      lcNextId     = res.dados.nextId || (Math.max(0, ...listaCompras.map(i=>i.id)) + 1);
+      lcSalvarLocal();
+    }
+  } catch(e) { console.warn('Lista offline:', e.message); }
+}
+
+function renderListaCompras() {
+  const cats = ['Todos', ...new Set(listaCompras.map(i=>i.cat))];
+  $('lc-filtros').innerHTML = cats.map(c =>
+    `<button class="lc-fbtn${c===lcFiltroAtivo?' active':''}" onclick="lcSetFiltro('${c}')">${c}</button>`
+  ).join('');
+
+  const pendentes = listaCompras.filter(i=>!i.comprado);
+  const comprados = listaCompras.filter(i=>i.comprado);
+  $('lc-total').textContent      = fmt(pendentes.reduce((a,i)=>a+i.valor,0));
+  $('lc-total-comp').textContent = fmt(comprados.reduce((a,i)=>a+i.valor,0));
+  $('lc-count').textContent      = pendentes.length+' pendente'+(pendentes.length!==1?'s':'');
+
+  const filtrados = lcFiltroAtivo==='Todos' ? listaCompras : listaCompras.filter(i=>i.cat===lcFiltroAtivo);
+  const ordenados = [...filtrados.filter(i=>!i.comprado), ...filtrados.filter(i=>i.comprado)];
+
+  if (ordenados.length === 0) {
+    $('lc-lista').innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--tx3)">
+      <div style="font-size:32px;margin-bottom:10px">🛒</div>
+      <div style="font-size:14px">Lista vazia — adicione o que deseja comprar</div>
+      <div style="font-size:12px;margin-top:6px">Pense antes de comprar por impulso!</div>
+    </div>`;
+    return;
+  }
+
+  $('lc-lista').innerHTML = ordenados.map(item => {
+    const cor = LC_CAT_CORES[item.cat] || '#8b92a8';
+    const linkHtml = item.link
+      ? `<a href="${item.link}" target="_blank" style="font-size:10px;color:var(--blue);text-decoration:none;white-space:nowrap">🔗 Ver produto</a>`
+      : '';
+    return `<div class="lc-item${item.comprado?' comprado':''}">
+      <input type="checkbox" class="lc-check" ${item.comprado?'checked':''} onchange="lcToggleComprado(${item.id})" title="${item.comprado?'Marcar como pendente':'Marcar como comprado'}">
+      <div>
+        <div class="lc-nome">${item.nome}</div>
+        <div class="lc-meta">
+          <span class="lc-cat-badge" style="background:${cor}22;color:${cor}">${item.cat}</span>
+          <span style="margin-left:6px;color:var(--tx3)">${item.criadoEm}</span>
+          ${item.link?`<span style="margin-left:8px">${linkHtml}</span>`:''}
+        </div>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:${item.comprado?'var(--green)':'var(--gold)'};white-space:nowrap">${fmt(item.valor)}</div>
+      ${item.comprado?`<span style="font-size:10px;color:var(--green);white-space:nowrap">✓ Comprado</span>`:'<span></span>'}
+      <button class="lc-del" onclick="lcExcluir(${item.id})" title="Excluir da lista">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function lcSetFiltro(cat) { lcFiltroAtivo = cat; renderListaCompras(); }
+
+// ─────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────
 try { carregarConfigLocal();      } catch(e) { console.warn('carregarConfigLocal:', e); }
 try { carregarMetasLocal();       } catch(e) { console.warn('carregarMetasLocal:', e); }
 try { carregarPlanoLocal();       } catch(e) { console.warn('carregarPlanoLocal:', e); }
+try { lcCarregarLocal();          } catch(e) { console.warn('lcCarregarLocal:', e); }
 try { calcC();                    } catch(e) { console.warn('calcC:', e); }
 try { loadMes(currentMes);        } catch(e) { console.warn('loadMes:', e); }
 try { carregarDoSheets();         } catch(e) { console.warn('carregarDoSheets:', e); }
 try { carregarCarteiraDoSheets(); } catch(e) { console.warn('carregarCarteiraDoSheets:', e); }
 try { carregarPlanoDoSheets();    } catch(e) { console.warn('carregarPlanoDoSheets:', e); }
+try { carregarListaDoSheets();    } catch(e) { console.warn('carregarListaDoSheets:', e); }
 </script>
 </body>
 </html>
