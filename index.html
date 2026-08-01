@@ -1,0 +1,2600 @@
+<!DOCTYPE html>
+<!-- Fintrack v3.1 -->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="theme-color" content="#0f1117">
+<title>Fintrack — Controle Financeiro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--s1:#161b27;--s2:#1e2535;--s3:#252d3d;
+  --brd:rgba(255,255,255,0.07);--brd2:rgba(255,255,255,0.12);
+  --gold:#d4a843;--goldd:rgba(212,168,67,0.15);--goldd2:rgba(212,168,67,0.08);
+  --tx:#e8eaf0;--tx2:#8b92a8;--tx3:#5a6077;
+  --green:#22c55e;--greend:rgba(34,197,94,0.12);
+  --red:#ef4444;--redd:rgba(239,68,68,0.12);
+  --blue:#3b82f6;--blued:rgba(59,130,246,0.12);
+  --r:10px;--font:-apple-system,'SF Pro Display',BlinkMacSystemFont,sans-serif;
+  --sidebar-w:216px
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--tx)}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--s1);
+  border-right:0.5px solid var(--brd);display:flex;flex-direction:column;
+  padding:18px 10px;transition:transform .25s
+}
+.logo{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;border-bottom:0.5px solid var(--brd);margin-bottom:14px}
+.logo-icon{width:28px;height:28px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0f1117}
+.logo-name{font-size:13px;font-weight:600;letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:var(--tx3)}
+.nav-sec{font-size:9px;font-weight:600;color:var(--tx3);letter-spacing:1px;text-transform:uppercase;padding:0 8px;margin:14px 0 5px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--tx2);transition:all .15s;margin-bottom:2px;border:0.5px solid transparent}
+.nav-item:hover{background:var(--s2);color:var(--tx)}
+.nav-item.active{background:var(--goldd);color:var(--gold);border-color:rgba(212,168,67,0.2)}
+.nav-item i{font-size:15px;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:9px;background:var(--goldd);color:var(--gold);padding:2px 6px;border-radius:8px;font-weight:600}
+.nav-badge.new{background:var(--greend);color:var(--green)}
+.sidebar-foot{margin-top:auto;padding-top:14px;border-top:0.5px solid var(--brd)}
+.month-chip{background:var(--s2);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--tx2);display:flex;align-items:center;justify-content:space-between}
+.month-chip .v{color:var(--gold);font-weight:600}
+.sync-status{font-size:10px;text-align:center;margin-top:8px;padding:4px 8px;border-radius:6px}
+.sync-ok{color:var(--green);background:var(--greend)}
+.sync-err{color:var(--red);background:var(--redd)}
+.sync-wait{color:var(--tx3);background:var(--s2)}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.main::-webkit-scrollbar{width:3px}
+.main::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:2px}
+.page{display:none;padding:24px;max-width:1100px}
+.page.active{display:block}
+.ph{margin-bottom:18px}
+.ph h1{font-size:19px;font-weight:600;letter-spacing:-.4px}
+.ph p{font-size:12px;color:var(--tx2);margin-top:3px}
+
+/* ── CARDS ── */
+.card{background:var(--s1);border:0.5px solid var(--brd);border-radius:var(--r);padding:18px}
+.ct{font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.7px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.ct i{font-size:13px;color:var(--gold)}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+
+/* ── INPUTS ── */
+.fg{margin-bottom:12px}
+.fl{font-size:11px;color:var(--tx2);margin-bottom:5px;display:block;font-weight:500}
+.fi{width:100%;background:var(--s2);border:0.5px solid var(--brd2);border-radius:7px;padding:8px 11px;font-size:13px;color:var(--tx);outline:none;transition:border .15s;font-family:var(--font)}
+.fi:focus{border-color:rgba(212,168,67,0.4)}
+.ip{position:relative}
+.ip span{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--tx3)}
+.ip .fi{padding-left:32px}
+
+/* ── TOGGLE ── */
+.tg-grp{display:flex;background:var(--s2);border-radius:8px;padding:3px;margin-bottom:14px}
+.tg-btn{flex:1;padding:6px;text-align:center;border-radius:6px;font-size:12px;cursor:pointer;color:var(--tx2);transition:all .15s;font-weight:500}
+.tg-btn.active{background:var(--s3);color:var(--gold)}
+
+/* ── RESULT BOXES ── */
+.rb{border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.rb.green{background:var(--greend);border:0.5px solid rgba(34,197,94,0.2)}
+.rb.red{background:var(--redd);border:0.5px solid rgba(239,68,68,0.2)}
+.rb.gold{background:var(--goldd2);border:0.5px solid rgba(212,168,67,0.2)}
+.rb.blue{background:var(--blued);border:0.5px solid rgba(59,130,246,0.15)}
+.rl{font-size:11px;color:var(--tx2);font-weight:500}
+.rv{font-size:20px;font-weight:600}
+.rv.green{color:var(--green)}.rv.red{color:var(--red)}.rv.gold{color:var(--gold)}.rv.blue{color:var(--blue)}
+.rs{font-size:10px;color:var(--tx3)}
+
+/* ── VERDICT ── */
+.vrd{border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px}
+.vrd.win{background:rgba(34,197,94,0.08);border:0.5px solid rgba(34,197,94,0.2)}
+.vrd.neu{background:var(--goldd2);border:0.5px solid rgba(212,168,67,0.2)}
+.vrd-ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:rgba(34,197,94,0.12)}
+.vrd.neu .vrd-ic{background:var(--goldd)}
+.vrd-t{font-size:13px;font-weight:600}
+.vrd-s{font-size:11px;color:var(--tx2);margin-top:2px}
+
+/* ── METRICS ── */
+.mt{background:var(--s1);border:0.5px solid var(--brd);border-radius:8px;padding:12px 14px}
+.mt-l{font-size:10px;color:var(--tx3);font-weight:500;margin-bottom:5px}
+.mt-v{font-size:18px;font-weight:600}
+
+/* ── SLIDER ── */
+.sr{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.sr input[type=range]{flex:1;accent-color:var(--gold)}
+.sv{font-size:11px;font-weight:600;color:var(--gold);min-width:38px;text-align:right}
+
+/* ── PROGRESS ── */
+.pb{height:5px;background:var(--s2);border-radius:3px;overflow:hidden}
+.pf{height:100%;border-radius:3px;transition:width .4s}
+
+/* ── CARTAO ROW ── */
+.cr{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--brd)}
+.cr:last-child{border-bottom:none}
+.cdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* ── BUTTONS ── */
+.btn{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-gold{background:var(--gold);color:#0f1117}.btn-gold:hover{opacity:.9}
+.btn-ghost{background:var(--s2);color:var(--tx2);border:0.5px solid var(--brd2)}.btn-ghost:hover{color:var(--tx)}
+.btn-sm{padding:7px 12px;font-size:12px;border-radius:7px}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{color:var(--tx3);font-weight:600;text-align:left;padding:5px 7px;border-bottom:0.5px solid var(--brd);font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+.tbl td{padding:8px 7px;border-bottom:0.5px solid var(--brd);color:var(--tx2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.clickable{cursor:pointer;transition:background .15s}
+.tbl tr.clickable:hover{background:var(--s2)}
+.tbl .r{text-align:right;color:var(--tx);font-weight:500}
+
+/* ── BADGES ── */
+.bdg{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600}
+.b-ok{background:var(--greend);color:var(--green)}
+.b-no{background:var(--redd);color:var(--red)}
+.b-par{background:var(--goldd);color:var(--gold)}
+
+/* ── LEGEND ── */
+.leg{display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
+.leg-d{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ── MISC ── */
+.div{height:0.5px;background:var(--brd);margin:14px 0}
+.fc-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:12px}
+.fc-row.tot{border-top:0.5px solid var(--brd);margin-top:6px;padding-top:10px;font-weight:600}
+.cb-btn{padding:5px 11px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:0.5px solid var(--brd2);background:var(--s2);color:var(--tx2);font-family:var(--font);transition:all .15s}
+.cb-btn.active{background:var(--goldd);color:var(--gold);border-color:rgba(212,168,67,0.3)}
+.fsep{width:0.5px;height:18px;background:var(--brd2)}
+.edit-banner{display:flex;align-items:center;gap:9px;background:var(--goldd2);border:0.5px solid rgba(212,168,67,0.3);border-radius:9px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--gold)}
+.month-nav{display:flex;align-items:center;gap:8px;background:var(--s1);border:0.5px solid var(--brd2);border-radius:9px;padding:6px 8px}
+.mnb{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx2);background:var(--s2);border:0.5px solid var(--brd2);transition:all .15s;font-size:14px;line-height:1}
+.mnb:hover{color:var(--tx)}.mnb:disabled{opacity:.3;cursor:not-allowed}
+.mnb-label{font-size:13px;font-weight:600;min-width:80px;text-align:center}
+.ms{display:inline-flex;align-items:center;font-size:10px;padding:3px 9px;border-radius:7px;font-weight:600}
+.ms-aberto{background:var(--blued);color:var(--blue)}
+.ms-fechado{background:var(--greend);color:var(--green)}
+.sec-cta{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;background:var(--goldd2);border:0.5px solid rgba(212,168,67,0.3);border-radius:9px;cursor:pointer;transition:all .15s;margin-top:14px}
+.sec-cta:hover{background:var(--goldd)}
+.sec-cta span{font-size:13px;font-weight:600;color:var(--gold)}
+.notif{position:fixed;top:20px;right:20px;background:var(--green);color:#0f1117;padding:10px 18px;border-radius:9px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+.notif.show{opacity:1}
+.notif.err{background:var(--red);color:#fff}
+
+/* ── CARTEIRA ── */
+.cart-tab-grp{display:flex;gap:4px;background:var(--s2);border-radius:9px;padding:3px;margin-bottom:20px;width:fit-content}
+.cart-tab{padding:7px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:var(--tx2);transition:all .15s}
+.cart-tab.active{background:var(--s1);color:var(--gold);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.asset-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--brd)}
+.asset-row:last-child{border-bottom:none}
+.asset-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.asset-label{flex:1;font-size:13px;color:var(--tx2)}
+.gauge-wrap{position:relative;display:flex;flex-direction:column;gap:3px}
+.gauge-bar-bg{height:6px;background:var(--s2);border-radius:3px;overflow:hidden;width:100%}
+.gauge-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.meta-indicator{display:flex;align-items:center;gap:6px;font-size:10px}
+.meta-ok{color:var(--green)}.meta-warn{color:var(--gold)}.meta-err{color:var(--red)}
+.donut-wrap{position:relative;width:160px;height:160px;flex-shrink:0;overflow:visible}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.donut-center .val{font-size:15px;font-weight:700;color:var(--tx)}
+.donut-center .lbl{font-size:9px;color:var(--tx3);margin-top:1px}
+.pat-card{background:var(--s1);border:0.5px solid var(--brd);border-radius:var(--r);padding:16px}
+.upd-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--tx3);background:var(--s2);padding:5px 10px;border-radius:7px;border:0.5px solid var(--brd)}
+.upd-badge i{color:var(--gold);font-size:13px}
+.meta-input-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.meta-input-row label{font-size:11px;color:var(--tx2);min-width:160px}
+.meta-num{width:70px;background:var(--s2);border:0.5px solid var(--brd2);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--tx);outline:none;font-family:var(--font);text-align:right}
+.meta-num:focus{border-color:rgba(212,168,67,.4)}
+.desvio-badge{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:600;white-space:nowrap}
+.d-ok{background:var(--greend);color:var(--green)}
+.d-warn{background:rgba(251,191,36,.12);color:#fbbf24}
+.d-err{background:var(--redd);color:var(--red)}
+.d-neu{background:var(--s2);color:var(--tx3)}
+/* ── PLANO RECUPERAÇÃO ── */
+.plano-tab-grp{display:flex;gap:3px;background:var(--s2);border-radius:9px;padding:3px;width:fit-content;margin-bottom:20px}
+.plano-tab{padding:7px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:var(--tx2);transition:all .15s}
+.plano-tab.active{background:var(--s1);color:var(--gold);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.plano-tbl{width:100%;border-collapse:collapse;font-size:11px;min-width:980px}
+.plano-tbl th{color:var(--tx3);font-weight:600;text-align:right;padding:6px 8px;border-bottom:0.5px solid var(--brd);font-size:9px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;background:var(--s1)}
+.plano-tbl th:first-child,.plano-tbl th:nth-child(2){text-align:left}
+.plano-tbl td{padding:7px 8px;border-bottom:0.5px solid var(--brd);text-align:right;color:var(--tx2);white-space:nowrap}
+.plano-tbl td:first-child{text-align:left;font-weight:500;color:var(--tx)}
+.plano-tbl td:nth-child(2){text-align:left}
+.plano-tbl tr:hover td{background:rgba(255,255,255,0.02)}
+.plano-tbl tr.fase1 td:first-child{border-left:2px solid var(--gold)}
+.plano-tbl tr.fase2 td:first-child{border-left:2px solid var(--green)}
+.plano-tbl tr.mes-atual td{background:rgba(212,168,67,0.06)}
+.cel-edit{width:80px;background:rgba(59,130,246,0.08);border:0.5px solid rgba(59,130,246,0.3);border-radius:5px;padding:3px 6px;font-size:11px;color:#93c5fd;outline:none;text-align:right;font-family:var(--font)}
+.cel-edit:focus{border-color:rgba(59,130,246,0.6)!important}
+.fase-badge{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:600}
+.fase1-b{background:var(--goldd);color:var(--gold)}
+.fase2-b{background:var(--greend);color:var(--green)}
+.tbl-scroll{overflow-x:auto;border-radius:var(--r);border:0.5px solid var(--brd);background:var(--s1)}
+.p-section{font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin:16px 0 10px}
+.p-section:first-child{margin-top:0}
+/* ── LISTA DE COMPRAS ── */
+.lc-item{display:grid;grid-template-columns:20px 1fr auto auto auto;align-items:center;gap:10px;padding:11px 14px;background:var(--s2);border-radius:8px;border:0.5px solid var(--brd);margin-bottom:8px;transition:all .2s}
+.lc-item.comprado{opacity:.5}
+.lc-item.comprado .lc-nome{text-decoration:line-through;color:var(--tx3)}
+.lc-check{width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.lc-nome{font-size:13px;color:var(--tx);font-weight:500}
+.lc-meta{font-size:10px;color:var(--tx3);margin-top:2px}
+.lc-valor{font-size:13px;font-weight:600;color:var(--gold);white-space:nowrap}
+.lc-del{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:15px;padding:3px 7px;border-radius:5px;transition:all .15s;line-height:1}
+.lc-del:hover{background:var(--redd);color:var(--red)}
+.lc-cat-badge{font-size:10px;padding:2px 7px;border-radius:7px;font-weight:600;white-space:nowrap}
+.lc-total-bar{background:var(--goldd2);border:0.5px solid rgba(212,168,67,.25);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.lc-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.lc-fbtn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:0.5px solid var(--brd2);background:var(--s2);color:var(--tx2);font-family:var(--font);transition:all .15s}
+.lc-fbtn.active{background:var(--goldd);color:var(--gold);border-color:rgba(212,168,67,.3)}
+@media(max-width:700px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:100;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{width:100%}
+  .g2,.g4,.g5{grid-template-columns:1fr}
+  .page{padding:14px}
+  .mob-menu{display:flex!important}
+}
+.mob-menu{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--s1);border:0.5px solid var(--brd2);border-radius:8px;padding:8px;cursor:pointer;color:var(--tx);font-size:18px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+.overlay.show{display:block}
+</style>
+</head>
+<body>
+
+<!-- Mobile menu -->
+<div class="mob-menu" id="mob-menu" onclick="toggleSidebar()" aria-label="Abrir menu">☰</div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+<div class="notif" id="notif"></div>
+
+<div class="app">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-icon">Ft</div>
+      <div><div class="logo-name">Fintrack</div><div class="logo-sub">Controle pessoal</div></div>
+    </div>
+    <div class="nav-sec">Ferramentas</div>
+    <div class="nav-item active" id="nav-calc" onclick="go('calc')"><i class="ti ti-calculator"></i> Calculadora</div>
+    <div class="nav-item" id="nav-mensal" onclick="go('mensal')"><i class="ti ti-calendar-month"></i> Controle mensal <span class="nav-badge" id="nb-mes">Jun</span></div>
+    <div class="nav-item" id="nav-hist" onclick="go('hist')"><i class="ti ti-chart-line"></i> Histórico <span class="nav-badge new" id="nb-hist">0</span></div>
+    <div class="nav-item" id="nav-carteira" onclick="go('carteira')"><i class="ti ti-briefcase"></i> Carteira</div>
+    <div class="nav-item" id="nav-plano" onclick="go('plano')"><i class="ti ti-wallet"></i> Meu orçamento</div>
+    <div class="nav-item" id="nav-lista" onclick="go('lista')"><i class="ti ti-shopping-bag"></i> Lista de compras</div>
+    <div class="nav-item" id="nav-anual" onclick="go('anual')"><i class="ti ti-trending-up"></i> Visão anual <span class="nav-badge">Em breve</span></div>
+    <div class="nav-sec">Conta</div>
+    <div class="nav-item" id="nav-cfg" onclick="go('cfg')"><i class="ti ti-settings"></i> Configurações</div>
+    <div class="sidebar-foot">
+      <div class="month-chip"><span>Período ativo</span><span class="v" id="chip-mes">Jun/25</span></div>
+      <div class="sync-status sync-wait" id="sync-status">Configurando…</div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- ======= CALCULADORA ======= -->
+    <div class="page active" id="page-calc">
+      <div class="ph"><h1>Calculadora de compras</h1><p>Compare à vista vs. parcelado considerando CDI e cashback</p></div>
+      <div class="g2" style="align-items:start;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="ct"><i class="ti ti-shopping-cart"></i> Produto</div>
+            <div class="fg"><label class="fl">Valor à vista</label><div class="ip"><span>R$</span><input class="fi" type="number" id="c_preco" value="5000" oninput="calcC()"></div></div>
+            <div class="fg"><label class="fl">Desconto à vista (%)</label>
+              <div class="sr"><input type="range" min="0" max="20" step="0.5" value="5" id="c_desc_s" oninput="syncS('c_desc','c_desc_s');calcC()"><div class="sv"><span id="c_desc_sv">5</span>%</div></div>
+              <div class="ip"><span>%</span><input class="fi" type="number" id="c_desc" value="5" oninput="syncI('c_desc','c_desc_s');calcC()"></div>
+            </div>
+            <div class="fg"><label class="fl">Parcelas</label>
+              <div class="sr"><input type="range" min="2" max="24" step="1" value="12" id="c_parc_s" oninput="syncS('c_parc','c_parc_s');calcC()"><div class="sv"><span id="c_parc_sv">12</span>x</div></div>
+              <div class="ip"><span>x</span><input class="fi" type="number" id="c_parc" value="12" min="2" max="24" oninput="syncI('c_parc','c_parc_s');calcC()"></div>
+            </div>
+            <div class="fg"><label class="fl">CDI mensal (%)</label>
+              <div class="sr"><input type="range" min="0.5" max="1.5" step="0.01" value="0.91" id="c_cdi_s" oninput="syncS('c_cdi','c_cdi_s');calcC()"><div class="sv"><span id="c_cdi_sv">0.91</span>%</div></div>
+              <div class="ip"><span>%</span><input class="fi" type="number" id="c_cdi" value="0.91" step="0.01" oninput="syncI('c_cdi','c_cdi_s');calcC()"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ct"><i class="ti ti-gift"></i> Cashback</div>
+            <div class="tg-grp"><div class="tg-btn active" id="cb_no" onclick="togCB(false)">Sem cashback</div><div class="tg-btn" id="cb_si" onclick="togCB(true)">Com cashback</div></div>
+            <div id="cb_f" style="display:none"><div class="fg"><label class="fl">% cashback</label><div class="ip"><span>%</span><input class="fi" type="number" id="c_cb" value="1.5" step="0.1" oninput="calcC()"></div></div></div>
+            <div id="cb_e" style="font-size:11px;color:var(--tx3)">Ative para considerar o cashback do cartão</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="ct"><i class="ti ti-report-analytics"></i> Comparativo</div>
+            <div class="g2" style="gap:9px;margin-bottom:14px">
+              <div class="rb red"><div class="rl">À vista</div><div class="rv red" id="r_av">—</div><div class="rs" id="r_av_s"></div></div>
+              <div class="rb blue"><div class="rl">Parcelado total</div><div class="rv blue" id="r_parc">—</div><div class="rs" id="r_parc_s"></div></div>
+            </div>
+            <div class="rb gold" style="margin-bottom:10px"><div class="rl">Rendimento CDI</div><div class="rv gold" id="r_rend">—</div><div class="rs" id="r_rend_s"></div></div>
+            <div id="cb_box" style="display:none;margin-bottom:10px"><div class="rb green"><div class="rl">Cashback</div><div class="rv green" id="r_cb">—</div></div></div>
+            <div class="div"></div>
+            <div class="rb green" style="margin-bottom:14px"><div class="rl">Custo efetivo parcelado</div><div class="rv green" id="r_ef">—</div><div class="rs" id="r_ef_s"></div></div>
+            <div class="vrd win" id="r_vrd"><div class="vrd-ic" id="v_ic">✅</div><div><div class="vrd-t" id="v_t">Calculando…</div><div class="vrd-s" id="v_s"></div></div></div>
+          </div>
+          <div class="card"><div class="ct"><i class="ti ti-timeline"></i> Evolução mês a mês</div><div id="tl_bars"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= CONTROLE MENSAL ======= -->
+    <div class="page" id="page-mensal">
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><h1>Controle mensal</h1><p id="ph-sub">Navegue entre meses pelo seletor. Meses anteriores podem ser corrigidos.</p></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div class="month-nav">
+            <button class="mnb" onclick="navMes(-1)" id="btn-prev">‹</button>
+            <span class="mnb-label" id="month-label">Jun/25</span>
+            <button class="mnb" onclick="navMes(1)" id="btn-next">›</button>
+          </div>
+          <span class="ms" id="month-status">Em aberto</span>
+        </div>
+      </div>
+      <div id="edit-banner-wrap"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+        <div class="tg-grp" style="max-width:260px;margin-bottom:0">
+          <div class="tg-btn active" id="tab_plan" onclick="showTab('plan')">Planejamento</div>
+          <div class="tg-btn" id="tab_fec" onclick="showTab('fec')">Fechamento</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="go('hist')"><i class="ti ti-chart-line"></i>Ver histórico</button>
+          <button class="btn btn-gold btn-sm" onclick="fecharMes()" id="btn-fechar"><i class="ti ti-check"></i><span id="btn-fechar-txt">Fechar mês</span></button>
+        </div>
+      </div>
+
+      <!-- Planejamento -->
+      <div id="tab_plan_c">
+        <!-- KPIs -->
+        <div class="g4" style="margin-bottom:14px">
+          <div class="mt"><div class="mt-l">Disponível p/ gastar agora</div><div class="mt-v" id="m_saldo" style="color:var(--green)">—</div><div style="font-size:10px;color:var(--tx3);margin-top:3px" id="m_saldo_sub">no cartão este mês</div></div>
+          <div class="mt"><div class="mt-l">Total saídas previstas</div><div class="mt-v" id="m_fat" style="color:var(--red)">—</div><div style="font-size:10px;color:var(--tx3);margin-top:3px">faturas + fixas + transf.</div></div>
+          <div class="mt"><div class="mt-l">Meta saving</div><div class="mt-v" id="m_sav" style="color:var(--gold)">—</div></div>
+          <div class="mt"><div class="mt-l">Verba lazer</div><div class="mt-v" id="m_laz" style="color:var(--blue)">—</div></div>
+        </div>
+
+        <div class="g2" style="gap:14px;align-items:start">
+          <!-- Coluna esquerda -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-trending-up"></i> Entradas previstas</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:12px" id="entradas-sub">O que deve entrar na sua conta</div>
+              <div class="fg"><label class="fl">Salário</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_sal" value="0" step="0.01" oninput="calcM()"></div></div>
+              <div class="fg"><label class="fl">Transferências que vai receber</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_ext" value="0" step="0.01" oninput="calcM()"></div></div>
+              <div class="div"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:12px;color:var(--tx2)">Total entradas</span>
+                <span style="font-size:15px;font-weight:600;color:var(--green)" id="m_tot_e">—</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="ct"><i class="ti ti-receipt-2"></i> Saídas fixas previstas</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:12px">Aluguel, contas, assinaturas, etc.</div>
+              <div class="fg"><label class="fl">Despesas fixas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_fixas" value="0" step="0.01" oninput="calcM()"></div></div>
+              <div class="fg"><label class="fl">Transferência prevista (saída)</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_transf" value="0" step="0.01" oninput="calcM()"></div>
+                <div style="font-size:10px;color:var(--tx3);margin-top:4px" id="transf-sub">Ex: poupança programada, envio para familiar</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="ct"><i class="ti ti-piggy-bank"></i> Metas</div>
+              <div class="fg"><label class="fl">Meta de saving (% do salário)</label>
+                <div class="sr"><input type="range" min="0" max="50" step="1" value="20" id="m_pct_s" oninput="calcM()"><div class="sv"><span id="m_pct_sv">20</span>%</div></div>
+              </div>
+              <div class="fg"><label class="fl">Verba lazer</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_laz_v" value="0" step="0.01" oninput="calcM()"></div></div>
+            </div>
+          </div>
+
+          <!-- Coluna direita -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-credit-card"></i> Faturas dos cartões</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:10px" id="faturas-sub">Faturas que vencem no próximo mês</div>
+              <div class="cr"><div class="cdot" style="background:#3b82f6"></div><span style="flex:1;font-size:13px" id="label-c1">Cartão 1</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="f1" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div></div>
+              <div class="cr"><div class="cdot" style="background:#d4a843"></div><span style="flex:1;font-size:13px" id="label-c2">Cartão 2</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="f2" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div></div>
+              <div class="cr"><div class="cdot" style="background:#22c55e"></div><span style="flex:1;font-size:13px" id="label-c3">Cartão 3</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="f3" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div></div>
+              <div class="div"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:12px;color:var(--tx2)">Total faturas</span><span style="font-size:15px;font-weight:600;color:var(--red)" id="m_tot_f">—</span></div>
+              <div id="dist_b"></div>
+            </div>
+
+            <!-- Resumo de projeção -->
+            <div class="card" style="border-color:rgba(212,168,67,0.2);background:var(--goldd2)">
+              <div class="ct"><i class="ti ti-calculator"></i> Quanto posso gastar ainda este mês?</div>
+              <div style="font-size:12px;color:var(--tx2);margin-bottom:12px" id="m_ctx_txt">Com base no que está previsto para o próximo mês</div>
+              <div style="display:flex;flex-direction:column;gap:8px" id="resumo_proj">
+                <div class="fc-row"><span style="color:var(--tx2)">Total entradas</span><span id="rp_e" style="color:var(--green)">—</span></div>
+                <div class="fc-row"><span style="color:var(--tx2)">Faturas previstas</span><span id="rp_f" style="color:var(--red)">—</span></div>
+                <div class="fc-row"><span style="color:var(--tx2)">Fixas + transferência</span><span id="rp_fx" style="color:var(--red)">—</span></div>
+                <div class="fc-row"><span style="color:var(--tx2)">Meta saving</span><span id="rp_s" style="color:var(--gold)">—</span></div>
+                <div class="fc-row"><span style="color:var(--tx2)">Verba lazer</span><span id="rp_l" style="color:var(--blue)">—</span></div>
+                <div style="height:0.5px;background:rgba(212,168,67,0.3);margin:4px 0"></div>
+                <div class="fc-row"><span style="font-weight:600;color:var(--tx)">Disponível p/ gastar agora</span><span id="rp_disp" style="font-size:16px;font-weight:700;color:var(--green)">—</span></div>
+              </div>
+              <div style="font-size:11px;color:var(--tx3);margin-top:10px" id="m_proj_txt"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fechamento -->
+      <div id="tab_fec_c" style="display:none">
+        <div style="max-width:520px">
+          <div class="card" style="margin-bottom:14px">
+            <div class="ct"><i class="ti ti-trending-up"></i> O que entrou este mês</div>
+            <div class="fg"><label class="fl">Salário recebido</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_sal" value="0" step="0.01" oninput="calcF()"></div></div>
+            <div class="fg"><label class="fl">Transferências recebidas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_transf_rec" value="0" step="0.01" oninput="calcF()"></div>
+              <div style="font-size:10px;color:var(--tx3);margin-top:4px">Freelas, reembolsos, presentes, qualquer entrada extra</div>
+            </div>
+            <div class="div"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12px;color:var(--tx2)">Total entradas reais</span>
+              <span style="font-size:15px;font-weight:600;color:var(--green)" id="fc_tot_e">—</span>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:14px">
+            <div class="ct"><i class="ti ti-credit-card"></i> Faturas pagas este mês</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:12px">Valores que você pagou no início do mês (faturas do mês anterior)</div>
+            <div class="cr"><div class="cdot" style="background:#3b82f6"></div><span style="flex:1;font-size:13px" id="fc_label_c1">Cartão 1</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="fe_f1" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcF()"></div></div>
+            <div class="cr"><div class="cdot" style="background:#d4a843"></div><span style="flex:1;font-size:13px" id="fc_label_c2">Cartão 2</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="fe_f2" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcF()"></div></div>
+            <div class="cr"><div class="cdot" style="background:#22c55e"></div><span style="flex:1;font-size:13px" id="fc_label_c3">Cartão 3</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="fe_f3" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcF()"></div></div>
+            <div class="div"></div>
+            <div class="fg"><label class="fl">Transferências não previstas que fiz</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_transf_out" value="0" step="0.01" oninput="calcF()"></div>
+              <div style="font-size:10px;color:var(--tx3);margin-top:4px">Saídas que aconteceram durante o mês e não estavam no plano</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ct"><i class="ti ti-calculator"></i> Resultado do mês</div>
+            <div style="background:var(--s2);border-radius:8px;padding:12px 14px;margin-bottom:14px">
+              <div class="fc-row"><span style="color:var(--tx2)">Total entradas</span><span id="fc_re" style="color:var(--green)">—</span></div>
+              <div class="fc-row"><span style="color:var(--tx2)">Faturas pagas</span><span id="fc_fat_pagas" style="color:var(--red)">—</span></div>
+              <div class="fc-row"><span style="color:var(--tx2)">Transferências não previstas</span><span id="fc_transf_out_show" style="color:var(--red)">—</span></div>
+              <div style="height:0.5px;background:var(--brd);margin:6px 0"></div>
+              <div class="fc-row tot">
+                <span>Guardou / Sobrou</span>
+                <span id="fc_saldo_real" style="color:var(--green);font-size:16px">—</span>
+              </div>
+            </div>
+            <div id="fec_vrd"></div>
+            <div class="sec-cta" onclick="go('hist')" style="margin-top:14px">
+              <i class="ti ti-chart-line" style="color:var(--gold)"></i>
+              <span>Ver evolução no histórico</span>
+              <i class="ti ti-arrow-right" style="color:var(--gold)"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= HISTÓRICO ======= -->
+    <div class="page" id="page-hist">
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div><h1>Histórico financeiro</h1><p>Evolução real mês a mês — clique em uma linha para editar</p></div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <button class="cb-btn" onclick="setR(3)" id="r3">3M</button>
+          <button class="cb-btn active" onclick="setR(6)" id="r6">6M</button>
+          <button class="cb-btn" onclick="setR(12)" id="r12">12M</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px" id="kpi-row"></div>
+
+      <!-- Gráfico principal: receita, gastos, saving -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="ct"><i class="ti ti-chart-line"></i> Receita, gastos e saving real</div>
+        <div class="leg">
+          <span class="leg-i"><span class="leg-d" style="background:#2a78d6"></span>Receita real</span>
+          <span class="leg-i"><span class="leg-d" style="background:#e34948"></span>Gastos reais</span>
+          <span class="leg-i"><span class="leg-d" style="background:#d4a843"></span>Saving real</span>
+        </div>
+        <div style="position:relative;height:210px"><canvas id="ch-linha"></canvas></div>
+      </div>
+
+      <!-- Gráfico de meta -->
+      <div class="card" style="margin-bottom:14px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+          <div class="ct" style="margin-bottom:0"><i class="ti ti-target"></i> Meta de saving vs. saving real</div>
+          <div style="font-size:10px;color:var(--tx3);text-align:right;line-height:1.5">Meta definida no planejamento do mês anterior<br>comparada com o que foi guardado no fechamento</div>
+        </div>
+        <div class="leg" style="margin-top:8px">
+          <span class="leg-i"><span class="leg-d" style="background:#22c55e"></span>Saving real (meta atingida)</span>
+          <span class="leg-i"><span class="leg-d" style="background:#e34948"></span>Saving real (abaixo da meta)</span>
+          <span class="leg-i"><span class="leg-d" style="background:rgba(212,168,67,0.3);border:1px dashed #d4a843"></span>Meta planejada</span>
+          <span class="leg-i"><span style="font-size:12px">⬜</span> Mês sem meta definida</span>
+        </div>
+        <div style="position:relative;height:190px"><canvas id="ch-meta"></canvas></div>
+      </div>
+
+      <!-- Tabela -->
+      <div class="card">
+        <div class="ct" style="margin-bottom:10px">
+          <i class="ti ti-table"></i> Resumo por mês
+          <span style="font-weight:400;text-transform:none;color:var(--tx3);font-size:10px;margin-left:4px">— clique para editar</span>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Mês (fechamento)</th>
+              <th class="r">Receita real</th>
+              <th class="r">Gastos reais</th>
+              <th class="r">Saving real</th>
+              <th class="r">Meta (plan. anterior)</th>
+              <th style="text-align:center">Bateu meta?</th>
+              <th class="r">Saldo</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-body"></tbody>
+        </table>
+        <div style="font-size:10px;color:var(--tx3);margin-top:10px;line-height:1.6">
+          ℹ️ A <strong style="color:var(--tx2)">meta</strong> de cada mês vem do planejamento feito no mês anterior. Ex: a meta de Agosto vem do planejamento de Julho.
+          Meses sem meta definida aparecem como <strong style="color:var(--tx2)">—</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= CARTEIRA ======= -->
+    <div class="page" id="page-carteira">
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><h1>Carteira de ativos</h1><p>Composição, evolução e metas da sua carteira</p></div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="upd-badge"><i class="ti ti-clock"></i><span id="cart-upd-txt">Não atualizado</span></div>
+          <button class="btn btn-ghost btn-sm" onclick="replicarUltimo()"><i class="ti ti-copy"></i>Replicar último</button>
+          <button class="btn btn-gold btn-sm" onclick="salvarCarteira()"><i class="ti ti-device-floppy"></i>Salvar snapshot</button>
+        </div>
+      </div>
+
+      <!-- ABAS INTERNAS -->
+      <div class="cart-tab-grp">
+        <div class="cart-tab active" id="ctab-visao"    onclick="cartTab('visao')">Visão geral</div>
+        <div class="cart-tab"        id="ctab-detalhe"  onclick="cartTab('detalhe')">Detalhamento</div>
+        <div class="cart-tab"        id="ctab-evolucao" onclick="cartTab('evolucao')">Evolução</div>
+        <div class="cart-tab"        id="ctab-metas"    onclick="cartTab('metas')">Metas</div>
+      </div>
+
+      <!-- ── ABA: VISÃO GERAL ── -->
+      <div id="cart-visao">
+        <!-- KPIs topo -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+          <div class="mt" style="grid-column:1"><div class="mt-l">Patrimônio total</div><div class="mt-v" id="cv-total" style="color:var(--gold);font-size:22px">R$ 0,00</div></div>
+          <div class="mt"><div class="mt-l">Renda Fixa</div><div class="mt-v" id="cv-rf" style="color:var(--blue)">R$ 0,00</div><div style="font-size:10px;color:var(--tx3);margin-top:3px" id="cv-rf-pct">0% da carteira</div></div>
+          <div class="mt"><div class="mt-l">Renda Variável</div><div class="mt-v" id="cv-rv" style="color:var(--green)">R$ 0,00</div><div style="font-size:10px;color:var(--tx3);margin-top:3px" id="cv-rv-pct">0% da carteira</div></div>
+        </div>
+
+        <div class="g2" style="gap:14px;align-items:start">
+          <!-- Inputs de lançamento -->
+          <div class="card">
+            <div class="ct"><i class="ti ti-pencil"></i> Lançar valores atuais</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Preencha com o valor atual de cada categoria</div>
+
+            <div style="font-size:10px;font-weight:600;color:var(--blue);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px">Renda Fixa</div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#3b82f6"></div>
+              <span class="asset-label">Caixa</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-caixa" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#60a5fa"></div>
+              <span class="asset-label">Reserva de Emergência</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-reserva" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#93c5fd"></div>
+              <span class="asset-label">Viagem</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-viagem" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row" style="margin-bottom:14px">
+              <div class="asset-dot" style="background:#bfdbfe"></div>
+              <span class="asset-label">Aplic. Renda Fixa</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-rf-aplic" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+
+            <div style="font-size:10px;font-weight:600;color:var(--green);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px;margin-top:4px">Renda Variável</div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#22c55e"></div>
+              <span class="asset-label">Ações</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-acoes" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#4ade80"></div>
+              <span class="asset-label">Fundos Imobiliários</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-fii" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#86efac"></div>
+              <span class="asset-label">Investimento Exterior</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-ext" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+            <div class="asset-row">
+              <div class="asset-dot" style="background:#d4a843"></div>
+              <span class="asset-label">Cripto</span>
+              <div class="ip" style="width:150px"><span>R$</span><input class="fi" type="number" id="cv-cripto" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcCarteira()"></div>
+            </div>
+
+            <div class="div"></div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <label class="fl" style="margin-bottom:0;min-width:120px">Data de atualização</label>
+              <input class="fi" type="date" id="cv-data" style="font-size:12px" oninput="calcCarteira()">
+            </div>
+          </div>
+
+          <!-- Gráfico RF vs RV -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-chart-donut"></i> RF vs. Renda Variável</div>
+              <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+                <div class="donut-wrap">
+                  <canvas id="ch-rfvrv"></canvas>
+                  <div class="donut-center"><div class="val" id="donut-total-val">R$ 0</div><div class="lbl">Total</div></div>
+                </div>
+                <div style="flex:1;min-width:120px" id="rfvrv-legend"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-table"></i> Resumo por classe</div>
+              <div id="resumo-classes"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ABA: DETALHAMENTO ── -->
+      <div id="cart-detalhe" style="display:none">
+        <div class="g2" style="gap:14px;align-items:start">
+          <div class="card">
+            <div class="ct"><i class="ti ti-chart-donut-3"></i> Detalhamento — Renda Fixa</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Distribuição interna dos ativos de RF</div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+              <div class="donut-wrap" style="width:140px;height:140px;overflow:visible">
+                <canvas id="ch-rf-det" style="overflow:visible"></canvas>
+                <div class="donut-center"><div class="val" id="donut-rf-val">R$ 0</div><div class="lbl">Renda Fixa</div></div>
+              </div>
+              <div style="flex:1" id="rf-det-legend"></div>
+            </div>
+            <div id="rf-det-bars"></div>
+          </div>
+          <div class="card">
+            <div class="ct"><i class="ti ti-chart-donut-3"></i> Detalhamento — Renda Variável</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Distribuição interna dos ativos de RV</div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+              <div class="donut-wrap" style="width:140px;height:140px;overflow:visible">
+                <canvas id="ch-rv-det" style="overflow:visible"></canvas>
+                <div class="donut-center"><div class="val" id="donut-rv-val">R$ 0</div><div class="lbl">Renda Var.</div></div>
+              </div>
+              <div style="flex:1" id="rv-det-legend"></div>
+            </div>
+            <div id="rv-det-bars"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ABA: EVOLUÇÃO ── -->
+      <div id="cart-evolucao" style="display:none">
+        <div class="card" style="margin-bottom:14px">
+          <div class="ct"><i class="ti ti-chart-area"></i> Evolução do patrimônio</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:12px">Histórico de snapshots mensais — salve um por mês para acompanhar o crescimento</div>
+          <div class="leg">
+            <span class="leg-i"><span class="leg-d" style="background:#d4a843"></span>Patrimônio total</span>
+            <span class="leg-i"><span class="leg-d" style="background:#3b82f6"></span>Renda Fixa</span>
+            <span class="leg-i"><span class="leg-d" style="background:#22c55e"></span>Renda Variável</span>
+          </div>
+          <div style="position:relative;height:240px;margin-top:10px"><canvas id="ch-evolucao"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ct"><i class="ti ti-table"></i> Histórico de snapshots</div>
+          <table class="tbl">
+            <thead><tr><th>Data</th><th class="r">Patrimônio</th><th class="r">Renda Fixa</th><th class="r">% RF</th><th class="r">Renda Variável</th><th class="r">% RV</th></tr></thead>
+            <tbody id="tbl-snapshots"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ABA: METAS ── -->
+      <div id="cart-metas" style="display:none">
+        <div class="g2" style="gap:14px;align-items:start">
+          <!-- Definição das metas -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-target"></i> Metas por classe</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Os valores de cada grupo devem somar exatamente 100%</div>
+
+              <div style="font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px">Alocação macro</div>
+              <div class="meta-input-row"><label>Meta Renda Fixa (%)</label><input class="meta-num" type="number" id="meta-rf" value="60" min="0" max="100" oninput="ajustarMeta('macro','rf')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Meta Renda Variável (%)</label><input class="meta-num" type="number" id="meta-rv" value="40" min="0" max="100" oninput="ajustarMeta('macro','rv')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div id="soma-macro" style="font-size:11px;margin-bottom:4px;padding:5px 8px;border-radius:6px;background:var(--greend);color:var(--green)">✓ Soma: 100%</div>
+              <div class="meta-input-row" style="margin-top:8px"><label>Desvio máximo tolerado</label><input class="meta-num" type="number" id="meta-desvio-max" value="5" min="0" max="20" oninput="calcMetas()"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+
+              <div class="div"></div>
+              <div style="font-size:10px;font-weight:600;color:var(--blue);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px">Renda Fixa — alocação interna</div>
+              <div class="meta-input-row"><label>Caixa</label><input class="meta-num" type="number" id="meta-caixa" value="10" oninput="ajustarMeta('rf','caixa')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Reserva de Emergência</label><input class="meta-num" type="number" id="meta-reserva" value="30" oninput="ajustarMeta('rf','reserva')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Viagem</label><input class="meta-num" type="number" id="meta-viagem" value="10" oninput="ajustarMeta('rf','viagem')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Aplic. Renda Fixa</label><input class="meta-num" type="number" id="meta-rf-aplic" value="50" oninput="ajustarMeta('rf','rf-aplic')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div id="soma-rf" style="font-size:11px;margin-bottom:4px;padding:5px 8px;border-radius:6px;background:var(--greend);color:var(--green)">✓ Soma: 100%</div>
+
+              <div class="div"></div>
+              <div style="font-size:10px;font-weight:600;color:var(--green);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px">Renda Variável — alocação interna</div>
+              <div class="meta-input-row"><label>Ações</label><input class="meta-num" type="number" id="meta-acoes" value="40" oninput="ajustarMeta('rv','acoes')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Fundos Imobiliários</label><input class="meta-num" type="number" id="meta-fii" value="30" oninput="ajustarMeta('rv','fii')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Investimento Exterior</label><input class="meta-num" type="number" id="meta-ext" value="20" oninput="ajustarMeta('rv','ext')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div class="meta-input-row"><label>Cripto</label><input class="meta-num" type="number" id="meta-cripto" value="10" oninput="ajustarMeta('rv','cripto')"><span style="font-size:11px;color:var(--tx3)">%</span></div>
+              <div id="soma-rv" style="font-size:11px;margin-bottom:4px;padding:5px 8px;border-radius:6px;background:var(--greend);color:var(--green)">✓ Soma: 100%</div>
+            </div>
+          </div>
+
+          <!-- Painel visual de desvios -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-adjustments-horizontal"></i> Situação atual vs. metas</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">A barra mostra a posição atual. A linha branca é a meta. A área sombreada é o desvio tolerado.</div>
+              <div id="metas-painel"></div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-chart-bar"></i> Desvio em pontos percentuais</div>
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:10px">Positivo = acima da meta · Negativo = abaixo · Zona verde = dentro do tolerado</div>
+              <div style="position:relative;height:220px"><canvas id="ch-desvio-metas"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= PLANO DE RECUPERAÇÃO ======= -->
+    <div class="page" id="page-plano">
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><h1>Meu orçamento</h1><p>Fluxo de caixa mensal — planejamento e acompanhamento financeiro</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="adicionarMes()"><i class="ti ti-calendar-plus"></i>Adicionar mês</button>
+          <button class="btn btn-gold btn-sm" onclick="salvarPlano()"><i class="ti ti-device-floppy"></i>Salvar</button>
+        </div>
+      </div>
+
+      <div class="plano-tab-grp">
+        <div class="plano-tab active" id="ptab-painel" onclick="planoTab('painel')">Painel</div>
+        <div class="plano-tab"        id="ptab-tabela" onclick="planoTab('tabela')">Plano completo</div>
+      </div>
+
+      <!-- ── ABA PAINEL ── -->
+      <div id="plano-painel">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px" id="plano-kpis"></div>
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;margin-bottom:14px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-calendar-event"></i> Mês atual — <span id="plano-mes-label">Ago/26</span></div>
+              <div id="plano-mes-detalhe"></div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-chart-line"></i> Evolução — Livre e Investimento</div>
+              <div class="leg" style="margin-bottom:8px">
+                <span class="leg-i"><span class="leg-d" style="background:#22c55e"></span>Livre</span>
+                <span class="leg-i"><span class="leg-d" style="background:#d4a843"></span>Investimento</span>
+              </div>
+              <div style="position:relative;height:190px"><canvas id="ch-plano-evolucao"></canvas></div>
+            </div>
+          </div>
+          <!-- Painel lateral direito -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="ct"><i class="ti ti-road"></i> Progresso do plano</div>
+              <div id="plano-progresso"></div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-info-circle"></i> Legenda</div>
+              <div style="font-size:11px;color:var(--tx2);line-height:1.8">
+                <div><span style="color:var(--gold);font-weight:600">Fase 1</span> — Recuperação: meses mais apertados, foco em zerar dívidas</div>
+                <div><span style="color:var(--green);font-weight:600">Fase 2</span> — Estabilização: investimento pleno e caixinha de viagem</div>
+                <div style="margin-top:8px;color:var(--tx3)">Campos <span style="color:#93c5fd">azuis</span> na aba "Plano completo" são editáveis — ajuste os valores reais mês a mês</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="ct"><i class="ti ti-calendar-stats"></i> Meses cadastrados</div>
+              <div id="plano-meses-lista"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ABA TABELA ── -->
+      <div id="plano-tabela" style="display:none">
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:12px">
+          Campos em <span style="color:#93c5fd;font-weight:600">azul</span> são editáveis — preencha com os valores reais do mês.
+          Os demais são calculados automaticamente.
+        </div>
+        <div class="tbl-scroll">
+          <table class="plano-tbl">
+            <thead>
+              <tr>
+                <th style="text-align:left">Mês</th>
+                <th style="text-align:left">Fase</th>
+                <th>Salário</th>
+                <th style="color:#93c5fd">Transf. Ana ✎</th>
+                <th style="color:#93c5fd">Parcelas ✎</th>
+                <th style="color:#93c5fd">Fixas cartão ✎</th>
+                <th>Fatura devida</th>
+                <th style="color:#93c5fd">Fixas pix ✎</th>
+                <th>Caixa disponível</th>
+                <th style="color:#93c5fd">Meta invest. ✎</th>
+                <th>PGBL</th>
+                <th>Outros inv.</th>
+                <th style="color:#93c5fd">Caixinha viagem ✎</th>
+                <th>Livre</th>
+                <th>% poupado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="plano-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      </div>
+    </div>
+
+    <!-- ======= LISTA DE COMPRAS ======= -->
+    <div class="page" id="page-lista">
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><h1>Lista de compras</h1><p>Compre com intenção — adicione, avalie e só então compre</p></div>
+        <button class="btn btn-gold btn-sm" onclick="lcAbrirForm()"><i class="ti ti-plus"></i>Adicionar item</button>
+      </div>
+
+      <!-- Formulário de adição (colapsável) -->
+      <div id="lc-form-wrap" style="display:none">
+        <div class="lc-form">
+          <div class="ct" style="margin-bottom:12px"><i class="ti ti-pencil"></i> Novo item</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div class="fg" style="margin-bottom:0"><label class="fl">Nome do produto *</label><input class="fi" type="text" id="lc-inp-nome" placeholder="Ex: Tênis de corrida" style="font-size:13px"></div>
+            <div class="fg" style="margin-bottom:0"><label class="fl">Valor (R$) *</label><div class="ip"><span>R$</span><input class="fi" type="number" id="lc-inp-valor" placeholder="0,00" step="0.01" style="font-size:13px"></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div class="fg" style="margin-bottom:0">
+              <label class="fl">Categoria</label>
+              <select class="fi" id="lc-inp-cat" style="font-size:12px">
+                <option value="Eletrônico">🖥️ Eletrônico</option>
+                <option value="Roupa">👕 Roupa</option>
+                <option value="Casa">🏠 Casa</option>
+                <option value="Saúde">💊 Saúde</option>
+                <option value="Lazer">🎮 Lazer</option>
+                <option value="Alimentação">🍽️ Alimentação</option>
+                <option value="Viagem">✈️ Viagem</option>
+                <option value="Outro">📦 Outro</option>
+              </select>
+            </div>
+            <div class="fg" style="margin-bottom:0"><label class="fl">Link / loja (opcional)</label><input class="fi" type="url" id="lc-inp-link" placeholder="https://..." style="font-size:12px"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-gold btn-sm" onclick="lcSalvarItem()"><i class="ti ti-check"></i>Salvar</button>
+            <button class="btn btn-ghost btn-sm" onclick="lcFecharForm()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra total + filtros -->
+      <div class="lc-total-bar">
+        <div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:3px">Total da lista (pendentes)</div>
+          <div style="font-size:22px;font-weight:700;color:var(--gold)" id="lc-total">R$ 0,00</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:3px">Já comprado</div>
+          <div style="font-size:16px;font-weight:600;color:var(--green)" id="lc-total-comp">R$ 0,00</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:3px">Itens</div>
+          <div style="font-size:16px;font-weight:600;color:var(--tx)" id="lc-count">0 pendentes</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="lc-filter" id="lc-filtros"></div>
+
+      <!-- Lista de itens -->
+      <div id="lc-lista"></div>
+    </div>
+
+    <!-- ======= ANUAL ======= -->
+    <div class="page" id="page-anual">
+      <div class="ph"><h1>Visão anual — 2025</h1><p>Módulo em análise</p></div>
+      <div style="display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:14px;text-align:center">
+        <i class="ti ti-chart-area" style="font-size:52px;color:var(--tx3)"></i>
+        <div style="font-size:15px;font-weight:500">Em construção</div>
+        <div style="font-size:12px;color:var(--tx2);max-width:260px">Projeções anuais, patrimônio acumulado e metas de longo prazo. Em breve!</div>
+      </div>
+    </div>
+
+    <!-- ======= CONFIG ======= -->
+    <div class="page" id="page-cfg">
+      <div class="ph"><h1>Configurações</h1><p>Personalize cartões e conecte ao Google Sheets</p></div>
+      <div style="display:flex;flex-direction:column;gap:16px;max-width:480px">
+        <div class="card">
+          <div class="ct"><i class="ti ti-credit-card"></i> Meus cartões</div>
+          <div class="fg"><label class="fl">Nome — Cartão 1</label><input class="fi" type="text" id="cfg_c1" value="Cartão 1" oninput="salvarConfigLocal()"></div>
+          <div class="fg"><label class="fl">Nome — Cartão 2</label><input class="fi" type="text" id="cfg_c2" value="Cartão 2" oninput="salvarConfigLocal()"></div>
+          <div class="fg"><label class="fl">Nome — Cartão 3</label><input class="fi" type="text" id="cfg_c3" value="Cartão 3" oninput="salvarConfigLocal()"></div>
+        </div>
+        <div class="card">
+          <div class="ct"><i class="ti ti-brand-google"></i> Conexão Google Sheets</div>
+          <div style="font-size:12px;color:var(--tx2);margin-bottom:14px;line-height:1.6">Cole aqui a URL do seu Google Apps Script (Web App). Veja as instruções no guia <strong style="color:var(--tx)">LEIA_PRIMEIRO.md</strong>.</div>
+          <div class="fg"><label class="fl">URL do Apps Script</label><input class="fi" type="url" id="cfg_url" placeholder="https://script.google.com/macros/s/…/exec" oninput="salvarConfigLocal()"></div>
+          <button class="btn btn-gold btn-sm" onclick="testarConexao()"><i class="ti ti-plug"></i>Testar conexão</button>
+          <div id="conn-result" style="margin-top:10px;font-size:12px;color:var(--tx3)"></div>
+        </div>
+        <div class="card">
+          <div class="ct"><i class="ti ti-settings-2"></i> Preferências</div>
+          <div class="fg"><label class="fl">CDI mensal padrão (%)</label><div class="ip"><span>%</span><input class="fi" type="number" id="cfg_cdi" value="0.91" step="0.01" oninput="salvarConfigLocal()"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+// ─────────────────────────────────────────────
+//  UTILIDADES
+// ─────────────────────────────────────────────
+const fmt  = v => 'R$\u00a0' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtK = v => v >= 1000 ? 'R$\u00a0' + (v/1000).toFixed(1) + 'k' : 'R$\u00a0' + Number(v).toFixed(2);
+const $ = id => document.getElementById(id);
+
+function showNotif(txt, tipo='ok') {
+  const n = $('notif');
+  n.textContent = txt;
+  n.className = 'notif show' + (tipo === 'err' ? ' err' : '');
+  setTimeout(() => n.className = 'notif', 3000);
+}
+
+function setSyncStatus(txt, tipo) {
+  const el = $('sync-status');
+  el.textContent = txt;
+  el.className = 'sync-status sync-' + tipo;
+}
+
+// ─────────────────────────────────────────────
+//  CONFIG LOCAL (localStorage)
+// ─────────────────────────────────────────────
+function carregarConfigLocal() {
+  const cfg = JSON.parse(localStorage.getItem('fintrack_cfg') || '{}');
+  if (cfg.c1) { $('cfg_c1').value = cfg.c1; $('label-c1').textContent = cfg.c1; }
+  if (cfg.c2) { $('cfg_c2').value = cfg.c2; $('label-c2').textContent = cfg.c2; }
+  if (cfg.c3) { $('cfg_c3').value = cfg.c3; $('label-c3').textContent = cfg.c3; }
+  if (cfg.url) $('cfg_url').value = cfg.url;
+  if (cfg.cdi) $('cfg_cdi').value = cfg.cdi;
+}
+
+function salvarConfigLocal() {
+  const cfg = {
+    c1: $('cfg_c1').value, c2: $('cfg_c2').value, c3: $('cfg_c3').value,
+    url: $('cfg_url').value, cdi: $('cfg_cdi').value
+  };
+  localStorage.setItem('fintrack_cfg', JSON.stringify(cfg));
+  $('label-c1').textContent = cfg.c1 || 'Cartão 1';
+  $('label-c2').textContent = cfg.c2 || 'Cartão 2';
+  $('label-c3').textContent = cfg.c3 || 'Cartão 3';
+}
+
+function getScriptUrl() { return ($('cfg_url').value || '').trim(); }
+
+// ─────────────────────────────────────────────
+//  API GOOGLE APPS SCRIPT
+// ─────────────────────────────────────────────
+async function apiPost(data) {
+  const url = getScriptUrl();
+  if (!url) throw new Error('URL do Apps Script não configurada. Vá em Configurações.');
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(data)
+  });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.erro || 'Erro desconhecido');
+  return json;
+}
+
+async function testarConexao() {
+  $('conn-result').textContent = 'Testando…';
+  try {
+    await apiPost({ action: 'buscarConfig' });
+    $('conn-result').textContent = '✅ Conexão OK! Google Sheets está respondendo.';
+    $('conn-result').style.color = 'var(--green)';
+    setSyncStatus('Conectado ao Sheets', 'ok');
+  } catch(e) {
+    $('conn-result').textContent = '❌ Erro: ' + e.message;
+    $('conn-result').style.color = 'var(--red)';
+    setSyncStatus('Sem conexão', 'err');
+  }
+}
+
+// ─────────────────────────────────────────────
+//  NAVEGAÇÃO
+// ─────────────────────────────────────────────
+const pages = ['calc','mensal','hist','anual','cfg','carteira','plano','lista'];
+function go(p) {
+  // Esconde todas as páginas e desativa todos os nav items
+  pages.forEach(x => {
+    const pg = document.getElementById('page-'+x);
+    if (pg) { pg.classList.remove('active'); }
+    const nav = document.getElementById('nav-'+x);
+    if (nav) { nav.classList.remove('active'); }
+  });
+  // Ativa a página e nav item selecionados
+  const target = document.getElementById('page-'+p);
+  if (target) target.classList.add('active');
+  const navTarget = document.getElementById('nav-'+p);
+  if (navTarget) navTarget.classList.add('active');
+  // Callbacks específicos por página
+  if (p === 'hist')     { try { renderHist();      } catch(e){} }
+  if (p === 'carteira') { try { calcCarteira();    } catch(e){} }
+  if (p === 'plano')    { try { renderPlanoPainel(); } catch(e){} }
+  if (p === 'lista')    { try { renderListaCompras(); } catch(e){} }
+  // Fecha sidebar no mobile
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  if (sb) sb.classList.remove('open');
+  if (ov) ov.classList.remove('show');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+function syncS(iid, sid) {
+  const s = $(sid); if (!s) return;
+  const inp = $(iid); if (!inp) return;
+  inp.value = s.value;
+  const sv = $(sid+'v'); if (sv) sv.textContent = parseFloat(s.value).toFixed(sid === 'c_cdi_s' ? 2 : 0);
+}
+function syncI(iid, sid) {
+  const i = $(iid); if (!i) return;
+  const s = $(sid); if (!s) return;
+  s.value = i.value;
+  const sv = $(sid+'v'); if (sv) sv.textContent = parseFloat(i.value).toFixed(sid === 'c_cdi_s' ? 2 : 0);
+}
+
+// ─────────────────────────────────────────────
+//  CALCULADORA
+// ─────────────────────────────────────────────
+let cbOn = false;
+function togCB(on) {
+  cbOn = on;
+  $('cb_si').classList.toggle('active', on); $('cb_no').classList.toggle('active', !on);
+  $('cb_f').style.display = on ? 'block' : 'none';
+  $('cb_e').style.display = on ? 'none' : 'block';
+  $('cb_box').style.display = on ? 'block' : 'none';
+  calcC();
+}
+function set$(id, prop, val) { const el=$( id); if(el) el[prop]=val; }
+function calcC() {
+  if (!$('c_preco')) return; // página não carregou ainda
+  const p = parseFloat($('c_preco').value)||0, d = parseFloat($('c_desc').value)||0;
+  const n = parseInt($('c_parc').value)||12, r = parseFloat($('c_cdi').value)||0.91;
+  const cb = cbOn ? (parseFloat($('c_cb').value)||0) : 0;
+  const av = p*(1-d/100), rend = p*(Math.pow(1+r/100,n)-1);
+  const cashback = p*(cb/100), ef = p-rend-cashback, dif = av-ef;
+  set$('r_av','textContent',fmt(av)); set$('r_av_s','textContent',d+'% desconto');
+  set$('r_parc','textContent',fmt(p)); set$('r_parc_s','textContent',n+'x '+fmt(p/n));
+  set$('r_rend','textContent',fmt(rend)); set$('r_rend_s','textContent','por '+n+' meses');
+  set$('r_ef','textContent',fmt(ef));
+  set$('r_ef_s','textContent',(dif>=0?'Economiza ':'Perde ')+fmt(Math.abs(dif))+' vs. à vista');
+  if(cbOn && $('r_cb')) $('r_cb').textContent = fmt(cashback);
+  const par = ef < av;
+  if($('r_vrd')) $('r_vrd').className = 'vrd '+(par?'win':'neu');
+  set$('v_ic','textContent',par?'✅':'💰');
+  set$('v_t','textContent',par?'Parcelar vale mais':'À vista é melhor');
+  set$('v_s','textContent',par ? `CDI${cbOn?'+cashback':''} compensa — economia de ${fmt(Math.abs(dif))}` : `Desconto compensa — economia de ${fmt(Math.abs(dif))}`);
+  let bars=''; const show = Math.min(n,6);
+  for(let i=1;i<=show;i++){
+    const rd=p*(Math.pow(1+r/100,i)-1), pct=Math.min(100,(rd/p)*1000);
+    bars+=`<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px"><span style="font-size:10px;color:var(--tx3);min-width:26px">M${i}</span><div style="flex:1;height:5px;background:var(--s2);border-radius:3px;overflow:hidden"><div style="width:${pct.toFixed(1)}%;height:100%;background:var(--gold);border-radius:3px"></div></div><span style="font-size:10px;color:var(--gold);min-width:56px;text-align:right">${fmt(rd)}</span></div>`;
+  }
+  if(n>6) bars+=`<div style="font-size:10px;color:var(--tx3);text-align:center;margin-top:3px">+${n-6} meses restantes</div>`;
+  set$('tl_bars','innerHTML',bars);
+}
+
+// ─────────────────────────────────────────────
+//  CONTROLE MENSAL — dados locais + sync Sheets
+// ─────────────────────────────────────────────
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const ANO_ATUAL = 25, MES_ATUAL = new Date().getMonth(); // 0-indexed
+let currentMes = MES_ATUAL; // 0-indexed
+let histData = []; // carregado do Sheets
+
+function mesLabel(m) { return MESES[m] + '/' + ANO_ATUAL; }
+
+function getMesData(m) { return histData.find(d => d.mes === m && d.ano === ANO_ATUAL) || null; }
+
+function navMes(dir) {
+  const novo = currentMes + dir;
+  if (novo < 0 || novo > MES_ATUAL) return;
+  currentMes = novo; loadMes(currentMes);
+}
+
+function loadMes(m) {
+  const label = mesLabel(m);
+  $('month-label').textContent = label;
+  $('nb-mes').textContent = MESES[m];
+  $('chip-mes').textContent = label;
+  $('btn-prev').disabled = (m <= 0);
+  $('btn-next').disabled = (m >= MES_ATUAL);
+
+  const d = getMesData(m);
+  const isClosed = d && d.status === 'Fechado';
+  const isPast = m < MES_ATUAL;
+
+  $('month-status').textContent = isClosed ? 'Fechado' : 'Em aberto';
+  $('month-status').className = 'ms ' + (isClosed ? 'ms-fechado' : 'ms-aberto');
+
+  $('edit-banner-wrap').innerHTML = isPast && isClosed
+    ? `<div class="edit-banner"><i class="ti ti-edit"></i><span>Editando mês já fechado (${label}). Salvar substitui os dados no Google Sheets.</span></div>`
+    : '';
+
+  // Contexto do mês seguinte no subtítulo e nas labels
+  const proxMes = MESES[(m + 1) % 12] + '/' + ANO_ATUAL;
+  $('ph-sub').textContent = isPast && isClosed
+    ? `Editando dados de ${label}.`
+    : `Planejando as movimentações de ${proxMes} — lançadas agora em ${label}.`;
+  if ($('faturas-sub')) $('faturas-sub').textContent = `Faturas que vencem em ${proxMes}`;
+  if ($('transf-sub'))  $('transf-sub').textContent  = `Ex: poupança programada, envio para familiar`;
+  if ($('entradas-sub')) $('entradas-sub').textContent = `O que deve entrar em ${proxMes}`;
+
+  // Labels do fechamento refletem nomes dos cartões
+  const c1=$('cfg_c1').value||'Cartão 1', c2=$('cfg_c2').value||'Cartão 2', c3=$('cfg_c3').value||'Cartão 3';
+  if($('fc_label_c1')) $('fc_label_c1').textContent = c1;
+  if($('fc_label_c2')) $('fc_label_c2').textContent = c2;
+  if($('fc_label_c3')) $('fc_label_c3').textContent = c3;
+
+  // Preenche campos planejamento
+  if (d) {
+    $('m_sal').value    = d.sal    ?? 0;
+    $('m_ext').value    = d.ext    ?? 0;
+    $('m_fixas').value  = d.fixas  ?? 0;
+    $('m_transf').value = d.transf ?? 0;
+    $('m_pct_s').value  = d.pct    ?? 20;
+    $('m_laz_v').value  = d.laz    ?? 0;
+    $('f1').value       = d.f1     ?? 0;
+    $('f2').value       = d.f2     ?? 0;
+    $('f3').value       = d.f3     ?? 0;
+    // fechamento
+    $('fe_sal').value         = d.fe_sal         ?? 0;
+    $('fe_transf_rec').value  = d.fe_transf_rec  ?? 0;
+    $('fe_f1').value          = d.fe_f1          ?? 0;
+    $('fe_f2').value          = d.fe_f2          ?? 0;
+    $('fe_f3').value          = d.fe_f3          ?? 0;
+    $('fe_transf_out').value  = d.fe_transf_out  ?? 0;
+  } else {
+    ['m_sal','m_ext','m_fixas','m_transf','m_laz_v','f1','f2','f3',
+     'fe_sal','fe_transf_rec','fe_f1','fe_f2','fe_f3','fe_transf_out']
+      .forEach(id => $(id).value = 0);
+  }
+
+  $('btn-fechar-txt').textContent = isClosed ? 'Atualizar fechamento' : 'Fechar mês';
+  calcM();
+}
+
+function calcM() {
+  const sal    = parseFloat($('m_sal').value)    || 0;
+  const ext    = parseFloat($('m_ext').value)    || 0;
+  const fixas  = parseFloat($('m_fixas').value)  || 0;
+  const transf = parseFloat($('m_transf').value) || 0;
+  const pct    = parseInt($('m_pct_s').value)    || 0;
+  const laz    = parseFloat($('m_laz_v').value)  || 0;
+  const f1=parseFloat($('f1').value)||0, f2=parseFloat($('f2').value)||0, f3=parseFloat($('f3').value)||0;
+  $('m_pct_sv').textContent = pct;
+
+  const totE   = sal + ext;
+  const totF   = f1 + f2 + f3;
+  const totFix = fixas + transf;
+  const savM   = Math.round(sal * (pct / 100));
+  const saldo  = totE - totF - totFix - savM - laz;
+
+  // KPIs
+  $('m_tot_e').textContent  = fmt(totE);
+  $('m_tot_f').textContent  = fmt(totF);
+  $('m_fat').textContent    = fmt(totF);
+  $('m_saldo').textContent  = fmt(saldo);
+  $('m_saldo_sub').textContent = saldo >= 0 ? 'disponível p/ gastar no cartão' : '⚠️ orçamento estourado';
+  $('m_saldo').style.color  = saldo >= 0 ? 'var(--green)' : 'var(--red)';
+  $('m_sav').textContent    = fmt(savM);
+  $('m_laz').textContent    = fmt(laz);
+
+  // Barras de distribuição das faturas
+  const cores  = ['#3b82f6','#d4a843','#22c55e'];
+  const vals   = [f1, f2, f3];
+  const names  = [$('cfg_c1').value||'Cartão 1', $('cfg_c2').value||'Cartão 2', $('cfg_c3').value||'Cartão 3'];
+  let dist = '';
+  vals.forEach((v,i) => {
+    const p = totF > 0 ? (v/totF*100) : 0;
+    dist += `<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:var(--tx2)">${names[i]}</span><span style="color:${cores[i]};font-weight:600">${fmt(v)} <span style="color:var(--tx3)">(${p.toFixed(0)}%)</span></span></div><div class="pb"><div class="pf" style="width:${p.toFixed(1)}%;background:${cores[i]}"></div></div></div>`;
+  });
+  $('dist_b').innerHTML = dist;
+
+  // Card de resumo de projeção
+  const proxMes = MESES[(currentMes+1)%12]+'/'+ANO_ATUAL;
+  $('m_ctx_txt').textContent = `Com base no planejado para ${proxMes}`;
+  $('rp_e').textContent  = fmt(totE);
+  $('rp_f').textContent  = fmt(totF);
+  $('rp_fx').textContent = fmt(totFix);
+  $('rp_s').textContent  = fmt(savM);
+  $('rp_l').textContent  = fmt(laz);
+  $('rp_disp').textContent = fmt(saldo);
+  $('rp_disp').style.color = saldo >= 0 ? 'var(--green)' : 'var(--red)';
+  $('m_proj_txt').textContent = saldo >= 0
+    ? `✅ Você ainda pode gastar ${fmt(saldo)} no cartão este mês sem comprometer ${proxMes}`
+    : `⚠️ As saídas previstas superam as entradas em ${fmt(Math.abs(saldo))} — revise os valores`;
+
+  calcF();
+}
+
+function showTab(t) {
+  $('tab_plan').classList.toggle('active', t==='plan'); $('tab_fec').classList.toggle('active', t==='fec');
+  $('tab_plan_c').style.display = t==='plan'?'block':'none';
+  $('tab_fec_c').style.display  = t==='fec'?'block':'none';
+  if(t==='fec') calcF();
+}
+
+function calcF() {
+  if (!$('fe_sal')) return; // elementos do fechamento não carregaram ainda
+  const sal   = parseFloat($('m_sal').value)  || 0;
+  const pct   = parseInt($('m_pct_s').value)  || 0;
+  const metaSaving = Math.round(sal * (pct / 100));
+
+  // Entradas reais
+  const feSal       = parseFloat($('fe_sal').value)        || 0;
+  const feTransfRec = parseFloat($('fe_transf_rec').value) || 0;
+  const totalEntrada = feSal + feTransfRec;
+
+  // Saídas reais
+  const fef1       = parseFloat($('fe_f1').value)         || 0;
+  const fef2       = parseFloat($('fe_f2').value)         || 0;
+  const fef3       = parseFloat($('fe_f3').value)         || 0;
+  const feTransfOut= parseFloat($('fe_transf_out').value) || 0;
+  const totalSaidas = fef1 + fef2 + fef3 + feTransfOut;
+
+  // Resultado: o que sobrou/guardou
+  const saldoReal = totalEntrada - totalSaidas;
+
+  // Atualiza UI
+  $('fc_tot_e').textContent          = fmt(totalEntrada);
+  $('fc_re').textContent             = fmt(totalEntrada);
+  $('fc_fat_pagas').textContent      = fmt(fef1+fef2+fef3);
+  $('fc_transf_out_show').textContent= feTransfOut > 0 ? fmt(feTransfOut) : 'R$ 0,00';
+  $('fc_saldo_real').textContent     = fmt(saldoReal);
+  $('fc_saldo_real').style.color     = saldoReal >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // Veredicto
+  const bateuMeta = saldoReal >= metaSaving;
+  const icone = saldoReal >= 0 ? (bateuMeta ? '🏆' : '✅') : '⚠️';
+  let titulo, sub;
+  if (saldoReal < 0) {
+    titulo = 'Mês no negativo';
+    sub    = `Suas saídas superaram as entradas em ${fmt(Math.abs(saldoReal))}`;
+  } else if (bateuMeta) {
+    titulo = 'Meta de saving atingida!';
+    sub    = `Você guardou ${fmt(saldoReal)} — meta era ${fmt(metaSaving)}`;
+  } else {
+    titulo = 'Mês positivo, saving abaixo da meta';
+    sub    = `Sobrou ${fmt(saldoReal)}, mas a meta era guardar ${fmt(metaSaving)}`;
+  }
+  $('fec_vrd').innerHTML = `<div class="vrd ${saldoReal>=0&&bateuMeta?'win':'neu'}"><div class="vrd-ic">${icone}</div><div><div class="vrd-t">${titulo}</div><div class="vrd-s">${sub}</div></div></div>`;
+}
+
+async function fecharMes() {
+  const sal    = parseFloat($('m_sal').value)    || 0;
+  const ext    = parseFloat($('m_ext').value)    || 0;
+  const fixas  = parseFloat($('m_fixas').value)  || 0;
+  const transf = parseFloat($('m_transf').value) || 0;
+  const pct    = parseInt($('m_pct_s').value)    || 0;
+  const laz    = parseFloat($('m_laz_v').value)  || 0;
+  const f1=parseFloat($('f1').value)||0, f2=parseFloat($('f2').value)||0, f3=parseFloat($('f3').value)||0;
+
+  const fe_sal        = parseFloat($('fe_sal').value)        || 0;
+  const fe_transf_rec = parseFloat($('fe_transf_rec').value) || 0;
+  const fe_f1         = parseFloat($('fe_f1').value)         || 0;
+  const fe_f2         = parseFloat($('fe_f2').value)         || 0;
+  const fe_f3         = parseFloat($('fe_f3').value)         || 0;
+  const fe_transf_out = parseFloat($('fe_transf_out').value) || 0;
+
+  const totalEntrada = fe_sal + fe_transf_rec;
+  const totalSaidas  = fe_f1 + fe_f2 + fe_f3 + fe_transf_out;
+  const saldoReal    = totalEntrada - totalSaidas;
+  const meta         = Math.round(sal * (pct / 100));
+
+  const payload = {
+    action: 'salvarMes',
+    data: {
+      mes: currentMes, ano: ANO_ATUAL,
+      sal, ext, fixas, transf, pct, laz, f1, f2, f3,
+      fe_sal, fe_transf_rec, fe_f1, fe_f2, fe_f3, fe_transf_out,
+      closed: true
+    }
+  };
+
+  // Salva localmente
+  const existIdx = histData.findIndex(d => d.mes===currentMes && d.ano===ANO_ATUAL);
+  const entry = {
+    ...payload.data, status: 'Fechado',
+    e: totalEntrada, g: totalSaidas, s: saldoReal,
+    meta, desvio: totalSaidas - (sal+ext-fixas-transf-meta-laz)
+  };
+  if (existIdx>=0) histData[existIdx]=entry; else histData.push(entry);
+  $('nb-hist').textContent = histData.filter(d=>d.status==='Fechado').length;
+  loadMes(currentMes);
+  showNotif('Salvo localmente ✓');
+
+  // Sincroniza com Sheets
+  try {
+    setSyncStatus('Sincronizando…', 'wait');
+    await apiPost(payload);
+    setSyncStatus('Salvo no Sheets ✓', 'ok');
+    showNotif('Salvo no Google Sheets ✓');
+  } catch(e) {
+    setSyncStatus('Erro no Sheets', 'err');
+    showNotif('Local salvo, Sheets falhou: '+e.message, 'err');
+  }
+}
+
+// ─────────────────────────────────────────────
+//  HISTÓRICO — gráficos e tabela
+// ─────────────────────────────────────────────
+let hRange = 6, hCharts = {};
+
+function setR(r) {
+  hRange = r;
+  ['r3','r6','r12'].forEach(id => $(id).classList.remove('active'));
+  $('r'+r).classList.add('active');
+  renderHist();
+}
+
+// Retorna meses fechados (reais) ordenados
+function getClosedSlice() {
+  return histData
+    .filter(d => d.status === 'Fechado')
+    .sort((a,b) => a.mes - b.mes)
+    .slice(-hRange);
+}
+
+// Para um mês fechado M, a meta vem do planejamento de M-1
+function getMetaParaMes(mesIdx) {
+  const planMesAnterior = histData.find(d => d.mes === mesIdx - 1 && d.ano === ANO_ATUAL);
+  if (!planMesAnterior) return null;
+  return Math.round(planMesAnterior.sal * (planMesAnterior.pct / 100));
+}
+
+const gc = 'rgba(255,255,255,0.05)', tc = '#5a6077';
+const baseO = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor:'#1e2535', titleColor:'#e8eaf0', bodyColor:'#8b92a8',
+      borderColor:'rgba(255,255,255,0.1)', borderWidth:1, padding:9,
+      callbacks: { label: c => ' ' + c.dataset.label + ': ' + fmt(c.parsed.y) }
+    }
+  },
+  scales: {
+    x: { ticks:{color:tc,font:{size:10},autoSkip:false}, grid:{color:gc}, border:{color:'rgba(255,255,255,0.04)'} },
+    y: { ticks:{color:tc,font:{size:10},callback:v=>fmtK(v)}, grid:{color:gc}, border:{color:'rgba(255,255,255,0.04)'} }
+  }
+};
+
+function initHCharts() {
+  if (hCharts.linha) return;
+  hCharts.linha = new Chart($('ch-linha'), { type:'line', data:{labels:[],datasets:[]}, options: JSON.parse(JSON.stringify(baseO)) });
+  hCharts.meta  = new Chart($('ch-meta'),  { type:'bar',  data:{labels:[],datasets:[]}, options: JSON.parse(JSON.stringify(baseO)) });
+}
+
+function editFromHist(mesIdx) { currentMes = mesIdx; go('mensal'); loadMes(mesIdx); showTab('fec'); }
+
+function renderHist() {
+  initHCharts();
+  const sl = getClosedSlice();
+
+  if (sl.length === 0) {
+    $('kpi-row').innerHTML = '<div class="mt" style="grid-column:1/-1;text-align:center;color:var(--tx3);font-size:12px;padding:20px">Nenhum mês fechado ainda. Feche um mês no Controle Mensal para começar.</div>';
+    $('tbl-body').innerHTML = '';
+    return;
+  }
+
+  const labels = sl.map(d => MESES[d.mes] + '/' + d.ano);
+
+  // Para cada mês fechado, busca a meta do planejamento do mês anterior
+  const metas = sl.map(d => getMetaParaMes(d.mes));
+
+  // KPIs — apenas com meses que têm meta definida para calcular % de acerto
+  const comMeta = sl.filter((d,i) => metas[i] !== null);
+  const acima   = comMeta.filter((d,i) => {
+    const idx = sl.indexOf(d);
+    return metas[idx] !== null && d.s >= metas[idx];
+  }).length;
+
+  const totE = sl.reduce((a,d) => a+d.e, 0);
+  const totG = sl.reduce((a,d) => a+d.g, 0);
+  const totS = sl.reduce((a,d) => a+d.s, 0);
+
+  const kpis = [
+    { l:'Receita total',    v:fmt(totE), s:fmt(totE/sl.length)+'/mês',  c:'#3b82f6' },
+    { l:'Gastos totais',    v:fmt(totG), s:fmt(totG/sl.length)+'/mês',  c:'#ef4444' },
+    { l:'Saving total',     v:fmt(totS), s:fmt(totS/sl.length)+'/mês',  c:'#d4a843' },
+    { l:'Meses com meta atingida', v: comMeta.length > 0 ? acima+'/'+comMeta.length : '—',
+      s: comMeta.length > 0 ? 'de '+comMeta.length+' meses com meta' : 'sem metas definidas', c:'#22c55e' },
+  ];
+  $('kpi-row').innerHTML = kpis.map(k =>
+    `<div class="mt"><div class="mt-l">${k.l}</div><div class="mt-v" style="font-size:16px;color:${k.c}">${k.v}</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">${k.s}</div></div>`
+  ).join('');
+
+  // Gráfico de linhas — receita, gastos, saving real
+  hCharts.linha.data.labels   = labels;
+  hCharts.linha.data.datasets = [
+    { label:'Receita real', data:sl.map(d=>d.e), borderColor:'#2a78d6', backgroundColor:'rgba(42,120,214,0.07)', borderWidth:2, pointRadius:4, pointBackgroundColor:'#2a78d6', pointBorderColor:'#0f1117', pointBorderWidth:2, tension:0.35, fill:true },
+    { label:'Gastos reais', data:sl.map(d=>d.g), borderColor:'#e34948', backgroundColor:'rgba(227,73,72,0.05)',  borderWidth:2, pointRadius:4, pointBackgroundColor:'#e34948', pointBorderColor:'#0f1117', pointBorderWidth:2, tension:0.35, fill:true },
+    { label:'Saving real',  data:sl.map(d=>d.s), borderColor:'#d4a843', backgroundColor:'rgba(212,168,67,0.05)', borderWidth:2, pointRadius:4, pointBackgroundColor:'#d4a843', pointBorderColor:'#0f1117', pointBorderWidth:2, tension:0.35, fill:true },
+  ];
+  hCharts.linha.update();
+
+  // Gráfico de meta — barras coloridas por status + linha tracejada da meta
+  hCharts.meta.data.labels   = labels;
+  hCharts.meta.data.datasets = [
+    {
+      label: 'Saving real',
+      data: sl.map(d => d.s),
+      backgroundColor: sl.map((d,i) => {
+        if (metas[i] === null) return 'rgba(139,146,168,0.3)'; // sem meta: cinza
+        return d.s >= metas[i] ? 'rgba(34,197,94,0.75)' : 'rgba(239,68,68,0.75)';
+      }),
+      borderRadius: 5,
+      barThickness: 18,
+    },
+    {
+      label: 'Meta planejada',
+      data: metas.map(m => m ?? 0),
+      type: 'line',
+      borderColor: 'rgba(212,168,67,0.6)',
+      borderDash: [5,4],
+      borderWidth: 2,
+      pointRadius: metas.map(m => m !== null ? 4 : 0),
+      pointBackgroundColor: 'rgba(212,168,67,0.8)',
+      pointBorderColor: '#0f1117',
+      pointBorderWidth: 2,
+      tension: 0.3,
+      fill: false,
+    }
+  ];
+  hCharts.meta.update();
+
+  // Tabela
+  $('tbl-body').innerHTML = sl.map((d,i) => {
+    const meta     = metas[i];
+    const temMeta  = meta !== null;
+    const bateu    = temMeta && d.s >= meta;
+    const quase    = temMeta && !bateu && d.s >= meta * 0.8;
+    const badge    = !temMeta
+      ? '<span class="bdg" style="background:var(--s2);color:var(--tx3)">Sem meta</span>'
+      : bateu ? '<span class="bdg b-ok">✓ Atingida</span>'
+      : quase ? '<span class="bdg b-par">Quase</span>'
+      : '<span class="bdg b-no">Abaixo</span>';
+    const saldo    = d.e - d.g;
+    const saldoCor = saldo >= 0 ? 'var(--green)' : 'var(--red)';
+    const metaTxt  = temMeta ? fmt(meta) : '<span style="color:var(--tx3)">—</span>';
+    return `<tr class="clickable" onclick="editFromHist(${d.mes})">
+      <td style="color:var(--tx);font-weight:500">${MESES[d.mes]}/${d.ano} <i class="ti ti-pencil" style="font-size:11px;color:var(--tx3)"></i></td>
+      <td class="r" style="color:#3b82f6">${fmt(d.e)}</td>
+      <td class="r" style="color:#ef4444">${fmt(d.g)}</td>
+      <td class="r" style="color:#d4a843">${fmt(d.s)}</td>
+      <td class="r">${metaTxt}</td>
+      <td style="text-align:center">${badge}</td>
+      <td class="r" style="color:${saldoCor}">${saldo>=0?'+':'-'}${fmt(Math.abs(saldo))}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+//  CARREGA DADOS DO SHEETS AO ABRIR
+// ─────────────────────────────────────────────
+async function carregarDoSheets() {
+  const url = getScriptUrl();
+  if (!url) { setSyncStatus('Configure o Sheets em ⚙️', 'wait'); return; }
+  try {
+    setSyncStatus('Carregando…', 'wait');
+    const res = await apiPost({ action: 'buscarTodos' });
+    histData = (res.dados || []).map(row => ({
+      mes:          parseInt(row['Mês'])                         || 0,
+      ano:          parseInt(row['Ano'])                         || ANO_ATUAL,
+      sal:          parseFloat(row['Salário'])                   || 0,
+      ext:          parseFloat(row['Extras Previstos'])          || 0,
+      fixas:        parseFloat(row['Despesas Fixas'])            || 0,
+      transf:       parseFloat(row['Transferência Prevista'])    || 0,
+      f1:           parseFloat(row['Fatura Cartão 1'])           || 0,
+      f2:           parseFloat(row['Fatura Cartão 2'])           || 0,
+      f3:           parseFloat(row['Fatura Cartão 3'])           || 0,
+      pct:          parseFloat(row['% Saving'])                  || 20,
+      laz:          parseFloat(row['Verba Lazer'])               || 0,
+      fe_sal:       parseFloat(row['Salário Real'])              || 0,
+      fe_transf_rec:parseFloat(row['Transf Recebidas'])          || 0,
+      fe_f1:        parseFloat(row['Fat Paga C1'])               || 0,
+      fe_f2:        parseFloat(row['Fat Paga C2'])               || 0,
+      fe_f3:        parseFloat(row['Fat Paga C3'])               || 0,
+      fe_transf_out:parseFloat(row['Transf Não Previstas'])      || 0,
+      meta:         parseFloat(row['Meta Saving'])               || 0,
+      desvio:       parseFloat(row['Desvio'])                    || 0,
+      status:       row['Status']                                || 'Em aberto',
+      // campos calculados para o histórico
+      e: parseFloat(row['Total Entradas Real']) || 0,
+      g: parseFloat(row['Total Saídas Real'])   || 0,
+      s: parseFloat(row['Saldo Real'])          || 0,
+    }));
+    $('nb-hist').textContent = histData.filter(d => d.status === 'Fechado').length;
+    setSyncStatus('Conectado ao Sheets ✓', 'ok');
+    loadMes(currentMes);
+  } catch(e) {
+    setSyncStatus('Sem Sheets — modo offline', 'err');
+  }
+}
+
+// ─────────────────────────────────────────────
+//  CARTEIRA DE ATIVOS
+// ─────────────────────────────────────────────
+let carteiraSnapshots = []; // [{data, caixa, reserva, viagem, rfAplic, acoes, fii, ext, cripto}]
+let cartCharts = {};
+
+const ATIVOS_RF = [
+  { id:'cv-caixa',    label:'Caixa',              cor:'#3b82f6' },
+  { id:'cv-reserva',  label:'Res. Emergência',     cor:'#60a5fa' },
+  { id:'cv-viagem',   label:'Viagem',              cor:'#93c5fd' },
+  { id:'cv-rf-aplic', label:'Aplic. Renda Fixa',   cor:'#bfdbfe' },
+];
+const ATIVOS_RV = [
+  { id:'cv-acoes',  label:'Ações',               cor:'#22c55e' },
+  { id:'cv-fii',    label:'FIIs',                cor:'#4ade80' },
+  { id:'cv-ext',    label:'Inv. Exterior',        cor:'#86efac' },
+  { id:'cv-cripto', label:'Cripto',               cor:'#d4a843' },
+];
+
+function cartTab(t) {
+  ['visao','detalhe','evolucao','metas'].forEach(x => {
+    $('cart-'+x).style.display   = x===t ? 'block' : 'none';
+    $('ctab-'+x).classList.toggle('active', x===t);
+  });
+  if (t==='evolucao') renderEvolucao();
+  if (t==='metas')    calcMetas();
+  if (t==='detalhe')  renderDetalhes();
+}
+
+function getCarteiraVals() {
+  const rf = ATIVOS_RF.map(a => parseFloat($(a.id).value)||0);
+  const rv = ATIVOS_RV.map(a => parseFloat($(a.id).value)||0);
+  const totRF = rf.reduce((a,v)=>a+v,0);
+  const totRV = rv.reduce((a,v)=>a+v,0);
+  const total = totRF + totRV;
+  return { rf, rv, totRF, totRV, total };
+}
+
+function fmtPct(v) { return v.toFixed(1)+'%'; }
+
+function calcCarteira() {
+  if (!$('ch-rfvrv')) return; // canvas não existe ainda, aborta
+  const { rf, rv, totRF, totRV, total } = getCarteiraVals();
+  const pctRF = total>0 ? totRF/total*100 : 0;
+  const pctRV = total>0 ? totRV/total*100 : 0;
+
+  // KPIs
+  $('cv-total').textContent  = fmt(total);
+  $('cv-rf').textContent     = fmt(totRF);
+  $('cv-rv').textContent     = fmt(totRV);
+  $('cv-rf-pct').textContent = fmtPct(pctRF)+' da carteira';
+  $('cv-rv-pct').textContent = fmtPct(pctRV)+' da carteira';
+  $('donut-total-val').textContent = total>=1000 ? 'R$'+(total/1000).toFixed(0)+'k' : fmt(total);
+
+  // Data de atualização
+  const dataVal = $('cv-data').value;
+  $('cart-upd-txt').textContent = dataVal
+    ? 'Atualizado em: '+new Date(dataVal+'T12:00:00').toLocaleDateString('pt-BR')
+    : 'Não atualizado';
+
+  // Gráfico RF vs RV (donut)
+  const rfvrvData = { labels:['Renda Fixa','Renda Variável'], datasets:[{
+    data: [totRF, totRV],
+    backgroundColor: ['#3b82f6','#22c55e'],
+    borderColor: '#0f1117', borderWidth: 3,
+    hoverOffset: 8
+  }]};
+  if (!cartCharts.rfvrv) {
+    cartCharts.rfvrv = new Chart($('ch-rfvrv'), {
+      type:'doughnut', data: rfvrvData,
+      options:{ cutout:'68%', plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.raw)+' ('+fmtPct(total>0?c.raw/total*100:0)+')'}}} }
+    });
+  } else { cartCharts.rfvrv.data = rfvrvData; cartCharts.rfvrv.update(); }
+
+  // Legenda RF vs RV
+  const legItems = [
+    { label:'Renda Fixa',     val:totRF, pct:pctRF,  cor:'#3b82f6' },
+    { label:'Renda Variável', val:totRV, pct:pctRV, cor:'#22c55e' },
+  ];
+  $('rfvrv-legend').innerHTML = legItems.map(l => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div style="width:10px;height:10px;border-radius:2px;background:${l.cor};flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--tx)">${l.label}</div>
+        <div style="font-size:11px;color:var(--tx3)">${fmt(l.val)} · ${fmtPct(l.pct)}</div>
+      </div>
+    </div>`).join('');
+
+  // Tabela resumo por classe
+  $('resumo-classes').innerHTML = legItems.map(l=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--brd)">
+      <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:${l.cor}"></div><span style="font-size:13px;color:var(--tx2)">${l.label}</span></div>
+      <div style="text-align:right"><div style="font-size:13px;font-weight:600;color:var(--tx)">${fmt(l.val)}</div><div style="font-size:10px;color:var(--tx3)">${fmtPct(l.pct)}</div></div>
+    </div>`).join('');
+
+  // Atualiza detalhes se aba estiver visível
+  if ($('cart-detalhe').style.display !== 'none') renderDetalhes();
+  if ($('cart-metas').style.display   !== 'none') calcMetas();
+}
+
+// Tooltip externo para donuts — evita corte pelo canvas
+function externalTooltip(context, totalVal) {
+  const { chart, tooltip } = context;
+  let el = document.getElementById('donut-tooltip-ext');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'donut-tooltip-ext';
+    el.style.cssText = 'position:fixed;background:#1e2535;border:0.5px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;font-size:12px;color:#e8eaf0;pointer-events:none;z-index:9999;transition:opacity .15s;white-space:nowrap';
+    document.body.appendChild(el);
+  }
+  if (tooltip.opacity === 0) { el.style.opacity = '0'; return; }
+  const dp = tooltip.dataPoints[0];
+  const pct = totalVal > 0 ? (dp.raw / totalVal * 100).toFixed(1) : '0';
+  el.innerHTML = `<div style="font-weight:600;margin-bottom:2px">${dp.label}</div><div style="color:#8b92a8">R$ ${dp.raw.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${pct}%</div>`;
+  const rect = chart.canvas.getBoundingClientRect();
+  el.style.left = (rect.left + tooltip.caretX + 12) + 'px';
+  el.style.top  = (rect.top  + tooltip.caretY - 20) + 'px';
+  el.style.opacity = '1';
+}
+
+function renderDetalhes() {
+  const { rf, rv, totRF, totRV } = getCarteiraVals();
+
+  // ── Donut RF ──
+  $('donut-rf-val').textContent = totRF>=1000?'R$'+(totRF/1000).toFixed(0)+'k':fmt(totRF);
+  const rfDetData = { labels: ATIVOS_RF.map(a=>a.label), datasets:[{
+    data: rf, backgroundColor: ATIVOS_RF.map(a=>a.cor),
+    borderColor:'#0f1117', borderWidth:3, hoverOffset:6
+  }]};
+  if (!cartCharts.rfDet) {
+    cartCharts.rfDet = new Chart($('ch-rf-det'), {
+      type:'doughnut', data: rfDetData,
+      options:{ cutout:'62%', layout:{padding:20}, plugins:{ legend:{display:false}, tooltip:{ enabled:false, external: ctx => externalTooltip(ctx, totRF) } } }
+    });
+  } else { cartCharts.rfDet.data = rfDetData; cartCharts.rfDet.update(); }
+
+  // Legenda + barras RF
+  $('rf-det-legend').innerHTML = ATIVOS_RF.map((a,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">
+      <div style="width:8px;height:8px;border-radius:2px;background:${a.cor};flex-shrink:0"></div>
+      <div><div style="font-size:11px;color:var(--tx)">${a.label}</div>
+      <div style="font-size:10px;color:var(--tx3)">${fmt(rf[i])} · ${fmtPct(totRF>0?rf[i]/totRF*100:0)}</div></div>
+    </div>`).join('');
+  $('rf-det-bars').innerHTML = ATIVOS_RF.map((a,i)=>{
+    const pct = totRF>0 ? rf[i]/totRF*100 : 0;
+    return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:var(--tx2)">${a.label}</span><span style="color:${a.cor};font-weight:600">${fmtPct(pct)}</span></div><div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:${pct.toFixed(1)}%;background:${a.cor}"></div></div></div>`;
+  }).join('');
+
+  // ── Donut RV ──
+  $('donut-rv-val').textContent = totRV>=1000?'R$'+(totRV/1000).toFixed(0)+'k':fmt(totRV);
+  const rvDetData = { labels: ATIVOS_RV.map(a=>a.label), datasets:[{
+    data: rv, backgroundColor: ATIVOS_RV.map(a=>a.cor),
+    borderColor:'#0f1117', borderWidth:3, hoverOffset:6
+  }]};
+  if (!cartCharts.rvDet) {
+    cartCharts.rvDet = new Chart($('ch-rv-det'), {
+      type:'doughnut', data: rvDetData,
+      options:{ cutout:'62%', layout:{padding:20}, plugins:{ legend:{display:false}, tooltip:{ enabled:false, external: ctx => externalTooltip(ctx, totRV) } } }
+    });
+  } else { cartCharts.rvDet.data = rvDetData; cartCharts.rvDet.update(); }
+
+  $('rv-det-legend').innerHTML = ATIVOS_RV.map((a,i)=>`
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">
+      <div style="width:8px;height:8px;border-radius:2px;background:${a.cor};flex-shrink:0"></div>
+      <div><div style="font-size:11px;color:var(--tx)">${a.label}</div>
+      <div style="font-size:10px;color:var(--tx3)">${fmt(rv[i])} · ${fmtPct(totRV>0?rv[i]/totRV*100:0)}</div></div>
+    </div>`).join('');
+  $('rv-det-bars').innerHTML = ATIVOS_RV.map((a,i)=>{
+    const pct = totRV>0 ? rv[i]/totRV*100 : 0;
+    return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:var(--tx2)">${a.label}</span><span style="color:${a.cor};font-weight:600">${fmtPct(pct)}</span></div><div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:${pct.toFixed(1)}%;background:${a.cor}"></div></div></div>`;
+  }).join('');
+}
+
+// Valida e ajusta a soma de cada grupo ao editar um campo
+function ajustarMeta(grupo, campo) {
+  const grupos = {
+    macro: { ids:['meta-rf','meta-rv'], somaEl:'soma-macro' },
+    rf:    { ids:['meta-caixa','meta-reserva','meta-viagem','meta-rf-aplic'], somaEl:'soma-rf' },
+    rv:    { ids:['meta-acoes','meta-fii','meta-ext','meta-cripto'], somaEl:'soma-rv' },
+  };
+  const g = grupos[grupo];
+  const soma = g.ids.reduce((a,id) => a + (parseFloat($(id).value)||0), 0);
+  const el = $(g.somaEl);
+  if (Math.abs(soma - 100) < 0.01) {
+    el.style.background = 'var(--greend)'; el.style.color = 'var(--green)';
+    el.textContent = '✓ Soma: 100%';
+  } else if (soma > 100) {
+    el.style.background = 'var(--redd)'; el.style.color = 'var(--red)';
+    el.textContent = '✕ Soma: ' + soma.toFixed(1) + '% — excede 100%';
+  } else {
+    el.style.background = 'rgba(251,191,36,0.12)'; el.style.color = '#fbbf24';
+    el.textContent = '⚠ Soma: ' + soma.toFixed(1) + '% — faltam ' + (100-soma).toFixed(1) + '%';
+  }
+  salvarMetasLocal();
+  calcMetas();
+}
+
+function calcMetas() {
+  if (!$('meta-rf')) return;
+  const { rf, rv, totRF, totRV, total } = getCarteiraVals();
+  const metaRF  = parseFloat($('meta-rf').value)  || 0;
+  const metaRV  = parseFloat($('meta-rv').value)  || 0;
+  const desvMax = parseFloat($('meta-desvio-max').value) || 5;
+
+  const metasRF = [
+    { id:'meta-caixa',    label:'Caixa',          val:rf[0], tot:totRF },
+    { id:'meta-reserva',  label:'Res. Emergência', val:rf[1], tot:totRF },
+    { id:'meta-viagem',   label:'Viagem',          val:rf[2], tot:totRF },
+    { id:'meta-rf-aplic', label:'Aplic. RF',       val:rf[3], tot:totRF },
+  ];
+  const metasRV = [
+    { id:'meta-acoes',  label:'Ações',         val:rv[0], tot:totRV },
+    { id:'meta-fii',    label:'FIIs',          val:rv[1], tot:totRV },
+    { id:'meta-ext',    label:'Inv. Exterior', val:rv[2], tot:totRV },
+    { id:'meta-cripto', label:'Cripto',        val:rv[3], tot:totRV },
+  ];
+
+  function desvioStatus(diff, tol) {
+    if (Math.abs(diff) <= tol)   return { cls:'d-ok',   icon:'✓' };
+    if (Math.abs(diff) <= tol*2) return { cls:'d-warn', icon:'⚠' };
+    return { cls:'d-err', icon:'✕' };
+  }
+
+  // Barra visual melhorada: mostra zona de tolerância + posição atual
+  function renderMetaItem(label, atualPct, metaPct, tol, cor) {
+    const diff = atualPct - metaPct;
+    const s = desvioStatus(diff, tol);
+    const diffTxt = diff === 0 ? 'Na meta' : (diff > 0 ? '+' : '') + diff.toFixed(1) + 'pp';
+    // Escala da barra: de 0 a max(atual, meta+tol)+2
+    const escala = Math.max(atualPct, metaPct + tol, 5) + 2;
+    const barW     = Math.min(100, atualPct / escala * 100);
+    const metaPos  = Math.min(100, metaPct  / escala * 100);
+    const tolLeft  = Math.max(0,   Math.min(100, (metaPct - tol) / escala * 100));
+    const tolRight = Math.min(100, (metaPct + tol) / escala * 100);
+    const tolWidth = tolRight - tolLeft;
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:12px;color:var(--tx2)">${label}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;color:var(--tx3)">Atual: ${fmtPct(atualPct)} · Meta: ${fmtPct(metaPct)} ± ${tol}%</span>
+          <span class="desvio-badge ${s.cls}">${s.icon} ${diffTxt}</span>
+        </div>
+      </div>
+      <div style="position:relative;height:10px;background:var(--s2);border-radius:5px;overflow:hidden">
+        <!-- Zona de tolerância (fundo sombreado) -->
+        <div style="position:absolute;top:0;left:${tolLeft.toFixed(1)}%;width:${tolWidth.toFixed(1)}%;height:100%;background:rgba(255,255,255,0.06);border-radius:2px"></div>
+        <!-- Barra atual -->
+        <div style="position:absolute;top:0;left:0;width:${barW.toFixed(1)}%;height:100%;background:${cor};opacity:0.85;border-radius:5px;transition:width .4s"></div>
+        <!-- Linha da meta -->
+        <div style="position:absolute;top:0;left:${metaPos.toFixed(1)}%;width:2px;height:100%;background:rgba(255,255,255,0.7)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--tx3);margin-top:2px">
+        <span>0%</span>
+        <span>Meta: ${fmtPct(metaPct)} (±${tol}pp tolerado)</span>
+        <span>${fmtPct(escala)}</span>
+      </div>
+    </div>`;
+  }
+
+  const atualRFpct = total>0 ? totRF/total*100 : 0;
+  const atualRVpct = total>0 ? totRV/total*100 : 0;
+
+  let painelHtml = `<div style="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Alocação macro</div>`;
+  painelHtml += renderMetaItem('Renda Fixa',     atualRFpct, metaRF, desvMax, '#3b82f6');
+  painelHtml += renderMetaItem('Renda Variável', atualRVpct, metaRV, desvMax, '#22c55e');
+
+  painelHtml += `<div class="div"></div><div style="font-size:10px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Renda Fixa — interno</div>`;
+  metasRF.forEach(m => {
+    const meta  = parseFloat($(m.id).value) || 0;
+    const atual = m.tot > 0 ? m.val/m.tot*100 : 0;
+    painelHtml += renderMetaItem(m.label, atual, meta, desvMax, '#3b82f6');
+  });
+
+  painelHtml += `<div class="div"></div><div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Renda Variável — interno</div>`;
+  metasRV.forEach(m => {
+    const meta  = parseFloat($(m.id).value) || 0;
+    const atual = m.tot > 0 ? m.val/m.tot*100 : 0;
+    painelHtml += renderMetaItem(m.label, atual, meta, desvMax, '#22c55e');
+  });
+
+  $('metas-painel').innerHTML = painelHtml;
+
+  // Gráfico de barras de desvio com anotação de zona tolerada
+  const allLabels  = ['RF','RV', ...metasRF.map(m=>m.label), ...metasRV.map(m=>m.label)];
+  const allMetas   = [metaRF, metaRV, ...metasRF.map(m=>parseFloat($(m.id).value)||0), ...metasRV.map(m=>parseFloat($(m.id).value)||0)];
+  const allAtuais  = [atualRFpct, atualRVpct,
+    ...metasRF.map(m => m.tot>0 ? m.val/m.tot*100 : 0),
+    ...metasRV.map(m => m.tot>0 ? m.val/m.tot*100 : 0),
+  ];
+  const allDesvios = allAtuais.map((a,i) => a - allMetas[i]);
+  const desvBgColors = allDesvios.map(d =>
+    Math.abs(d) <= desvMax     ? 'rgba(34,197,94,0.75)'  :
+    Math.abs(d) <= desvMax*2   ? 'rgba(251,191,36,0.75)' :
+    'rgba(239,68,68,0.75)'
+  );
+
+  const desvOpts = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => ' Desvio: ' + (c.raw > 0 ? '+' : '') + c.raw.toFixed(1) + 'pp' } }
+    },
+    scales: {
+      x: { ticks:{ color:'#5a6077', font:{size:10} }, grid:{ color:'rgba(255,255,255,0.05)' }, border:{ color:'rgba(255,255,255,0.04)' } },
+      y: {
+        ticks:{ color:'#5a6077', font:{size:10}, callback: v => (v>0?'+':'')+v+'pp' },
+        grid:{ color:'rgba(255,255,255,0.05)' },
+        border:{ color:'rgba(255,255,255,0.04)' }
+      }
+    }
+  };
+
+  if (!cartCharts.desvio) {
+    cartCharts.desvio = new Chart($('ch-desvio-metas'), {
+      type: 'bar',
+      data: { labels: allLabels, datasets: [
+        { label:'Desvio', data:allDesvios, backgroundColor:desvBgColors, borderRadius:4, barThickness:16 },
+        // Linha de tolerância superior
+        { label:'Tol +', data: allLabels.map(()=>desvMax),  type:'line', borderColor:'rgba(255,255,255,0.2)', borderDash:[4,4], borderWidth:1.5, pointRadius:0, fill:false },
+        // Linha de tolerância inferior
+        { label:'Tol -', data: allLabels.map(()=>-desvMax), type:'line', borderColor:'rgba(255,255,255,0.2)', borderDash:[4,4], borderWidth:1.5, pointRadius:0, fill:false },
+      ]},
+      options: desvOpts
+    });
+  } else {
+    cartCharts.desvio.data.labels = allLabels;
+    cartCharts.desvio.data.datasets[0].data = allDesvios;
+    cartCharts.desvio.data.datasets[0].backgroundColor = desvBgColors;
+    cartCharts.desvio.data.datasets[1].data = allLabels.map(() => desvMax);
+    cartCharts.desvio.data.datasets[2].data = allLabels.map(() => -desvMax);
+    cartCharts.desvio.update();
+  }
+}
+
+function renderEvolucao() {
+  const snaps = carteiraSnapshots;
+  const labels = snaps.map(s => s.dataLabel);
+  const totais = snaps.map(s => s.total);
+  const rfs    = snaps.map(s => s.totRF);
+  const rvs    = snaps.map(s => s.totRV);
+
+  const evoOpts = { responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1e2535', titleColor:'#e8eaf0', bodyColor:'#8b92a8', borderColor:'rgba(255,255,255,.1)', borderWidth:1, padding:9, callbacks:{label:c=>' '+c.dataset.label+': '+fmt(c.parsed.y)} } },
+    scales:{ x:{ticks:{color:'#5a6077',font:{size:10},autoSkip:false},grid:{color:'rgba(255,255,255,.05)'},border:{color:'rgba(255,255,255,.04)'}}, y:{ticks:{color:'#5a6077',font:{size:10},callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.05)'},border:{color:'rgba(255,255,255,.04)'}} }
+  };
+
+  if (!cartCharts.evolucao) {
+    cartCharts.evolucao = new Chart($('ch-evolucao'), {
+      type:'line',
+      data:{ labels, datasets:[
+        { label:'Patrimônio total', data:totais, borderColor:'#d4a843', backgroundColor:'rgba(212,168,67,0.06)', borderWidth:2, pointRadius:4, pointBackgroundColor:'#d4a843', pointBorderColor:'#0f1117', pointBorderWidth:2, tension:0.35, fill:true },
+        { label:'Renda Fixa',       data:rfs,    borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.05)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#3b82f6', pointBorderColor:'#0f1117', pointBorderWidth:2, tension:0.35, fill:false },
+        { label:'Renda Variável',   data:rvs,    borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.05)',  borderWidth:2, pointRadius:3, pointBackgroundColor:'#22c55e', pointBorderColor:'#0f1117', pointBorderWidth:2, tension:0.35, fill:false },
+      ]},
+      options: evoOpts
+    });
+  } else {
+    cartCharts.evolucao.data.labels = labels;
+    cartCharts.evolucao.data.datasets[0].data = totais;
+    cartCharts.evolucao.data.datasets[1].data = rfs;
+    cartCharts.evolucao.data.datasets[2].data = rvs;
+    cartCharts.evolucao.update();
+  }
+
+  if (snaps.length === 0) {
+    $('tbl-snapshots').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:20px">Nenhum snapshot salvo ainda. Preencha os valores e clique em "Salvar snapshot".</td></tr>';
+    return;
+  }
+  $('tbl-snapshots').innerHTML = [...snaps].reverse().map(s=>`
+    <tr>
+      <td style="color:var(--tx);font-weight:500">${s.dataLabel}</td>
+      <td class="r" style="color:var(--gold)">${fmt(s.total)}</td>
+      <td class="r" style="color:#3b82f6">${fmt(s.totRF)}</td>
+      <td class="r" style="color:var(--tx3)">${fmtPct(s.total>0?s.totRF/s.total*100:0)}</td>
+      <td class="r" style="color:#22c55e">${fmt(s.totRV)}</td>
+      <td class="r" style="color:var(--tx3)">${fmtPct(s.total>0?s.totRV/s.total*100:0)}</td>
+    </tr>`).join('');
+}
+
+async function salvarCarteira() {
+  const { rf, rv, totRF, totRV, total } = getCarteiraVals();
+  const dataVal = $('cv-data').value;
+  if (!dataVal) { showNotif('Defina a data antes de salvar', 'err'); return; }
+  const dataLabel = new Date(dataVal+'T12:00:00').toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+  const snap = {
+    dataLabel, dataRaw:dataVal, total, totRF, totRV,
+    caixa:rf[0], reserva:rf[1], viagem:rf[2], rfAplic:rf[3],
+    acoes:rv[0], fii:rv[1], ext:rv[2], cripto:rv[3]
+  };
+
+  // Atualiza lista local
+  const idx = carteiraSnapshots.findIndex(s => s.dataRaw === dataVal);
+  if (idx >= 0) carteiraSnapshots[idx] = snap; else carteiraSnapshots.push(snap);
+  carteiraSnapshots.sort((a,b) => a.dataRaw.localeCompare(b.dataRaw));
+
+  if ($('cart-evolucao').style.display !== 'none') renderEvolucao();
+  showNotif('Salvando no Google Sheets…');
+
+  // Sincroniza com Sheets
+  try {
+    setSyncStatus('Sincronizando…', 'wait');
+    await apiPost({ action: 'salvarSnapshot', data: snap });
+    setSyncStatus('Salvo no Sheets ✓', 'ok');
+    showNotif('Snapshot salvo no Sheets ✓');
+  } catch(e) {
+    setSyncStatus('Erro no Sheets', 'err');
+    showNotif('Erro ao salvar: '+e.message, 'err');
+  }
+}
+
+function replicarUltimo() {
+  if (carteiraSnapshots.length === 0) { showNotif('Nenhum snapshot anterior', 'err'); return; }
+  const last = carteiraSnapshots[carteiraSnapshots.length - 1];
+  ATIVOS_RF.forEach((a,i) => $(a.id).value = [last.caixa, last.reserva, last.viagem, last.rfAplic][i] || 0);
+  ATIVOS_RV.forEach((a,i) => $(a.id).value = [last.acoes, last.fii, last.ext, last.cripto][i] || 0);
+  // Avança a data para o mês seguinte ao último snapshot
+  const lastDate  = new Date(last.dataRaw + 'T12:00:00');
+  lastDate.setMonth(lastDate.getMonth() + 1);
+  $('cv-data').value = lastDate.toISOString().split('T')[0];
+  calcCarteira();
+  showNotif('Replicado do último snapshot — ajuste os valores e salve ✓');
+}
+
+async function carregarCarteiraDoSheets() {
+  const url = getScriptUrl();
+  if (!url) return;
+  try {
+    const res = await apiPost({ action: 'buscarSnapshots' });
+    if (!res.dados || res.dados.length === 0) return;
+    carteiraSnapshots = res.dados.map(row => {
+      const caixa   = parseFloat(row['Caixa'])    || 0;
+      const reserva = parseFloat(row['Reserva'])  || 0;
+      const viagem  = parseFloat(row['Viagem'])   || 0;
+      const rfAplic = parseFloat(row['RF Aplic']) || 0;
+      const acoes   = parseFloat(row['Ações'])    || 0;
+      const fii     = parseFloat(row['FIIs'])     || 0;
+      const ext     = parseFloat(row['Exterior']) || 0;
+      const cripto  = parseFloat(row['Cripto'])   || 0;
+      const totRF   = caixa + reserva + viagem + rfAplic;
+      const totRV   = acoes + fii + ext + cripto;
+      const total   = totRF + totRV;
+      const dataRaw = row['Data'] || '';
+      const dataLabel = dataRaw
+        ? new Date(dataRaw+'T12:00:00').toLocaleDateString('pt-BR',{month:'short',year:'2-digit'})
+        : row['Data Label'] || dataRaw;
+      return { dataRaw, dataLabel, total, totRF, totRV, caixa, reserva, viagem, rfAplic, acoes, fii, ext, cripto };
+    }).sort((a,b) => a.dataRaw.localeCompare(b.dataRaw));
+
+    // Carrega último snapshot nos campos
+    if (carteiraSnapshots.length > 0) {
+      const last = carteiraSnapshots[carteiraSnapshots.length - 1];
+      ATIVOS_RF.forEach((a,i) => $(a.id).value = [last.caixa, last.reserva, last.viagem, last.rfAplic][i] || 0);
+      ATIVOS_RV.forEach((a,i) => $(a.id).value = [last.acoes, last.fii, last.ext, last.cripto][i] || 0);
+      $('cv-data').value = last.dataRaw;
+      calcCarteira();
+    }
+  } catch(e) {
+    console.warn('Carteira offline:', e.message);
+  }
+}
+
+function carregarMetasLocal() {
+  const metas = localStorage.getItem('fintrack_carteira_metas');
+  if (metas) {
+    const m = JSON.parse(metas);
+    Object.keys(m).forEach(k => { if($(k)) $(k).value = m[k]; });
+  }
+}
+
+// Persiste metas no localStorage ao editar
+const META_IDS = ['meta-rf','meta-rv','meta-desvio-max','meta-caixa','meta-reserva','meta-viagem','meta-rf-aplic','meta-acoes','meta-fii','meta-ext','meta-cripto'];
+function salvarMetasLocal() {
+  const obj = {};
+  META_IDS.forEach(id => obj[id] = $(id) ? $(id).value : '');
+  localStorage.setItem('fintrack_carteira_metas', JSON.stringify(obj));
+}
+META_IDS.forEach(id => {
+  // Registra listener após DOM pronto
+  setTimeout(() => { const el=$(id); if(el) el.addEventListener('input', salvarMetasLocal); }, 100);
+});
+
+// ─────────────────────────────────────────────
+//  PLANO DE RECUPERAÇÃO
+// ─────────────────────────────────────────────
+const MESES_NOMES_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+let planoCharts = {};
+
+// Dados editáveis por mês (campos azuis): transf recebida, parcelas conhecidas, fatura real
+// Estrutura: { 'Ago/26': { transf, parcelas, faturaReal, metaInv, caixViagem } }
+let planoReais = {};
+let parcelasList = [
+  { id:1, nome:'Noronha 1ª', valor:1800, mesInicio:'10-2026', meses:1 },
+  { id:2, nome:'Noronha 2ª', valor:1800, mesInicio:'11-2026', meses:1 },
+  { id:3, nome:'XP cartão',  valor:409.33, mesInicio:'9-2026', meses:10 },
+];
+let parcelaNextId = 4;
+
+function planoTab(t) {
+  ['painel','tabela'].forEach(x => {
+    const el = $('plano-'+x); if(el) el.style.display = x===t ? 'block' : 'none';
+    const btn = $('ptab-'+x); if(btn) btn.classList.toggle('active', x===t);
+  });
+  if (t==='tabela') renderPlanoTabela();
+  if (t==='painel') renderPlanoPainel();
+}
+
+// Lista dinâmica de meses do plano (expansível)
+let planoMeses = [
+  {mes:8,ano:2026},{mes:9,ano:2026},{mes:10,ano:2026},{mes:11,ano:2026},{mes:12,ano:2026},
+  {mes:1,ano:2027},{mes:2,ano:2027},{mes:3,ano:2027},{mes:4,ano:2027},{mes:5,ano:2027},
+  {mes:6,ano:2027},{mes:7,ano:2027},{mes:8,ano:2027},{mes:9,ano:2027},{mes:10,ano:2027},
+  {mes:11,ano:2027},{mes:12,ano:2027},{mes:1,ano:2028}
+];
+
+function gerarMeses() {
+  return planoMeses.map(({mes,ano}) => ({
+    mes, ano, label: MESES_NOMES_PT[mes-1]+'/'+String(ano).slice(2)
+  }));
+}
+
+function adicionarMes() {
+  const ultimo = planoMeses[planoMeses.length-1];
+  let m = ultimo.mes + 1, a = ultimo.ano;
+  if (m > 12) { m = 1; a++; }
+  planoMeses.push({mes:m, ano:a});
+  salvarPlanoLocal();
+  recalcPlano();
+  renderMesesLista();
+  showNotif(MESES_NOMES_PT[m-1]+'/'+String(a).slice(2)+' adicionado ao plano ✓');
+}
+
+function renderMesesLista() {
+  const el = $('plano-meses-lista');
+  if (!el) return;
+  el.innerHTML = planoMeses.map(({mes,ano},i) => {
+    const label = MESES_NOMES_PT[mes-1]+'/'+String(ano).slice(2);
+    const fase = getFase(mes,ano);
+    const isFirst = planoMeses.length > 1 && i === planoMeses.length-1;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--brd)">
+      <span style="font-size:12px;flex:1;color:var(--tx)">${label}</span>
+      <span class="fase-badge ${fase===1?'fase1-b':'fase2-b'}">F${fase}</span>
+      ${isFirst?`<button onclick="removerUltimoMes()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:13px;padding:2px 4px" title="Remover">✕</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+function removerUltimoMes() {
+  if (planoMeses.length <= 1) return;
+  const removido = planoMeses.pop();
+  salvarPlanoLocal();
+  recalcPlano();
+  renderMesesLista();
+  const label = MESES_NOMES_PT[removido.mes-1]+'/'+String(removido.ano).slice(2);
+  showNotif(label+' removido do plano');
+}
+
+// Calcula parcelas conhecidas para um mês específico
+function parcelasDoMes(mesLabel) {
+  const [mesNome, anoStr] = mesLabel.split('/');
+  const mesIdx = MESES_NOMES_PT.indexOf(mesNome) + 1;
+  const ano = 2000 + parseInt(anoStr);
+  return parcelasList.reduce((soma, p) => {
+    const [pMes, pAno] = p.mesInicio.split('-').map(Number);
+    const startTotal = (pAno - 2026) * 12 + pMes;
+    const curTotal   = (ano  - 2026) * 12 + mesIdx;
+    if (curTotal >= startTotal && curTotal < startTotal + p.meses) soma += p.valor;
+    return soma;
+  }, 0);
+}
+
+// Determina fase do mês
+function getFase(mes, ano) {
+  if (ano < 2027 || (ano === 2027 && mes <= 7)) return 1;
+  return 2;
+}
+
+// Metas progressivas por mês (interpoladas conforme planilha)
+function getMetaInv(mes, ano, metaAlvo) {
+  const r = planoReais[MESES_NOMES_PT[mes-1]+'/'+String(ano).slice(2)];
+  if (r && r.metaInv !== undefined) return r.metaInv;
+  // Escalonamento conforme planilha original
+  const tbl = {
+    '8-2026':300,'9-2026':400,'10-2026':200,'11-2026':700,'12-2026':1200,
+    '1-2027':1700,'2-2027':2200,'3-2027':2600,'4-2027':3000,'5-2027':3300,
+    '6-2027':3600,'7-2027':3800,
+  };
+  return tbl[mes+'-'+ano] || metaAlvo;
+}
+
+function getMetaViagem(mes, ano, metaAlvo) {
+  const r = planoReais[MESES_NOMES_PT[mes-1]+'/'+String(ano).slice(2)];
+  if (r && r.caixViagem !== undefined) return r.caixViagem;
+  const tbl = { '11-2026':300,'12-2026':500,'1-2027':700,'2-2027':900,'3-2027':1000,'4-2027':1100,'5-2027':1200,'6-2027':1300,'7-2027':1400 };
+  return tbl[mes+'-'+ano] || (getFase(mes,ano)===2 ? metaAlvo : 0);
+}
+
+function getPGBL(mes, ano, metaInv, pgblMax, pgblInicioStr) {
+  const [pMes, pAno] = pgblInicioStr.split('-').map(Number);
+  if (ano < pAno || (ano===pAno && mes < pMes)) return 0;
+  return Math.min(metaInv, pgblMax);
+}
+
+// Motor de cálculo principal
+function calcPlanoMes(m, params, mesAnterior) {
+  const sal = params.salario;
+  const r   = planoReais[m.label] || {};
+  const fase = getFase(m.mes, m.ano);
+
+  // ── 6 CAMPOS EDITÁVEIS (azul) ──
+  const transfAna   = r.transf      !== undefined ? r.transf      : 0;
+  const parcelas    = r.parcelas    !== undefined ? r.parcelas    : 0;
+  const fixasCartao = r.fixasCartao !== undefined ? r.fixasCartao : params.fixasCartao;
+  const fixasPix    = r.fixasPix    !== undefined ? r.fixasPix    : (params.fixasTotal - params.fixasCartao);
+  const metaInv     = r.metaInv     !== undefined ? r.metaInv     : getMetaInv(m.mes, m.ano, params.metaInv);
+  const caixViagem  = r.caixViagem  !== undefined ? r.caixViagem  : getMetaViagem(m.mes, m.ano, params.metaViagem);
+
+  // ── FATURA DEVIDA ──
+  // Agosto: não tem mês anterior no plano, então sem Livre anterior
+  // A partir de Setembro: Fatura = Parcelas + Fixas via Cartão + Livre do mês anterior
+  const livreAnt = mesAnterior ? mesAnterior.livre : 0;
+  const ehPrimeiroMes = !mesAnterior;
+  const faturaDevida = ehPrimeiroMes
+    ? parcelas + fixasCartao                          // Ago: sem Livre anterior
+    : parcelas + fixasCartao + Math.max(0, livreAnt); // Set em diante: + Livre do mês anterior
+
+  // ── CAMPOS CALCULADOS ──
+  const caixaDisp  = sal + transfAna - faturaDevida - fixasPix;
+  const pgbl       = getPGBL(m.mes, m.ano, metaInv, params.pgblMax, params.pgblInicio);
+  const outrosInv  = metaInv - pgbl;
+  const livre      = caixaDisp - metaInv - caixViagem;
+  const pctPoupado = sal > 0 ? (metaInv + caixViagem) / sal : 0;
+
+  return {
+    ...m, fase, sal, transfAna, parcelas, fixasCartao, fixasPix,
+    faturaDevida, livreAnt, caixaDisp, metaInv, pgbl, outrosInv,
+    caixViagem, livre, pctPoupado, r
+  };
+}
+
+function getParams() {
+  // Parâmetros fixos — edite aqui diretamente se precisar ajustar
+  return {
+    salario:    10800,
+    fixasTotal: 3460.80,
+    fixasCartao: 990.48,
+    metaInv:    4000,
+    metaViagem: 1500,
+    pgblMax:    1800,
+    pgblInicio: '1-2027',
+  };
+}
+
+function calcPlanoCompleto() {
+  const meses  = gerarMeses();
+  const params = getParams();
+  const rows   = [];
+  let prev = null;
+  meses.forEach(m => {
+    const row = calcPlanoMes(m, params, prev);
+    rows.push(row);
+    prev = row;
+  });
+  return rows;
+}
+
+// ── Renderiza tabela completa ──
+function renderPlanoTabela() {
+  const rows = calcPlanoCompleto();
+  const hoje = new Date();
+  const mesAtual = (hoje.getMonth()+1) + '-' + hoje.getFullYear();
+
+  // Helper: cria célula editável azul
+  function celEdit(label, campo, valorSalvo, placeholder) {
+    const v = valorSalvo !== undefined ? valorSalvo : '';
+    const ph = typeof placeholder === 'number' ? placeholder.toFixed(2) : placeholder;
+    return `<input class="cel-edit" type="number" value="${v}" placeholder="${ph}" step="0.01"
+      onchange="salvarCelula('${label}','${campo}',this.value)" title="Editável — placeholder = valor padrão do plano">`;
+  }
+
+  $('plano-tbody').innerHTML = rows.map(row => {
+    const isMesAtual = row.mes+'-'+row.ano === mesAtual;
+    const faseClass  = row.fase===1 ? 'fase1' : 'fase2';
+    const faseBadge  = row.fase===1
+      ? '<span class="fase-badge fase1-b">Fase 1</span>'
+      : '<span class="fase-badge fase2-b">Fase 2</span>';
+    const cur = isMesAtual ? ' mes-atual' : '';
+    const pctCor = row.pctPoupado>=0.37?'var(--green)':row.pctPoupado>=0.2?'var(--gold)':'var(--red)';
+    const caixCor = row.caixaDisp>=0?'var(--green)':'var(--red)';
+    const livreCor = row.livre>=800?'var(--green)':row.livre>=400?'var(--gold)':'var(--red)';
+    const params = getParams();
+
+    return `<tr class="${faseClass}${cur}">
+      <td>${row.label}${isMesAtual?' <span style="font-size:9px;color:var(--gold)">◀</span>':''}</td>
+      <td>${faseBadge}</td>
+      <td style="color:var(--tx)">${fmt(row.sal)}</td>
+      <td>${celEdit(row.label,'transf',      row.r.transf,      0)}</td>
+      <td>${celEdit(row.label,'parcelas',    row.r.parcelas,    parcelasDoMes(row.label))}</td>
+      <td>${celEdit(row.label,'fixasCartao', row.r.fixasCartao, params.fixasCartao)}</td>
+      <td style="color:var(--red);font-weight:600" title="${row.livreAnt>0?'Parcelas '+fmt(row.parcelas)+' + Fixas cartão '+fmt(row.fixasCartao)+' + Livre ant. '+fmt(row.livreAnt):'Parcelas '+fmt(row.parcelas)+' + Fixas cartão '+fmt(row.fixasCartao)}">${fmt(row.faturaDevida)}${row.livreAnt>0?'<span style="font-size:9px;color:var(--tx3);display:block">+livre ant.</span>':''}</td>
+      <td>${celEdit(row.label,'fixasPix',    row.r.fixasPix,    params.fixasTotal-params.fixasCartao)}</td>
+      <td style="color:${caixCor};font-weight:600">${fmt(row.caixaDisp)}</td>
+      <td>${celEdit(row.label,'metaInv',     row.r.metaInv,     getMetaInv(row.mes,row.ano,params.metaInv))}</td>
+      <td style="color:var(--blue)">${fmt(row.pgbl)}</td>
+      <td style="color:var(--tx2)">${fmt(row.outrosInv)}</td>
+      <td>${celEdit(row.label,'caixViagem',  row.r.caixViagem,  getMetaViagem(row.mes,row.ano,params.metaViagem))}</td>
+      <td style="color:${livreCor};font-weight:700">${fmt(row.livre)}</td>
+      <td style="color:${pctCor}">${(row.pctPoupado*100).toFixed(1)}%</td>
+      <td></td>
+    </tr>`;
+  }).join('');
+}
+
+function salvarCelula(label, campo, valor) {
+  if (!planoReais[label]) planoReais[label] = {};
+  const v = parseFloat(valor);
+  if (!isNaN(v) && valor !== '') planoReais[label][campo] = v;
+  else delete planoReais[label][campo];
+  salvarPlanoLocal();
+  if ($('plano-painel').style.display !== 'none') renderPlanoPainel();
+}
+
+// ── Renderiza painel ──
+function renderPlanoPainel() {
+  const rows  = calcPlanoCompleto();
+  if (!rows.length) return;
+  const hoje  = new Date();
+  const mesAtual = (hoje.getMonth()+1) + '-' + hoje.getFullYear();
+  const cur   = rows.find(r => r.mes+'-'+r.ano === mesAtual) || rows[0];
+  const params = getParams();
+
+  // KPIs
+  const totalInvestido = rows.filter(r=>r.isReal||true).reduce((a,r)=>a+r.metaInv,0);
+  const mesesFase1 = rows.filter(r=>r.fase===1).length;
+  const mesAtualIdx = rows.findIndex(r=>r.mes+'-'+r.ano===mesAtual);
+  const progresso = mesAtualIdx >= 0 ? mesAtualIdx / rows.length : 0;
+
+  $('plano-kpis').innerHTML = [
+    {l:'Livre este mês',      v:fmt(cur.livre),      s:cur.label,        c:cur.livre>=800?'var(--green)':cur.livre>=400?'var(--gold)':'var(--red)'},
+    {l:'Caixa disponível',    v:fmt(cur.caixaDisp),  s:'após fatura + fixas', c:cur.caixaDisp>=0?'var(--green)':'var(--red)'},
+    {l:'Meta investimento',   v:fmt(cur.metaInv),    s:(cur.pctPoupado*100).toFixed(1)+'% do salário', c:'var(--gold)'},
+    {l:'Fase',               v:'Fase '+cur.fase,    s:cur.fase===1?'Recuperação':'Estabilização', c:cur.fase===1?'var(--gold)':'var(--green)'},
+  ].map(k=>`<div class="mt"><div class="mt-l">${k.l}</div><div class="mt-v" style="font-size:16px;color:${k.c}">${k.v}</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">${k.s}</div></div>`).join('');
+
+  // Detalhe mês atual
+  $('plano-mes-label').textContent = cur.label;
+  $('plano-mes-detalhe').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:0">
+      ${[
+        {l:'Salário + Transf. Ana', v:fmt(cur.sal+cur.transfAna), c:'var(--green)'},
+        {l:'Fatura devida',            v:'− '+fmt(cur.faturaDevida),      c:'var(--red)'},
+        {l:'Despesas fixas (pix)',      v:'− '+fmt(cur.fixasPix),         c:'var(--red)'},
+        {l:'Caixa disponível',         v:fmt(cur.caixaDisp),              c:cur.caixaDisp>=0?'var(--green)':'var(--red)', bold:true},
+        {l:'Meta investimento',        v:'− '+fmt(cur.metaInv),           c:'var(--gold)'},
+        {l:'Caixinha viagem',          v:'− '+fmt(cur.caixViagem),        c:'#8b5cf6'},
+        {l:'Livre para gastar',        v:fmt(cur.livre),                  c:cur.livre>=800?'var(--green)':cur.livre>=400?'var(--gold)':'var(--red)', bold:true},
+      ].map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--brd)">
+        <span style="font-size:12px;color:var(--tx2)${i.bold?';font-weight:600':''}">${i.l}</span>
+        <span style="font-size:${i.bold?'15':'13'}px;font-weight:${i.bold?'700':'500'};color:${i.c}">${i.v}</span>
+      </div>`).join('')}
+    </div>
+    ${cur.fase===1?`<div style="margin-top:12px;font-size:11px;color:var(--tx3);padding:8px;background:var(--goldd2);border-radius:7px;line-height:1.6">
+      ⚠️ Fase 1 — Recuperação. Mês mais apertado: <strong style="color:var(--tx)">Out/26</strong>.
+      Ajuste Noronha encerra em Nov/26.
+    </div>`:''}`;
+
+  // Gráfico evolução
+  const labels = rows.map(r=>r.label);
+  const livres  = rows.map(r=>r.livre);
+  const invs    = rows.map(r=>r.metaInv);
+  const evoO = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2535',titleColor:'#e8eaf0',bodyColor:'#8b92a8',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:9}},
+    scales:{
+      x:{ticks:{color:'#5a6077',font:{size:9},autoSkip:true,maxTicksLimit:9},grid:{color:'rgba(255,255,255,.05)'},border:{color:'rgba(255,255,255,.04)'}},
+      y:{ticks:{color:'#5a6077',font:{size:10},callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.05)'},border:{color:'rgba(255,255,255,.04)'}}
+    }
+  };
+  if (!planoCharts.evo) {
+    planoCharts.evo = new Chart($('ch-plano-evolucao'), {
+      type:'line',
+      data:{labels, datasets:[
+        {label:'Livre',data:livres,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,0.06)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#22c55e',pointBorderColor:'#0f1117',pointBorderWidth:2,tension:0.35,fill:true},
+        {label:'Investimento',data:invs,borderColor:'#d4a843',backgroundColor:'rgba(212,168,67,0.05)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#d4a843',pointBorderColor:'#0f1117',pointBorderWidth:2,tension:0.35,fill:false},
+      ]},
+      options:evoO
+    });
+  } else {
+    planoCharts.evo.data.labels=labels;
+    planoCharts.evo.data.datasets[0].data=livres;
+    planoCharts.evo.data.datasets[1].data=invs;
+    planoCharts.evo.update();
+  }
+
+  // Progresso
+  const totalMeses = rows.length;
+  const mesIdx = Math.max(0, mesAtualIdx);
+  renderMesesLista();
+  const pctProg = totalMeses > 0 ? (mesIdx/totalMeses*100).toFixed(1) : 0;
+  const metaAlvo = params.metaInv;
+  const investAcum = rows.slice(0,mesIdx+1).reduce((a,r)=>a+r.metaInv,0);
+
+  $('plano-progresso').innerHTML = `
+    <div style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:var(--tx2)">Mês ${mesIdx+1} de ${totalMeses} — ${pctProg}% do plano concluído</span>
+      <span style="font-size:12px;color:var(--gold);font-weight:600">Investido projetado: ${fmt(investAcum)}</span>
+    </div>
+    <div style="height:10px;background:var(--s2);border-radius:5px;overflow:hidden;margin-bottom:16px">
+      <div style="width:${pctProg}%;height:100%;background:linear-gradient(90deg,var(--gold),var(--green));border-radius:5px;transition:width .5s"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(${Math.min(totalMeses,18)},1fr);gap:3px">
+      ${rows.slice(0,18).map((r,i)=>{
+        const status = i<mesIdx?'done':i===mesIdx?'cur':'future';
+        const col = status==='done'?'var(--green)':status==='cur'?'var(--gold)':'var(--s3)';
+        return `<div title="${r.label} — Livre: ${fmt(r.livre)}" style="height:28px;background:${col};border-radius:3px;opacity:${status==='future'?0.4:1};cursor:default"></div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:14px;margin-top:8px;font-size:10px;color:var(--tx3)">
+      <span><span style="color:var(--green)">■</span> Concluído</span>
+      <span><span style="color:var(--gold)">■</span> Mês atual</span>
+      <span style="color:var(--tx3)">■ Futuro</span>
+    </div>`;
+}
+
+function renderParcelasList() {
+  $('parcelas-lista').innerHTML = parcelasList.map(p=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--s2);border-radius:7px">
+      <div style="flex:1">
+        <input class="fi" type="text" value="${p.nome}" style="font-size:12px;margin-bottom:4px" onchange="editParcela(${p.id},'nome',this.value)">
+      </div>
+      <div class="ip" style="width:90px"><span>R$</span><input class="fi" type="number" value="${p.valor}" step="0.01" style="font-size:12px;padding-left:26px" onchange="editParcela(${p.id},'valor',this.value)"></div>
+      <select class="fi" style="font-size:11px;width:90px" onchange="editParcela(${p.id},'mesInicio',this.value)">
+        ${gerarMeses().map(m=>`<option value="${m.mes}-${m.ano}" ${p.mesInicio===m.mes+'-'+m.ano?'selected':''}>${m.label}</option>`).join('')}
+      </select>
+      <div class="ip" style="width:60px"><span>#</span><input class="fi" type="number" value="${p.meses}" min="1" max="60" style="font-size:12px;padding-left:20px" onchange="editParcela(${p.id},'meses',this.value)">
+      </div>
+      <button onclick="removeParcela(${p.id})" style="background:var(--redd);border:none;color:var(--red);border-radius:5px;padding:4px 8px;cursor:pointer;font-size:12px">✕</button>
+    </div>`).join('');
+}
+
+function addParcela() {
+  parcelasList.push({id:parcelaNextId++, nome:'Nova parcela', valor:0, mesInicio:'8-2026', meses:1});
+  renderParcelasList();
+  recalcPlano();
+}
+function removeParcela(id) {
+  parcelasList = parcelasList.filter(p=>p.id!==id);
+  renderParcelasList(); recalcPlano();
+}
+function editParcela(id, campo, val) {
+  const p = parcelasList.find(x=>x.id===id);
+  if (!p) return;
+  p[campo] = campo==='nome'||campo==='mesInicio' ? val : (parseFloat(val)||0);
+  salvarPlanoLocal(); recalcPlano();
+}
+
+function recalcPlano() {
+  if ($('plano-tabela') && $('plano-tabela').style.display !== 'none') renderPlanoTabela();
+  if ($('plano-painel') && $('plano-painel').style.display !== 'none') renderPlanoPainel();
+}
+
+function salvarPlanoLocal() {
+  localStorage.setItem('fintrack_plano_reais',  JSON.stringify(planoReais));
+  localStorage.setItem('fintrack_plano_meses',  JSON.stringify(planoMeses));
+}
+
+function carregarPlanoLocal() {
+  const r = localStorage.getItem('fintrack_plano_reais');
+  const m = localStorage.getItem('fintrack_plano_meses');
+  if (r) planoReais  = JSON.parse(r);
+  if (m) planoMeses  = JSON.parse(m);
+}
+
+async function salvarPlano() {
+  salvarPlanoLocal();
+  showNotif('Salvando no Google Sheets…');
+  try {
+    setSyncStatus('Sincronizando…', 'wait');
+    // Salva reais + lista de meses juntos num único payload
+    await apiPost({ action: 'salvarPlanoReais', data: { reais: planoReais, meses: planoMeses } });
+    setSyncStatus('Salvo no Sheets ✓', 'ok');
+    showNotif('Orçamento salvo no Google Sheets ✓');
+  } catch(e) {
+    setSyncStatus('Erro no Sheets', 'err');
+    showNotif('Local salvo, Sheets falhou: ' + e.message, 'err');
+  }
+}
+
+async function carregarPlanoDoSheets() {
+  const url = getScriptUrl();
+  if (!url) return;
+  try {
+    const res = await apiPost({ action: 'buscarPlanoReais' });
+    if (res.dados) {
+      // Suporta formato novo {reais, meses} e formato legado {mes: {...}}
+      if (res.dados.reais !== undefined) {
+        planoReais = res.dados.reais || {};
+        if (res.dados.meses && res.dados.meses.length > 0) planoMeses = res.dados.meses;
+      } else if (Object.keys(res.dados).length > 0) {
+        planoReais = res.dados; // legado
+      }
+      salvarPlanoLocal();
+    }
+  } catch(e) {
+    console.warn('Plano offline:', e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  LISTA DE COMPRAS
+// ─────────────────────────────────────────────
+let listaCompras = [];
+let lcNextId = 1;
+let lcFiltroAtivo = 'Todos';
+
+const LC_CAT_CORES = {
+  'Eletrônico': '#3b82f6', 'Roupa': '#ec4899', 'Casa': '#f97316',
+  'Saúde': '#22c55e', 'Lazer': '#8b5cf6', 'Alimentação': '#d4a843',
+  'Viagem': '#06b6d4', 'Outro': '#8b92a8'
+};
+
+function lcAbrirForm() {
+  $('lc-form-wrap').style.display = 'block';
+  setTimeout(() => $('lc-inp-nome') && $('lc-inp-nome').focus(), 50);
+}
+function lcFecharForm() {
+  $('lc-form-wrap').style.display = 'none';
+  ['lc-inp-nome','lc-inp-valor','lc-inp-link'].forEach(id => { if($(id)) $(id).value=''; });
+}
+
+function lcSalvarItem() {
+  const nome  = ($('lc-inp-nome').value || '').trim();
+  const valor = parseFloat($('lc-inp-valor').value) || 0;
+  const cat   = $('lc-inp-cat').value || 'Outro';
+  const link  = ($('lc-inp-link').value || '').trim();
+  if (!nome) { showNotif('Nome é obrigatório', 'err'); return; }
+  if (!valor) { showNotif('Informe o valor', 'err'); return; }
+  listaCompras.push({ id: lcNextId++, nome, valor, cat, link, comprado: false, criadoEm: new Date().toLocaleDateString('pt-BR') });
+  lcSalvarLocal();
+  lcSincronizar(); // sincroniza com Sheets ao adicionar
+  lcFecharForm();
+  renderListaCompras();
+  showNotif('Item adicionado ✓');
+}
+
+function lcToggleComprado(id) {
+  const item = listaCompras.find(i => i.id === id);
+  if (item) { item.comprado = !item.comprado; lcSalvarLocal(); lcSincronizar(); renderListaCompras(); }
+}
+
+function lcExcluir(id) {
+  listaCompras = listaCompras.filter(i => i.id !== id);
+  lcSalvarLocal(); lcSincronizar(); renderListaCompras();
+}
+
+function lcSalvarLocal() {
+  localStorage.setItem('fintrack_lista_compras', JSON.stringify(listaCompras));
+  localStorage.setItem('fintrack_lista_nextid',  lcNextId);
+}
+
+function lcCarregarLocal() {
+  const l = localStorage.getItem('fintrack_lista_compras');
+  const n = localStorage.getItem('fintrack_lista_nextid');
+  if (l) listaCompras = JSON.parse(l);
+  if (n) lcNextId = parseInt(n);
+}
+
+// Sincroniza silenciosamente com Sheets (sem notif, sem bloquear UI)
+async function lcSincronizar() {
+  const url = getScriptUrl();
+  if (!url) return;
+  try {
+    await apiPost({ action: 'salvarListaCompras', data: { itens: listaCompras, nextId: lcNextId } });
+  } catch(e) { console.warn('Lista offline:', e.message); }
+}
+
+async function carregarListaDoSheets() {
+  const url = getScriptUrl();
+  if (!url) return;
+  try {
+    const res = await apiPost({ action: 'buscarListaCompras' });
+    if (res.dados && res.dados.itens && res.dados.itens.length > 0) {
+      listaCompras = res.dados.itens;
+      lcNextId     = res.dados.nextId || (Math.max(0, ...listaCompras.map(i=>i.id)) + 1);
+      lcSalvarLocal();
+    }
+  } catch(e) { console.warn('Lista offline:', e.message); }
+}
+
+function renderListaCompras() {
+  const cats = ['Todos', ...new Set(listaCompras.map(i=>i.cat))];
+  $('lc-filtros').innerHTML = cats.map(c =>
+    `<button class="lc-fbtn${c===lcFiltroAtivo?' active':''}" onclick="lcSetFiltro('${c}')">${c}</button>`
+  ).join('');
+
+  const pendentes = listaCompras.filter(i=>!i.comprado);
+  const comprados = listaCompras.filter(i=>i.comprado);
+  $('lc-total').textContent      = fmt(pendentes.reduce((a,i)=>a+i.valor,0));
+  $('lc-total-comp').textContent = fmt(comprados.reduce((a,i)=>a+i.valor,0));
+  $('lc-count').textContent      = pendentes.length+' pendente'+(pendentes.length!==1?'s':'');
+
+  const filtrados = lcFiltroAtivo==='Todos' ? listaCompras : listaCompras.filter(i=>i.cat===lcFiltroAtivo);
+  const ordenados = [...filtrados.filter(i=>!i.comprado), ...filtrados.filter(i=>i.comprado)];
+
+  if (ordenados.length === 0) {
+    $('lc-lista').innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--tx3)">
+      <div style="font-size:32px;margin-bottom:10px">🛒</div>
+      <div style="font-size:14px">Lista vazia — adicione o que deseja comprar</div>
+      <div style="font-size:12px;margin-top:6px">Pense antes de comprar por impulso!</div>
+    </div>`;
+    return;
+  }
+
+  $('lc-lista').innerHTML = ordenados.map(item => {
+    const cor = LC_CAT_CORES[item.cat] || '#8b92a8';
+    const linkHtml = item.link
+      ? `<a href="${item.link}" target="_blank" style="font-size:10px;color:var(--blue);text-decoration:none;white-space:nowrap">🔗 Ver produto</a>`
+      : '';
+    return `<div class="lc-item${item.comprado?' comprado':''}">
+      <input type="checkbox" class="lc-check" ${item.comprado?'checked':''} onchange="lcToggleComprado(${item.id})" title="${item.comprado?'Marcar como pendente':'Marcar como comprado'}">
+      <div>
+        <div class="lc-nome">${item.nome}</div>
+        <div class="lc-meta">
+          <span class="lc-cat-badge" style="background:${cor}22;color:${cor}">${item.cat}</span>
+          <span style="margin-left:6px;color:var(--tx3)">${item.criadoEm}</span>
+          ${item.link?`<span style="margin-left:8px">${linkHtml}</span>`:''}
+        </div>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:${item.comprado?'var(--green)':'var(--gold)'};white-space:nowrap">${fmt(item.valor)}</div>
+      ${item.comprado?`<span style="font-size:10px;color:var(--green);white-space:nowrap">✓ Comprado</span>`:'<span></span>'}
+      <button class="lc-del" onclick="lcExcluir(${item.id})" title="Excluir da lista">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function lcSetFiltro(cat) { lcFiltroAtivo = cat; renderListaCompras(); }
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+try { carregarConfigLocal();      } catch(e) { console.warn('carregarConfigLocal:', e); }
+try { carregarMetasLocal();       } catch(e) { console.warn('carregarMetasLocal:', e); }
+try { carregarPlanoLocal();       } catch(e) { console.warn('carregarPlanoLocal:', e); }
+try { lcCarregarLocal();          } catch(e) { console.warn('lcCarregarLocal:', e); }
+try { calcC();                    } catch(e) { console.warn('calcC:', e); }
+try { loadMes(currentMes);        } catch(e) { console.warn('loadMes:', e); }
+try { carregarDoSheets();         } catch(e) { console.warn('carregarDoSheets:', e); }
+try { carregarCarteiraDoSheets(); } catch(e) { console.warn('carregarCarteiraDoSheets:', e); }
+try { carregarPlanoDoSheets();    } catch(e) { console.warn('carregarPlanoDoSheets:', e); }
+try { carregarListaDoSheets();    } catch(e) { console.warn('carregarListaDoSheets:', e); }
+</script>
+</body>
+</html>
