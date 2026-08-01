@@ -198,6 +198,28 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .d-warn{background:rgba(251,191,36,.12);color:#fbbf24}
 .d-err{background:var(--redd);color:var(--red)}
 .d-neu{background:var(--s2);color:var(--tx3)}
+/* ── PLANO RECUPERAÇÃO ── */
+.plano-tab-grp{display:flex;gap:3px;background:var(--s2);border-radius:9px;padding:3px;width:fit-content;margin-bottom:20px}
+.plano-tab{padding:7px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:var(--tx2);transition:all .15s}
+.plano-tab.active{background:var(--s1);color:var(--gold);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.plano-tbl{width:100%;border-collapse:collapse;font-size:11px;min-width:980px}
+.plano-tbl th{color:var(--tx3);font-weight:600;text-align:right;padding:6px 8px;border-bottom:0.5px solid var(--brd);font-size:9px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;background:var(--s1)}
+.plano-tbl th:first-child,.plano-tbl th:nth-child(2){text-align:left}
+.plano-tbl td{padding:7px 8px;border-bottom:0.5px solid var(--brd);text-align:right;color:var(--tx2);white-space:nowrap}
+.plano-tbl td:first-child{text-align:left;font-weight:500;color:var(--tx)}
+.plano-tbl td:nth-child(2){text-align:left}
+.plano-tbl tr:hover td{background:rgba(255,255,255,0.02)}
+.plano-tbl tr.fase1 td:first-child{border-left:2px solid var(--gold)}
+.plano-tbl tr.fase2 td:first-child{border-left:2px solid var(--green)}
+.plano-tbl tr.mes-atual td{background:rgba(212,168,67,0.06)}
+.cel-edit{width:80px;background:rgba(59,130,246,0.08);border:0.5px solid rgba(59,130,246,0.3);border-radius:5px;padding:3px 6px;font-size:11px;color:#93c5fd;outline:none;text-align:right;font-family:var(--font)}
+.cel-edit:focus{border-color:rgba(59,130,246,0.6)!important}
+.fase-badge{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:600}
+.fase1-b{background:var(--goldd);color:var(--gold)}
+.fase2-b{background:var(--greend);color:var(--green)}
+.tbl-scroll{overflow-x:auto;border-radius:var(--r);border:0.5px solid var(--brd);background:var(--s1)}
+.p-section{font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin:16px 0 10px}
+.p-section:first-child{margin-top:0}
 @media(max-width:700px){
   .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:100;transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
@@ -230,6 +252,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <div class="nav-item" id="nav-mensal" onclick="go('mensal')"><i class="ti ti-calendar-month"></i> Controle mensal <span class="nav-badge" id="nb-mes">Jun</span></div>
     <div class="nav-item" id="nav-hist" onclick="go('hist')"><i class="ti ti-chart-line"></i> Histórico <span class="nav-badge new" id="nb-hist">0</span></div>
     <div class="nav-item" id="nav-carteira" onclick="go('carteira')"><i class="ti ti-briefcase"></i> Carteira</div>
+    <div class="nav-item" id="nav-plano" onclick="go('plano')"><i class="ti ti-road"></i> Plano de recuperação</div>
     <div class="nav-item" id="nav-anual" onclick="go('anual')"><i class="ti ti-trending-up"></i> Visão anual <span class="nav-badge">Em breve</span></div>
     <div class="nav-sec">Conta</div>
     <div class="nav-item" id="nav-cfg" onclick="go('cfg')"><i class="ti ti-settings"></i> Configurações</div>
@@ -712,6 +735,74 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       </div>
     </div>
 
+    <!-- ======= PLANO DE RECUPERAÇÃO ======= -->
+    <div class="page" id="page-plano">
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div><h1>Plano de recuperação</h1><p>Fluxo de caixa mês a mês — Fase 1 (Recuperação) e Fase 2 (Estabilização)</p></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-gold btn-sm" onclick="salvarPlano()"><i class="ti ti-device-floppy"></i>Salvar</button>
+        </div>
+      </div>
+
+      <div class="plano-tab-grp">
+        <div class="plano-tab active" id="ptab-painel" onclick="planoTab('painel')">Painel</div>
+        <div class="plano-tab"        id="ptab-tabela" onclick="planoTab('tabela')">Plano completo</div>
+      </div>
+
+      <!-- ── ABA PAINEL ── -->
+      <div id="plano-painel">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px" id="plano-kpis"></div>
+        <div class="g2" style="gap:14px;margin-bottom:14px">
+          <div class="card">
+            <div class="ct"><i class="ti ti-calendar-event"></i> Mês atual — <span id="plano-mes-label">Ago/26</span></div>
+            <div id="plano-mes-detalhe"></div>
+          </div>
+          <div class="card">
+            <div class="ct"><i class="ti ti-chart-line"></i> Evolução do Livre e Investimento</div>
+            <div style="position:relative;height:200px"><canvas id="ch-plano-evolucao"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct"><i class="ti ti-road"></i> Progresso do plano</div>
+          <div id="plano-progresso"></div>
+        </div>
+      </div>
+
+      <!-- ── ABA TABELA ── -->
+      <div id="plano-tabela" style="display:none">
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:12px">
+          Campos em <span style="color:#93c5fd;font-weight:600">azul</span> são editáveis — preencha com os valores reais do mês.
+          Os demais são calculados automaticamente com base nos parâmetros.
+        </div>
+        <div class="tbl-scroll">
+          <table class="plano-tbl">
+            <thead>
+              <tr>
+                <th style="text-align:left">Mês</th>
+                <th style="text-align:left">Fase</th>
+                <th>Salário</th>
+                <th style="color:#93c5fd">Transf. Ana ✎</th>
+                <th style="color:#93c5fd">Parcelas ✎</th>
+                <th style="color:#93c5fd">Fixas cartão ✎</th>
+                <th>Fatura devida</th>
+                <th style="color:#93c5fd">Fixas pix ✎</th>
+                <th>Caixa disponível</th>
+                <th style="color:#93c5fd">Meta investimento ✎</th>
+                <th>PGBL</th>
+                <th>Outros inv.</th>
+                <th style="color:#93c5fd">Caixinha viagem ✎</th>
+                <th>Livre</th>
+                <th>% poupado</th>
+              </tr>
+            </thead>
+            <tbody id="plano-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      </div>
+    </div>
+
     <!-- ======= ANUAL ======= -->
     <div class="page" id="page-anual">
       <div class="ph"><h1>Visão anual — 2025</h1><p>Módulo em análise</p></div>
@@ -829,7 +920,7 @@ async function testarConexao() {
 // ─────────────────────────────────────────────
 //  NAVEGAÇÃO
 // ─────────────────────────────────────────────
-const pages = ['calc','mensal','hist','anual','cfg','carteira'];
+const pages = ['calc','mensal','hist','anual','cfg','carteira','plano'];
 function go(p) {
   // Esconde todas as páginas e desativa todos os nav items
   pages.forEach(x => {
@@ -844,8 +935,9 @@ function go(p) {
   const navTarget = document.getElementById('nav-'+p);
   if (navTarget) navTarget.classList.add('active');
   // Callbacks específicos por página
-  if (p === 'hist') { try { renderHist(); } catch(e){} }
-  if (p === 'carteira') { try { calcCarteira(); } catch(e){} }
+  if (p === 'hist')     { try { renderHist();     } catch(e){} }
+  if (p === 'carteira') { try { calcCarteira();   } catch(e){} }
+  if (p === 'plano')    { try { renderPlanoPainel(); } catch(e){} }
   // Fecha sidebar no mobile
   const sb = document.getElementById('sidebar');
   const ov = document.getElementById('overlay');
@@ -1832,15 +1924,392 @@ META_IDS.forEach(id => {
 });
 
 // ─────────────────────────────────────────────
+//  PLANO DE RECUPERAÇÃO
+// ─────────────────────────────────────────────
+const MESES_NOMES_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+let planoCharts = {};
+
+// Dados editáveis por mês (campos azuis): transf recebida, parcelas conhecidas, fatura real
+// Estrutura: { 'Ago/26': { transf, parcelas, faturaReal, metaInv, caixViagem } }
+let planoReais = {};
+let parcelasList = [
+  { id:1, nome:'Noronha 1ª', valor:1800, mesInicio:'10-2026', meses:1 },
+  { id:2, nome:'Noronha 2ª', valor:1800, mesInicio:'11-2026', meses:1 },
+  { id:3, nome:'XP cartão',  valor:409.33, mesInicio:'9-2026', meses:10 },
+];
+let parcelaNextId = 4;
+
+function planoTab(t) {
+  ['painel','tabela'].forEach(x => {
+    const el = $('plano-'+x); if(el) el.style.display = x===t ? 'block' : 'none';
+    const btn = $('ptab-'+x); if(btn) btn.classList.toggle('active', x===t);
+  });
+  if (t==='tabela') renderPlanoTabela();
+  if (t==='painel') renderPlanoPainel();
+}
+
+// Gera sequência de meses do plano — fixo: Ago/26 a Jan/28 (18 meses)
+function gerarMeses() {
+  const mesI = 8, anoI = 2026, dur = 18;
+  const meses = [];
+  for (let i = 0; i < dur; i++) {
+    let m = mesI + i, a = anoI;
+    while (m > 12) { m -= 12; a++; }
+    meses.push({ mes: m, ano: a, label: MESES_NOMES_PT[m-1]+'/'+String(a).slice(2) });
+  }
+  return meses;
+}
+
+// Calcula parcelas conhecidas para um mês específico
+function parcelasDoMes(mesLabel) {
+  const [mesNome, anoStr] = mesLabel.split('/');
+  const mesIdx = MESES_NOMES_PT.indexOf(mesNome) + 1;
+  const ano = 2000 + parseInt(anoStr);
+  return parcelasList.reduce((soma, p) => {
+    const [pMes, pAno] = p.mesInicio.split('-').map(Number);
+    const startTotal = (pAno - 2026) * 12 + pMes;
+    const curTotal   = (ano  - 2026) * 12 + mesIdx;
+    if (curTotal >= startTotal && curTotal < startTotal + p.meses) soma += p.valor;
+    return soma;
+  }, 0);
+}
+
+// Determina fase do mês
+function getFase(mes, ano) {
+  if (ano < 2027 || (ano === 2027 && mes <= 7)) return 1;
+  return 2;
+}
+
+// Metas progressivas por mês (interpoladas conforme planilha)
+function getMetaInv(mes, ano, metaAlvo) {
+  const r = planoReais[MESES_NOMES_PT[mes-1]+'/'+String(ano).slice(2)];
+  if (r && r.metaInv !== undefined) return r.metaInv;
+  // Escalonamento conforme planilha original
+  const tbl = {
+    '8-2026':300,'9-2026':400,'10-2026':200,'11-2026':700,'12-2026':1200,
+    '1-2027':1700,'2-2027':2200,'3-2027':2600,'4-2027':3000,'5-2027':3300,
+    '6-2027':3600,'7-2027':3800,
+  };
+  return tbl[mes+'-'+ano] || metaAlvo;
+}
+
+function getMetaViagem(mes, ano, metaAlvo) {
+  const r = planoReais[MESES_NOMES_PT[mes-1]+'/'+String(ano).slice(2)];
+  if (r && r.caixViagem !== undefined) return r.caixViagem;
+  const tbl = { '11-2026':300,'12-2026':500,'1-2027':700,'2-2027':900,'3-2027':1000,'4-2027':1100,'5-2027':1200,'6-2027':1300,'7-2027':1400 };
+  return tbl[mes+'-'+ano] || (getFase(mes,ano)===2 ? metaAlvo : 0);
+}
+
+function getPGBL(mes, ano, metaInv, pgblMax, pgblInicioStr) {
+  const [pMes, pAno] = pgblInicioStr.split('-').map(Number);
+  if (ano < pAno || (ano===pAno && mes < pMes)) return 0;
+  return Math.min(metaInv, pgblMax);
+}
+
+// Motor de cálculo principal
+function calcPlanoMes(m, params, mesAnterior) {
+  const sal = params.salario;
+  const r   = planoReais[m.label] || {};
+  const fase = getFase(m.mes, m.ano);
+
+  // ── 6 CAMPOS EDITÁVEIS (azul) ──
+  const transfAna   = r.transf      !== undefined ? r.transf      : 0;
+  const parcelas    = r.parcelas    !== undefined ? r.parcelas    : 0;
+  const fixasCartao = r.fixasCartao !== undefined ? r.fixasCartao : params.fixasCartao;
+  const fixasPix    = r.fixasPix    !== undefined ? r.fixasPix    : (params.fixasTotal - params.fixasCartao);
+  const metaInv     = r.metaInv     !== undefined ? r.metaInv     : getMetaInv(m.mes, m.ano, params.metaInv);
+  const caixViagem  = r.caixViagem  !== undefined ? r.caixViagem  : getMetaViagem(m.mes, m.ano, params.metaViagem);
+
+  // ── FATURA DEVIDA ──
+  // Agosto: não tem mês anterior no plano, então sem Livre anterior
+  // A partir de Setembro: Fatura = Parcelas + Fixas via Cartão + Livre do mês anterior
+  const livreAnt = mesAnterior ? mesAnterior.livre : 0;
+  const ehPrimeiroMes = !mesAnterior;
+  const faturaDevida = ehPrimeiroMes
+    ? parcelas + fixasCartao                          // Ago: sem Livre anterior
+    : parcelas + fixasCartao + Math.max(0, livreAnt); // Set em diante: + Livre do mês anterior
+
+  // ── CAMPOS CALCULADOS ──
+  const caixaDisp  = sal + transfAna - faturaDevida - fixasPix;
+  const pgbl       = getPGBL(m.mes, m.ano, metaInv, params.pgblMax, params.pgblInicio);
+  const outrosInv  = metaInv - pgbl;
+  const livre      = caixaDisp - metaInv - caixViagem;
+  const pctPoupado = sal > 0 ? (metaInv + caixViagem) / sal : 0;
+
+  return {
+    ...m, fase, sal, transfAna, parcelas, fixasCartao, fixasPix,
+    faturaDevida, livreAnt, caixaDisp, metaInv, pgbl, outrosInv,
+    caixViagem, livre, pctPoupado, r
+  };
+}
+
+function getParams() {
+  // Parâmetros fixos — edite aqui diretamente se precisar ajustar
+  return {
+    salario:    10800,
+    fixasTotal: 3460.80,
+    fixasCartao: 990.48,
+    metaInv:    4000,
+    metaViagem: 1500,
+    pgblMax:    1800,
+    pgblInicio: '1-2027',
+  };
+}
+
+function calcPlanoCompleto() {
+  const meses  = gerarMeses();
+  const params = getParams();
+  const rows   = [];
+  let prev = null;
+  meses.forEach(m => {
+    const row = calcPlanoMes(m, params, prev);
+    rows.push(row);
+    prev = row;
+  });
+  return rows;
+}
+
+// ── Renderiza tabela completa ──
+function renderPlanoTabela() {
+  const rows = calcPlanoCompleto();
+  const hoje = new Date();
+  const mesAtual = (hoje.getMonth()+1) + '-' + hoje.getFullYear();
+
+  // Helper: cria célula editável azul
+  function celEdit(label, campo, valorSalvo, placeholder) {
+    const v = valorSalvo !== undefined ? valorSalvo : '';
+    const ph = typeof placeholder === 'number' ? placeholder.toFixed(2) : placeholder;
+    return `<input class="cel-edit" type="number" value="${v}" placeholder="${ph}" step="0.01"
+      onchange="salvarCelula('${label}','${campo}',this.value)" title="Editável — placeholder = valor padrão do plano">`;
+  }
+
+  $('plano-tbody').innerHTML = rows.map(row => {
+    const isMesAtual = row.mes+'-'+row.ano === mesAtual;
+    const faseClass  = row.fase===1 ? 'fase1' : 'fase2';
+    const faseBadge  = row.fase===1
+      ? '<span class="fase-badge fase1-b">Fase 1</span>'
+      : '<span class="fase-badge fase2-b">Fase 2</span>';
+    const cur = isMesAtual ? ' mes-atual' : '';
+    const pctCor = row.pctPoupado>=0.37?'var(--green)':row.pctPoupado>=0.2?'var(--gold)':'var(--red)';
+    const caixCor = row.caixaDisp>=0?'var(--green)':'var(--red)';
+    const livreCor = row.livre>=800?'var(--green)':row.livre>=400?'var(--gold)':'var(--red)';
+    const params = getParams();
+
+    return `<tr class="${faseClass}${cur}">
+      <td>${row.label}${isMesAtual?' <span style="font-size:9px;color:var(--gold)">◀</span>':''}</td>
+      <td>${faseBadge}</td>
+      <td style="color:var(--tx)">${fmt(row.sal)}</td>
+      <td>${celEdit(row.label,'transf',      row.r.transf,      0)}</td>
+      <td>${celEdit(row.label,'parcelas',    row.r.parcelas,    parcelasDoMes(row.label))}</td>
+      <td>${celEdit(row.label,'fixasCartao', row.r.fixasCartao, params.fixasCartao)}</td>
+      <td style="color:var(--red);font-weight:600" title="${row.livreAnt>0?'Parcelas '+fmt(row.parcelas)+' + Fixas cartão '+fmt(row.fixasCartao)+' + Livre ant. '+fmt(row.livreAnt):'Parcelas '+fmt(row.parcelas)+' + Fixas cartão '+fmt(row.fixasCartao)}">${fmt(row.faturaDevida)}${row.livreAnt>0?'<span style="font-size:9px;color:var(--tx3);display:block">+livre ant.</span>':''}</td>
+      <td>${celEdit(row.label,'fixasPix',    row.r.fixasPix,    params.fixasTotal-params.fixasCartao)}</td>
+      <td style="color:${caixCor};font-weight:600">${fmt(row.caixaDisp)}</td>
+      <td>${celEdit(row.label,'metaInv',     row.r.metaInv,     getMetaInv(row.mes,row.ano,params.metaInv))}</td>
+      <td style="color:var(--blue)">${fmt(row.pgbl)}</td>
+      <td style="color:var(--tx2)">${fmt(row.outrosInv)}</td>
+      <td>${celEdit(row.label,'caixViagem',  row.r.caixViagem,  getMetaViagem(row.mes,row.ano,params.metaViagem))}</td>
+      <td style="color:${livreCor};font-weight:700">${fmt(row.livre)}</td>
+      <td style="color:${pctCor}">${(row.pctPoupado*100).toFixed(1)}%</td>
+    </tr>`;
+  }).join('');
+}
+
+function salvarCelula(label, campo, valor) {
+  if (!planoReais[label]) planoReais[label] = {};
+  const v = parseFloat(valor);
+  if (!isNaN(v) && valor !== '') planoReais[label][campo] = v;
+  else delete planoReais[label][campo];
+  salvarPlanoLocal();
+  if ($('plano-painel').style.display !== 'none') renderPlanoPainel();
+}
+
+// ── Renderiza painel ──
+function renderPlanoPainel() {
+  const rows  = calcPlanoCompleto();
+  if (!rows.length) return;
+  const hoje  = new Date();
+  const mesAtual = (hoje.getMonth()+1) + '-' + hoje.getFullYear();
+  const cur   = rows.find(r => r.mes+'-'+r.ano === mesAtual) || rows[0];
+  const params = getParams();
+
+  // KPIs
+  const totalInvestido = rows.filter(r=>r.isReal||true).reduce((a,r)=>a+r.metaInv,0);
+  const mesesFase1 = rows.filter(r=>r.fase===1).length;
+  const mesAtualIdx = rows.findIndex(r=>r.mes+'-'+r.ano===mesAtual);
+  const progresso = mesAtualIdx >= 0 ? mesAtualIdx / rows.length : 0;
+
+  $('plano-kpis').innerHTML = [
+    {l:'Livre este mês',      v:fmt(cur.livre),      s:cur.label,        c:cur.livre>=800?'var(--green)':cur.livre>=400?'var(--gold)':'var(--red)'},
+    {l:'Caixa disponível',    v:fmt(cur.caixaDisp),  s:'após fatura + fixas', c:cur.caixaDisp>=0?'var(--green)':'var(--red)'},
+    {l:'Meta investimento',   v:fmt(cur.metaInv),    s:(cur.pctPoupado*100).toFixed(1)+'% do salário', c:'var(--gold)'},
+    {l:'Fase',               v:'Fase '+cur.fase,    s:cur.fase===1?'Recuperação':'Estabilização', c:cur.fase===1?'var(--gold)':'var(--green)'},
+  ].map(k=>`<div class="mt"><div class="mt-l">${k.l}</div><div class="mt-v" style="font-size:16px;color:${k.c}">${k.v}</div><div style="font-size:10px;color:var(--tx3);margin-top:2px">${k.s}</div></div>`).join('');
+
+  // Detalhe mês atual
+  $('plano-mes-label').textContent = cur.label;
+  $('plano-mes-detalhe').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:0">
+      ${[
+        {l:'Salário + Transf. Ana', v:fmt(cur.sal+cur.transfAna), c:'var(--green)'},
+        {l:'Fatura devida',            v:'− '+fmt(cur.faturaDevida),      c:'var(--red)'},
+        {l:'Despesas fixas (pix)',      v:'− '+fmt(cur.fixasPix),         c:'var(--red)'},
+        {l:'Caixa disponível',         v:fmt(cur.caixaDisp),              c:cur.caixaDisp>=0?'var(--green)':'var(--red)', bold:true},
+        {l:'Meta investimento',        v:'− '+fmt(cur.metaInv),           c:'var(--gold)'},
+        {l:'Caixinha viagem',          v:'− '+fmt(cur.caixViagem),        c:'#8b5cf6'},
+        {l:'Livre para gastar',        v:fmt(cur.livre),                  c:cur.livre>=800?'var(--green)':cur.livre>=400?'var(--gold)':'var(--red)', bold:true},
+      ].map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--brd)">
+        <span style="font-size:12px;color:var(--tx2)${i.bold?';font-weight:600':''}">${i.l}</span>
+        <span style="font-size:${i.bold?'15':'13'}px;font-weight:${i.bold?'700':'500'};color:${i.c}">${i.v}</span>
+      </div>`).join('')}
+    </div>
+    ${cur.fase===1?`<div style="margin-top:12px;font-size:11px;color:var(--tx3);padding:8px;background:var(--goldd2);border-radius:7px;line-height:1.6">
+      ⚠️ Fase 1 — Recuperação. Mês mais apertado: <strong style="color:var(--tx)">Out/26</strong>.
+      Ajuste Noronha encerra em Nov/26.
+    </div>`:''}`;
+
+  // Gráfico evolução
+  const labels = rows.map(r=>r.label);
+  const livres  = rows.map(r=>r.livre);
+  const invs    = rows.map(r=>r.metaInv);
+  const evoO = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2535',titleColor:'#e8eaf0',bodyColor:'#8b92a8',borderColor:'rgba(255,255,255,.1)',borderWidth:1,padding:9}},
+    scales:{
+      x:{ticks:{color:'#5a6077',font:{size:9},autoSkip:true,maxTicksLimit:9},grid:{color:'rgba(255,255,255,.05)'},border:{color:'rgba(255,255,255,.04)'}},
+      y:{ticks:{color:'#5a6077',font:{size:10},callback:v=>fmtK(v)},grid:{color:'rgba(255,255,255,.05)'},border:{color:'rgba(255,255,255,.04)'}}
+    }
+  };
+  if (!planoCharts.evo) {
+    planoCharts.evo = new Chart($('ch-plano-evolucao'), {
+      type:'line',
+      data:{labels, datasets:[
+        {label:'Livre',data:livres,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,0.06)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#22c55e',pointBorderColor:'#0f1117',pointBorderWidth:2,tension:0.35,fill:true},
+        {label:'Investimento',data:invs,borderColor:'#d4a843',backgroundColor:'rgba(212,168,67,0.05)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#d4a843',pointBorderColor:'#0f1117',pointBorderWidth:2,tension:0.35,fill:false},
+      ]},
+      options:evoO
+    });
+  } else {
+    planoCharts.evo.data.labels=labels;
+    planoCharts.evo.data.datasets[0].data=livres;
+    planoCharts.evo.data.datasets[1].data=invs;
+    planoCharts.evo.update();
+  }
+
+  // Progresso
+  const totalMeses = rows.length;
+  const mesIdx = Math.max(0, mesAtualIdx);
+  const pctProg = totalMeses > 0 ? (mesIdx/totalMeses*100).toFixed(1) : 0;
+  const metaAlvo = params.metaInv;
+  const investAcum = rows.slice(0,mesIdx+1).reduce((a,r)=>a+r.metaInv,0);
+
+  $('plano-progresso').innerHTML = `
+    <div style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:var(--tx2)">Mês ${mesIdx+1} de ${totalMeses} — ${pctProg}% do plano concluído</span>
+      <span style="font-size:12px;color:var(--gold);font-weight:600">Investido projetado: ${fmt(investAcum)}</span>
+    </div>
+    <div style="height:10px;background:var(--s2);border-radius:5px;overflow:hidden;margin-bottom:16px">
+      <div style="width:${pctProg}%;height:100%;background:linear-gradient(90deg,var(--gold),var(--green));border-radius:5px;transition:width .5s"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(${Math.min(totalMeses,18)},1fr);gap:3px">
+      ${rows.slice(0,18).map((r,i)=>{
+        const status = i<mesIdx?'done':i===mesIdx?'cur':'future';
+        const col = status==='done'?'var(--green)':status==='cur'?'var(--gold)':'var(--s3)';
+        return `<div title="${r.label} — Livre: ${fmt(r.livre)}" style="height:28px;background:${col};border-radius:3px;opacity:${status==='future'?0.4:1};cursor:default"></div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:14px;margin-top:8px;font-size:10px;color:var(--tx3)">
+      <span><span style="color:var(--green)">■</span> Concluído</span>
+      <span><span style="color:var(--gold)">■</span> Mês atual</span>
+      <span style="color:var(--tx3)">■ Futuro</span>
+    </div>`;
+}
+
+function renderParcelasList() {
+  $('parcelas-lista').innerHTML = parcelasList.map(p=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--s2);border-radius:7px">
+      <div style="flex:1">
+        <input class="fi" type="text" value="${p.nome}" style="font-size:12px;margin-bottom:4px" onchange="editParcela(${p.id},'nome',this.value)">
+      </div>
+      <div class="ip" style="width:90px"><span>R$</span><input class="fi" type="number" value="${p.valor}" step="0.01" style="font-size:12px;padding-left:26px" onchange="editParcela(${p.id},'valor',this.value)"></div>
+      <select class="fi" style="font-size:11px;width:90px" onchange="editParcela(${p.id},'mesInicio',this.value)">
+        ${gerarMeses().map(m=>`<option value="${m.mes}-${m.ano}" ${p.mesInicio===m.mes+'-'+m.ano?'selected':''}>${m.label}</option>`).join('')}
+      </select>
+      <div class="ip" style="width:60px"><span>#</span><input class="fi" type="number" value="${p.meses}" min="1" max="60" style="font-size:12px;padding-left:20px" onchange="editParcela(${p.id},'meses',this.value)">
+      </div>
+      <button onclick="removeParcela(${p.id})" style="background:var(--redd);border:none;color:var(--red);border-radius:5px;padding:4px 8px;cursor:pointer;font-size:12px">✕</button>
+    </div>`).join('');
+}
+
+function addParcela() {
+  parcelasList.push({id:parcelaNextId++, nome:'Nova parcela', valor:0, mesInicio:'8-2026', meses:1});
+  renderParcelasList();
+  recalcPlano();
+}
+function removeParcela(id) {
+  parcelasList = parcelasList.filter(p=>p.id!==id);
+  renderParcelasList(); recalcPlano();
+}
+function editParcela(id, campo, val) {
+  const p = parcelasList.find(x=>x.id===id);
+  if (!p) return;
+  p[campo] = campo==='nome'||campo==='mesInicio' ? val : (parseFloat(val)||0);
+  salvarPlanoLocal(); recalcPlano();
+}
+
+function recalcPlano() {
+  if ($('plano-tabela') && $('plano-tabela').style.display !== 'none') renderPlanoTabela();
+  if ($('plano-painel') && $('plano-painel').style.display !== 'none') renderPlanoPainel();
+}
+
+function salvarPlanoLocal() {
+  localStorage.setItem('fintrack_plano_reais', JSON.stringify(planoReais));
+}
+
+function carregarPlanoLocal() {
+  const r = localStorage.getItem('fintrack_plano_reais');
+  if (r) planoReais = JSON.parse(r);
+}
+
+async function salvarPlano() {
+  salvarPlanoLocal();
+  showNotif('Salvando no Google Sheets…');
+  try {
+    setSyncStatus('Sincronizando…', 'wait');
+    await apiPost({ action: 'salvarPlanoReais', data: planoReais });
+    setSyncStatus('Salvo no Sheets ✓', 'ok');
+    showNotif('Plano salvo no Google Sheets ✓');
+  } catch(e) {
+    setSyncStatus('Erro no Sheets', 'err');
+    showNotif('Local salvo, Sheets falhou: ' + e.message, 'err');
+  }
+}
+
+async function carregarPlanoDoSheets() {
+  const url = getScriptUrl();
+  if (!url) return;
+  try {
+    const res = await apiPost({ action: 'buscarPlanoReais' });
+    if (res.dados && Object.keys(res.dados).length > 0) {
+      planoReais = res.dados;
+      salvarPlanoLocal();
+    }
+  } catch(e) {
+    console.warn('Plano offline:', e.message);
+  }
+}
+
+// ─────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────
-try { carregarConfigLocal(); } catch(e) { console.warn('carregarConfigLocal:', e); }
-try { carregarMetasLocal();  } catch(e) { console.warn('carregarMetasLocal:', e); }
-try { calcC();               } catch(e) { console.warn('calcC:', e); }
-try { loadMes(currentMes);   } catch(e) { console.warn('loadMes:', e); }
-// calcCarteira só roda quando o utilizador navega para a aba Carteira
-try { carregarDoSheets();    } catch(e) { console.warn('carregarDoSheets:', e); }
+try { carregarConfigLocal();      } catch(e) { console.warn('carregarConfigLocal:', e); }
+try { carregarMetasLocal();       } catch(e) { console.warn('carregarMetasLocal:', e); }
+try { carregarPlanoLocal();       } catch(e) { console.warn('carregarPlanoLocal:', e); }
+try { calcC();                    } catch(e) { console.warn('calcC:', e); }
+try { loadMes(currentMes);        } catch(e) { console.warn('loadMes:', e); }
+try { carregarDoSheets();         } catch(e) { console.warn('carregarDoSheets:', e); }
 try { carregarCarteiraDoSheets(); } catch(e) { console.warn('carregarCarteiraDoSheets:', e); }
+try { carregarPlanoDoSheets();    } catch(e) { console.warn('carregarPlanoDoSheets:', e); }
 </script>
 </body>
 </html>
