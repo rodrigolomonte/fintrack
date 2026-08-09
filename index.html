@@ -1542,8 +1542,26 @@ async function carregarDoSheets() {
   }
 }
 
-// ─────────────────────────────────────────────
-//  CARTEIRA DE ATIVOS
+// Parse de data seguro para Safari (evita Invalid Date)
+function parseDateSafe(str) {
+  if (!str) return null;
+  // Formato YYYY-MM-DD
+  const m = String(str).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+  // Tenta direto como fallback
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+}
+function fmtDataLabel(dataRaw) {
+  const d = parseDateSafe(dataRaw);
+  if (!d) return dataRaw || '—';
+  return d.toLocaleDateString('pt-BR', {month:'short', year:'2-digit'});
+}
+function fmtDataBR(dataRaw) {
+  const d = parseDateSafe(dataRaw);
+  if (!d) return dataRaw || '—';
+  return d.toLocaleDateString('pt-BR');
+}
 // ─────────────────────────────────────────────
 let carteiraSnapshots = []; // [{data, caixa, reserva, viagem, rfAplic, acoes, fii, ext, cripto}]
 let cartCharts = {};
@@ -1599,7 +1617,7 @@ function calcCarteira() {
   // Data de atualização
   const dataVal = $('cv-data').value;
   $('cart-upd-txt').textContent = dataVal
-    ? 'Atualizado em: '+new Date(dataVal+'T12:00:00').toLocaleDateString('pt-BR')
+    ? 'Atualizado em: '+fmtDataBR(dataVal)
     : 'Não atualizado';
 
   // Gráfico RF vs RV (donut)
@@ -1925,7 +1943,7 @@ async function salvarCarteira() {
   const { rf, rv, totRF, totRV, total } = getCarteiraVals();
   const dataVal = $('cv-data').value;
   if (!dataVal) { showNotif('Defina a data antes de salvar', 'err'); return; }
-  const dataLabel = new Date(dataVal+'T12:00:00').toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+  const dataLabel = fmtDataLabel(dataVal);
   const snap = {
     dataLabel, dataRaw:dataVal, total, totRF, totRV,
     caixa:rf[0], reserva:rf[1], viagem:rf[2], rfAplic:rf[3],
@@ -1958,7 +1976,7 @@ function replicarUltimo() {
   ATIVOS_RF.forEach((a,i) => $(a.id).value = [last.caixa, last.reserva, last.viagem, last.rfAplic][i] || 0);
   ATIVOS_RV.forEach((a,i) => $(a.id).value = [last.acoes, last.fii, last.ext, last.cripto][i] || 0);
   // Avança a data para o mês seguinte ao último snapshot
-  const lastDate  = new Date(last.dataRaw + 'T12:00:00');
+  const lastDate  = parseDateSafe(last.dataRaw);
   lastDate.setMonth(lastDate.getMonth() + 1);
   $('cv-data').value = lastDate.toISOString().split('T')[0];
   calcCarteira();
@@ -1984,9 +2002,7 @@ async function carregarCarteiraDoSheets() {
       const totRV   = acoes + fii + ext + cripto;
       const total   = totRF + totRV;
       const dataRaw = row['Data'] || '';
-      const dataLabel = dataRaw
-        ? new Date(dataRaw+'T12:00:00').toLocaleDateString('pt-BR',{month:'short',year:'2-digit'})
-        : row['Data Label'] || dataRaw;
+      const dataLabel = dataRaw ? fmtDataLabel(dataRaw) : (row['Data Label'] || dataRaw);
       return { dataRaw, dataLabel, total, totRF, totRV, caixa, reserva, viagem, rfAplic, acoes, fii, ext, cripto };
     }).sort((a,b) => a.dataRaw.localeCompare(b.dataRaw));
 
