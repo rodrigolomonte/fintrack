@@ -822,7 +822,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
               <tr>
                 <th style="text-align:left">Mês</th>
                 <th style="text-align:left">Fase</th>
-                <th>Salário</th>
+                <th style="color:#93c5fd">Salário ✎</th>
                 <th style="color:#93c5fd">Transf. Ana ✎</th>
                 <th style="color:#93c5fd">Parcelas ✎</th>
                 <th style="color:#93c5fd">Fixas cartão ✎</th>
@@ -2146,11 +2146,11 @@ function getPGBL(mes, ano, metaInv, pgblMax, pgblInicioStr) {
 
 // Motor de cálculo principal
 function calcPlanoMes(m, params, mesAnterior) {
-  const sal = params.salario;
   const r   = planoReais[m.label] || {};
   const fase = getFase(m.mes, m.ano);
 
-  // ── 6 CAMPOS EDITÁVEIS (azul) ──
+  // ── 7 CAMPOS EDITÁVEIS (azul) ──
+  const sal         = r.sal         !== undefined ? r.sal         : params.salario;
   const transfAna   = r.transf      !== undefined ? r.transf      : 0;
   const parcelas    = r.parcelas    !== undefined ? r.parcelas    : 0;
   const fixasCartao = r.fixasCartao !== undefined ? r.fixasCartao : params.fixasCartao;
@@ -2236,7 +2236,7 @@ function renderPlanoTabela() {
     return `<tr class="${faseClass}${cur}">
       <td>${row.label}${isMesAtual?' <span style="font-size:9px;color:var(--gold)">◀</span>':''}</td>
       <td>${faseBadge}</td>
-      <td style="color:var(--tx)">${fmt(row.sal)}</td>
+      <td style="color:var(--tx)">${celEdit(row.label,'sal', row.r.sal, params.salario)}</td>
       <td>${celEdit(row.label,'transf',      row.r.transf,      0)}</td>
       <td>${celEdit(row.label,'parcelas',    row.r.parcelas,    parcelasDoMes(row.label))}</td>
       <td>${celEdit(row.label,'fixasCartao', row.r.fixasCartao, params.fixasCartao)}</td>
