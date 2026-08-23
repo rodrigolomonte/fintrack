@@ -759,9 +759,108 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
     <div class="page" id="page-plano">
       <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
         <div><h1>Meu orçamento</h1><p>Fluxo de caixa mensal — planejamento e acompanhamento financeiro</p></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-ghost btn-sm" onclick="toggleGuia()" title="Como preencher?" style="border-radius:50%;width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;font-size:15px">ℹ️</button>
           <button class="btn btn-ghost btn-sm" onclick="adicionarMes()"><i class="ti ti-calendar-plus"></i>Adicionar mês</button>
           <button class="btn btn-gold btn-sm" onclick="salvarPlano()"><i class="ti ti-device-floppy"></i>Salvar</button>
+        </div>
+      </div>
+
+      <!-- GUIA DE PREENCHIMENTO (colapsável) -->
+      <div id="plano-guia" style="display:none;margin-bottom:18px">
+        <div style="background:var(--s1);border:0.5px solid rgba(212,168,67,0.25);border-radius:var(--r);padding:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div style="font-size:13px;font-weight:600;color:var(--gold)">📋 Como preencher o mês</div>
+            <button onclick="toggleGuia()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;line-height:1">×</button>
+          </div>
+
+          <div class="g2" style="gap:20px">
+            <!-- Coluna 1: Passo a passo -->
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:12px">Passo a passo — campos azuis</div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <div style="width:22px;height:22px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div>
+                  <div>
+                    <div style="font-size:12px;font-weight:600;color:var(--tx)">Salário</div>
+                    <div style="font-size:11px;color:var(--tx3);margin-top:2px">Quanto você vai receber de salário líquido neste mês. Default R$ 10.800 — ajuste se tiver bonificação ou mês diferente.</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <div style="width:22px;height:22px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</div>
+                  <div>
+                    <div style="font-size:12px;font-weight:600;color:var(--tx)">Transf. Ana</div>
+                    <div style="font-size:11px;color:var(--tx3);margin-top:2px">Quanto a Ana vai te transferir neste mês. Se não houver, deixe 0.</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <div style="width:22px;height:22px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</div>
+                  <div>
+                    <div style="font-size:12px;font-weight:600;color:var(--tx)">Parcelas</div>
+                    <div style="font-size:11px;color:var(--tx3);margin-top:2px">Parcelas de compras parceladas que vencem neste mês (ex: Noronha, eletrônico parcelado). Soma de todas as parcelas.</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <div style="width:22px;height:22px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</div>
+                  <div>
+                    <div style="font-size:12px;font-weight:600;color:var(--tx)">Fixas cartão + Fixas pix</div>
+                    <div style="font-size:11px;color:var(--tx3);margin-top:2px">Despesas fixas mensais divididas em dois grupos: as que você paga pelo cartão (entram na fatura) e as que você paga via PIX/débito direto (saem no mesmo mês).</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                  <div style="width:22px;height:22px;border-radius:50%;background:var(--goldd);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">5</div>
+                  <div>
+                    <div style="font-size:12px;font-weight:600;color:var(--tx)">Meta investimento + Caixinha viagem</div>
+                    <div style="font-size:11px;color:var(--tx3);margin-top:2px">Quanto você quer guardar neste mês — dividido entre investimentos (PGBL, ações etc.) e a reserva de viagem. O que sobrar é o <strong style="color:var(--green)">Livre</strong>.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:14px;padding:10px 12px;background:var(--s2);border-radius:8px;border-left:3px solid var(--green)">
+                <div style="font-size:11px;color:var(--tx2);line-height:1.7">
+                  <strong style="color:var(--tx)">Fórmula:</strong><br>
+                  Salário + Transf. Ana<br>
+                  − Fatura (Parcelas + Fixas cartão + Livre do mês anterior)<br>
+                  − Fixas pix<br>
+                  = <strong style="color:var(--green)">Caixa disponível</strong><br>
+                  − Meta investimento − Caixinha viagem<br>
+                  = <strong style="color:var(--green)">Livre para gastar</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna 2: Guia de parcelamento -->
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:12px">Quando parcelar? — guia rápido</div>
+
+              <div style="padding:12px;background:var(--greend);border:0.5px solid rgba(34,197,94,0.2);border-radius:8px;margin-bottom:10px">
+                <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px">✅ Parcelar vale a pena quando...</div>
+                <div style="font-size:11px;color:var(--tx2);line-height:1.7">
+                  • A parcela cabe no <strong style="color:var(--tx)">Livre</strong> do mês sem comprometer as metas<br>
+                  • O dinheiro que sobraria investido rende <strong style="color:var(--tx)">mais</strong> do que o desconto à vista<br>
+                  • A compra tem <strong style="color:var(--tx)">cashback</strong> no cartão (aumenta o retorno de parcelar)<br>
+                  • O item é grande e o pagamento à vista <strong style="color:var(--tx)">zeraria seu caixa</strong>
+                </div>
+              </div>
+
+              <div style="padding:12px;background:var(--redd);border:0.5px solid rgba(239,68,68,0.2);border-radius:8px;margin-bottom:10px">
+                <div style="font-size:11px;font-weight:600;color:var(--red);margin-bottom:6px">❌ Não parcelar quando...</div>
+                <div style="font-size:11px;color:var(--tx2);line-height:1.7">
+                  • O desconto à vista é <strong style="color:var(--tx)">maior que o rendimento do CDI</strong> no período<br>
+                  • Você já tem muitas parcelas rodando — <strong style="color:var(--tx)">soma tudo</strong> antes de mais uma<br>
+                  • A parcela só cabe se <strong style="color:var(--tx)">cortar algo importante</strong> (investimento, reserva)
+                </div>
+              </div>
+
+              <div style="padding:12px;background:var(--goldd2);border:0.5px solid rgba(212,168,67,0.2);border-radius:8px">
+                <div style="font-size:11px;font-weight:600;color:var(--gold);margin-bottom:6px">🧮 Quantas vezes parcelar?</div>
+                <div style="font-size:11px;color:var(--tx2);line-height:1.7">
+                  Use a <strong style="color:var(--tx)">Calculadora de compras</strong> do Fintrack — ela calcula exatamente o custo efetivo de cada cenário considerando o CDI e cashback.<br><br>
+                  Regra rápida: parcele em <strong style="color:var(--tx)">quantas vezes a parcela seja ≤ 10% do seu Livre</strong> mensal — assim uma compra não domina seu orçamento.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2054,6 +2153,12 @@ let parcelasList = [
   { id:3, nome:'XP cartão',  valor:409.33, mesInicio:'9-2026', meses:10 },
 ];
 let parcelaNextId = 4;
+
+function toggleGuia() {
+  const el = document.getElementById('plano-guia');
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
 
 function planoTab(t) {
   ['painel','tabela'].forEach(x => {
