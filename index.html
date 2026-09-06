@@ -1263,9 +1263,37 @@ function loadMes(m) {
   // Carrega dados salvos
   if (d) {
     $('fe_sal').value = d.fe_sal ?? 0;
-    transfRecLista = d.transf_rec_lista || [];
-    cartoesFec     = d.cartoes_fec || cartoesFec;
-    saidasLista    = d.saidas_lista || [];
+
+    // Transferências recebidas — compatível com formato antigo
+    if (d.transf_rec_lista && d.transf_rec_lista.length > 0) {
+      transfRecLista = d.transf_rec_lista;
+    } else if (d.fe_transf_rec && d.fe_transf_rec > 0) {
+      // Formato antigo: campo único → converte para lista
+      transfRecLista = [{ id: 1, desc: 'Transferências recebidas', valor: d.fe_transf_rec }];
+    } else {
+      transfRecLista = [];
+    }
+
+    // Cartões — compatível com formato antigo
+    if (d.cartoes_fec && d.cartoes_fec.length > 0) {
+      cartoesFec = d.cartoes_fec;
+    } else {
+      // Formato antigo: campos fe_f1, fe_f2, fe_f3
+      cartoesFec = [
+        { id:1, nome:'Nubank', cor:'#8b5cf6', valor: d.fe_f1 ?? 0 },
+        { id:2, nome:'XP',     cor:'#d4a843', valor: d.fe_f2 ?? 0 },
+        { id:3, nome:'Itaú',   cor:'#3b82f6', valor: d.fe_f3 ?? 0 },
+      ];
+    }
+
+    // Saídas avulsas — compatível com formato antigo
+    if (d.saidas_lista && d.saidas_lista.length > 0) {
+      saidasLista = d.saidas_lista;
+    } else if (d.fe_transf_out && d.fe_transf_out > 0) {
+      saidasLista = [{ id: 2, desc: 'Outras saídas', valor: d.fe_transf_out }];
+    } else {
+      saidasLista = [];
+    }
   } else {
     $('fe_sal').value = 0;
     transfRecLista = [];
@@ -2172,13 +2200,14 @@ async function carregarCarteiraDoSheets() {
       return { dataRaw, dataLabel, total, totRF, totRV, caixa, reserva, viagem, rfAplic, acoes, fii, ext, cripto };
     }).sort((a,b) => a.dataRaw.localeCompare(b.dataRaw));
 
-    // Carrega último snapshot nos campos
+    // Carrega último snapshot nos campos — sempre, independente da aba ativa
     if (carteiraSnapshots.length > 0) {
       const last = carteiraSnapshots[carteiraSnapshots.length - 1];
-      ATIVOS_RF.forEach((a,i) => $(a.id).value = [last.caixa, last.reserva, last.viagem, last.rfAplic][i] || 0);
-      ATIVOS_RV.forEach((a,i) => $(a.id).value = [last.acoes, last.fii, last.ext, last.cripto][i] || 0);
-      $('cv-data').value = last.dataRaw;
-      calcCarteira();
+      ATIVOS_RF.forEach((a,i) => { const el=$(a.id); if(el) el.value=[last.caixa,last.reserva,last.viagem,last.rfAplic][i]||0; });
+      ATIVOS_RV.forEach((a,i) => { const el=$(a.id); if(el) el.value=[last.acoes,last.fii,last.ext,last.cripto][i]||0; });
+      const cvd = $('cv-data'); if(cvd) cvd.value = last.dataRaw;
+      // Só calcula gráficos se o canvas já existe (aba carteira aberta)
+      if ($('ch-rfvrv')) calcCarteira();
     }
   } catch(e) {
     console.warn('Carteira offline:', e.message);
