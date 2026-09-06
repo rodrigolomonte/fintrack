@@ -1077,11 +1077,21 @@ function setSyncStatus(txt, tipo) {
 // ─────────────────────────────────────────────
 function carregarConfigLocal() {
   const cfg = JSON.parse(localStorage.getItem('fintrack_cfg') || '{}');
-  if (cfg.c1) { $('cfg_c1').value = cfg.c1; $('label-c1').textContent = cfg.c1; }
-  if (cfg.c2) { $('cfg_c2').value = cfg.c2; $('label-c2').textContent = cfg.c2; }
-  if (cfg.c3) { $('cfg_c3').value = cfg.c3; $('label-c3').textContent = cfg.c3; }
+  if (cfg.c1) $('cfg_c1').value = cfg.c1;
+  if (cfg.c2) $('cfg_c2').value = cfg.c2;
+  if (cfg.c3) $('cfg_c3').value = cfg.c3;
   if (cfg.url) $('cfg_url').value = cfg.url;
   if (cfg.cdi) $('cfg_cdi').value = cfg.cdi;
+  // Atualiza nomes dos cartões no fechamento se já estiver carregado
+  atualizarNomesCartoes(cfg);
+}
+
+function atualizarNomesCartoes(cfg) {
+  // Atualiza os cartões padrão no fechamento com os nomes configurados
+  if (!cfg) cfg = JSON.parse(localStorage.getItem('fintrack_cfg') || '{}');
+  if (cfg.c1 && cartoesFec[0]) cartoesFec[0].nome = cfg.c1;
+  if (cfg.c2 && cartoesFec[1]) cartoesFec[1].nome = cfg.c2;
+  if (cfg.c3 && cartoesFec[2]) cartoesFec[2].nome = cfg.c3;
 }
 
 function salvarConfigLocal() {
@@ -1090,9 +1100,8 @@ function salvarConfigLocal() {
     url: $('cfg_url').value, cdi: $('cfg_cdi').value
   };
   localStorage.setItem('fintrack_cfg', JSON.stringify(cfg));
-  $('label-c1').textContent = cfg.c1 || 'Cartão 1';
-  $('label-c2').textContent = cfg.c2 || 'Cartão 2';
-  $('label-c3').textContent = cfg.c3 || 'Cartão 3';
+  atualizarNomesCartoes(cfg);
+  if ($('cartoes-lista-fec')) renderCartoesFec();
 }
 
 function getScriptUrl() { return ($('cfg_url').value || '').trim(); }
