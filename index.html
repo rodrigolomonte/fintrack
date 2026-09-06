@@ -333,8 +333,27 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 
     <!-- ======= CONTROLE MENSAL ======= -->
     <div class="page" id="page-mensal">
-      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
-        <div><h1>Controle mensal</h1><p id="ph-sub">Navegue entre meses pelo seletor. Meses anteriores podem ser corrigidos.</p></div>
+
+      <!-- Cabeçalho com conceito claro -->
+      <div style="background:var(--goldd2);border:0.5px solid rgba(212,168,67,0.2);border-radius:var(--r);padding:14px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px">
+        <div style="font-size:22px;flex-shrink:0">📒</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--gold);margin-bottom:4px">O que é esta tela?</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.7">
+            Aqui você registra o que <strong style="color:var(--tx)">realmente aconteceu</strong> no mês — ao final de cada mês, não antes.
+            Use <strong style="color:var(--tx)">Meu orçamento</strong> para planejar o futuro. Use esta tela para registrar o passado e acompanhar sua evolução.
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--tx3)">
+            🗓️ <strong>Quando preencher:</strong> nos últimos dias do mês, quando já souber tudo que entrou e saiu.
+          </div>
+        </div>
+      </div>
+
+      <div class="ph" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+        <div>
+          <h1>Fechamento do mês</h1>
+          <p id="ph-sub">O que realmente aconteceu — navegue pelo seletor para corrigir meses anteriores</p>
+        </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <div class="month-nav">
             <button class="mnb" onclick="navMes(-1)" id="btn-prev">‹</button>
@@ -342,144 +361,133 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
             <button class="mnb" onclick="navMes(1)" id="btn-next">›</button>
           </div>
           <span class="ms" id="month-status">Em aberto</span>
+          <button class="btn btn-gold btn-sm" onclick="fecharMes()" id="btn-fechar">
+            <i class="ti ti-check"></i><span id="btn-fechar-txt">Fechar mês</span>
+          </button>
         </div>
       </div>
       <div id="edit-banner-wrap"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-        <div class="tg-grp" style="max-width:260px;margin-bottom:0">
-          <div class="tg-btn active" id="tab_plan" onclick="showTab('plan')">Planejamento</div>
-          <div class="tg-btn" id="tab_fec" onclick="showTab('fec')">Fechamento</div>
+
+      <!-- 3 CARDS DE RESULTADO (sempre visíveis) -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+        <div style="background:var(--greend);border:0.5px solid rgba(34,197,94,0.25);border-radius:var(--r);padding:16px 18px">
+          <div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">✅ Total que entrou</div>
+          <div style="font-size:24px;font-weight:700;color:var(--green)" id="res_entrou">R$ 0,00</div>
+          <div style="font-size:11px;color:rgba(34,197,94,0.7);margin-top:4px">Salário + todas as transferências</div>
         </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost btn-sm" onclick="go('hist')"><i class="ti ti-chart-line"></i>Ver histórico</button>
-          <button class="btn btn-gold btn-sm" onclick="fecharMes()" id="btn-fechar"><i class="ti ti-check"></i><span id="btn-fechar-txt">Fechar mês</span></button>
+        <div style="background:var(--redd);border:0.5px solid rgba(239,68,68,0.25);border-radius:var(--r);padding:16px 18px">
+          <div style="font-size:10px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">💸 Total que saiu</div>
+          <div style="font-size:24px;font-weight:700;color:var(--red)" id="res_saiu">R$ 0,00</div>
+          <div style="font-size:11px;color:rgba(239,68,68,0.7);margin-top:4px">Faturas + todas as saídas</div>
         </div>
-      </div>
-
-      <!-- Planejamento -->
-      <div id="tab_plan_c">
-        <!-- KPIs -->
-        <div class="g4" style="margin-bottom:14px">
-          <div class="mt"><div class="mt-l">Disponível p/ gastar agora</div><div class="mt-v" id="m_saldo" style="color:var(--green)">—</div><div style="font-size:10px;color:var(--tx3);margin-top:3px" id="m_saldo_sub">no cartão este mês</div></div>
-          <div class="mt"><div class="mt-l">Total saídas previstas</div><div class="mt-v" id="m_fat" style="color:var(--red)">—</div><div style="font-size:10px;color:var(--tx3);margin-top:3px">faturas + fixas + transf.</div></div>
-          <div class="mt"><div class="mt-l">Meta saving</div><div class="mt-v" id="m_sav" style="color:var(--gold)">—</div></div>
-          <div class="mt"><div class="mt-l">Verba lazer</div><div class="mt-v" id="m_laz" style="color:var(--blue)">—</div></div>
-        </div>
-
-        <div class="g2" style="gap:14px;align-items:start">
-          <!-- Coluna esquerda -->
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="card">
-              <div class="ct"><i class="ti ti-trending-up"></i> Entradas previstas</div>
-              <div style="font-size:11px;color:var(--tx3);margin-bottom:12px" id="entradas-sub">O que deve entrar na sua conta</div>
-              <div class="fg"><label class="fl">Salário</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_sal" value="0" step="0.01" oninput="calcM()"></div></div>
-              <div class="fg"><label class="fl">Transferências que vai receber</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_ext" value="0" step="0.01" oninput="calcM()"></div></div>
-              <div class="div"></div>
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <span style="font-size:12px;color:var(--tx2)">Total entradas</span>
-                <span style="font-size:15px;font-weight:600;color:var(--green)" id="m_tot_e">—</span>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="ct"><i class="ti ti-receipt-2"></i> Saídas fixas previstas</div>
-              <div style="font-size:11px;color:var(--tx3);margin-bottom:12px">Aluguel, contas, assinaturas, etc.</div>
-              <div class="fg"><label class="fl">Despesas fixas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_fixas" value="0" step="0.01" oninput="calcM()"></div></div>
-              <div class="fg"><label class="fl">Transferência prevista (saída)</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_transf" value="0" step="0.01" oninput="calcM()"></div>
-                <div style="font-size:10px;color:var(--tx3);margin-top:4px" id="transf-sub">Ex: poupança programada, envio para familiar</div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="ct"><i class="ti ti-piggy-bank"></i> Metas</div>
-              <div class="fg"><label class="fl">Meta de saving (% do salário)</label>
-                <div class="sr"><input type="range" min="0" max="50" step="1" value="20" id="m_pct_s" oninput="calcM()"><div class="sv"><span id="m_pct_sv">20</span>%</div></div>
-              </div>
-              <div class="fg"><label class="fl">Verba lazer</label><div class="ip"><span>R$</span><input class="fi" type="number" id="m_laz_v" value="0" step="0.01" oninput="calcM()"></div></div>
-            </div>
-          </div>
-
-          <!-- Coluna direita -->
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="card">
-              <div class="ct"><i class="ti ti-credit-card"></i> Faturas dos cartões</div>
-              <div style="font-size:11px;color:var(--tx3);margin-bottom:10px" id="faturas-sub">Faturas que vencem no próximo mês</div>
-              <div class="cr"><div class="cdot" style="background:#3b82f6"></div><span style="flex:1;font-size:13px" id="label-c1">Cartão 1</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="f1" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div></div>
-              <div class="cr"><div class="cdot" style="background:#d4a843"></div><span style="flex:1;font-size:13px" id="label-c2">Cartão 2</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="f2" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div></div>
-              <div class="cr"><div class="cdot" style="background:#22c55e"></div><span style="flex:1;font-size:13px" id="label-c3">Cartão 3</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="f3" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcM()"></div></div>
-              <div class="div"></div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:12px;color:var(--tx2)">Total faturas</span><span style="font-size:15px;font-weight:600;color:var(--red)" id="m_tot_f">—</span></div>
-              <div id="dist_b"></div>
-            </div>
-
-            <!-- Resumo de projeção -->
-            <div class="card" style="border-color:rgba(212,168,67,0.2);background:var(--goldd2)">
-              <div class="ct"><i class="ti ti-calculator"></i> Quanto posso gastar ainda este mês?</div>
-              <div style="font-size:12px;color:var(--tx2);margin-bottom:12px" id="m_ctx_txt">Com base no que está previsto para o próximo mês</div>
-              <div style="display:flex;flex-direction:column;gap:8px" id="resumo_proj">
-                <div class="fc-row"><span style="color:var(--tx2)">Total entradas</span><span id="rp_e" style="color:var(--green)">—</span></div>
-                <div class="fc-row"><span style="color:var(--tx2)">Faturas previstas</span><span id="rp_f" style="color:var(--red)">—</span></div>
-                <div class="fc-row"><span style="color:var(--tx2)">Fixas + transferência</span><span id="rp_fx" style="color:var(--red)">—</span></div>
-                <div class="fc-row"><span style="color:var(--tx2)">Meta saving</span><span id="rp_s" style="color:var(--gold)">—</span></div>
-                <div class="fc-row"><span style="color:var(--tx2)">Verba lazer</span><span id="rp_l" style="color:var(--blue)">—</span></div>
-                <div style="height:0.5px;background:rgba(212,168,67,0.3);margin:4px 0"></div>
-                <div class="fc-row"><span style="font-weight:600;color:var(--tx)">Disponível p/ gastar agora</span><span id="rp_disp" style="font-size:16px;font-weight:700;color:var(--green)">—</span></div>
-              </div>
-              <div style="font-size:11px;color:var(--tx3);margin-top:10px" id="m_proj_txt"></div>
-            </div>
-          </div>
+        <div style="border:0.5px solid var(--brd2);border-radius:var(--r);padding:16px 18px" id="res_saldo_card">
+          <div style="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">💰 Saldo do mês</div>
+          <div style="font-size:24px;font-weight:700" id="res_saldo">R$ 0,00</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:4px" id="res_saldo_sub">Entrou − Saiu</div>
         </div>
       </div>
 
-      <!-- Fechamento -->
-      <div id="tab_fec_c" style="display:none">
-        <div style="max-width:520px">
-          <div class="card" style="margin-bottom:14px">
-            <div class="ct"><i class="ti ti-trending-up"></i> O que entrou este mês</div>
-            <div class="fg"><label class="fl">Salário recebido</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_sal" value="0" step="0.01" oninput="calcF()"></div></div>
-            <div class="fg"><label class="fl">Transferências recebidas</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_transf_rec" value="0" step="0.01" oninput="calcF()"></div>
-              <div style="font-size:10px;color:var(--tx3);margin-top:4px">Freelas, reembolsos, presentes, qualquer entrada extra</div>
+      <!-- COMPARATIVO COM O PLANEJADO -->
+      <div id="comparativo-plano" style="display:none;margin-bottom:20px">
+        <div class="card">
+          <div class="ct"><i class="ti ti-git-compare"></i> Planejado vs. Realizado</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:12px">Referência do que foi planejado no "Meu orçamento" para este mês</div>
+          <div id="comparativo-body"></div>
+        </div>
+      </div>
+
+      <!-- FORMULÁRIO DE LANÇAMENTO -->
+      <div class="g2" style="gap:14px;align-items:start">
+
+        <!-- ENTRADAS -->
+        <div style="display:flex;flex-direction:column;gap:14px">
+
+          <div class="card">
+            <div class="ct"><i class="ti ti-trending-up"></i> Entradas do mês</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">Tudo que entrou na sua conta neste mês</div>
+
+            <!-- Salário -->
+            <div class="fg">
+              <label class="fl">Salário recebido</label>
+              <div class="ip"><span>R$</span><input class="fi" type="number" id="fe_sal" value="0" step="0.01" oninput="calcFechamento()"></div>
             </div>
+
+            <!-- Mini-soma de transferências recebidas -->
+            <div style="margin-bottom:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <label class="fl" style="margin-bottom:0">Transferências recebidas</label>
+                <button onclick="adicionarTransfRec()" style="background:var(--goldd2);border:0.5px solid rgba(212,168,67,0.3);color:var(--gold);border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:var(--font)">+ Adicionar</button>
+              </div>
+              <div id="transf-rec-lista" style="display:flex;flex-direction:column;gap:6px"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;margin-top:4px;border-top:0.5px solid var(--brd)">
+                <span style="font-size:11px;color:var(--tx3)">Subtotal transferências recebidas</span>
+                <span style="font-size:13px;font-weight:600;color:var(--green)" id="subtotal_transf_rec">R$ 0,00</span>
+              </div>
+            </div>
+
             <div class="div"></div>
             <div style="display:flex;justify-content:space-between;align-items:center">
-              <span style="font-size:12px;color:var(--tx2)">Total entradas reais</span>
-              <span style="font-size:15px;font-weight:600;color:var(--green)" id="fc_tot_e">—</span>
+              <span style="font-size:12px;color:var(--tx2);font-weight:600">Total entradas</span>
+              <span style="font-size:16px;font-weight:700;color:var(--green)" id="fc_tot_e">R$ 0,00</span>
             </div>
           </div>
 
-          <div class="card" style="margin-bottom:14px">
+        </div>
+
+        <!-- SAÍDAS -->
+        <div style="display:flex;flex-direction:column;gap:14px">
+
+          <div class="card">
             <div class="ct"><i class="ti ti-credit-card"></i> Faturas pagas este mês</div>
-            <div style="font-size:11px;color:var(--tx3);margin-bottom:12px">Valores que você pagou no início do mês (faturas do mês anterior)</div>
-            <div class="cr"><div class="cdot" style="background:#3b82f6"></div><span style="flex:1;font-size:13px" id="fc_label_c1">Cartão 1</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="fe_f1" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcF()"></div></div>
-            <div class="cr"><div class="cdot" style="background:#d4a843"></div><span style="flex:1;font-size:13px" id="fc_label_c2">Cartão 2</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="fe_f2" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcF()"></div></div>
-            <div class="cr"><div class="cdot" style="background:#22c55e"></div><span style="flex:1;font-size:13px" id="fc_label_c3">Cartão 3</span><div class="ip" style="width:130px"><span>R$</span><input class="fi" type="number" id="fe_f3" value="0" step="0.01" style="padding-left:32px;font-size:12px" oninput="calcF()"></div></div>
-            <div class="div"></div>
-            <div class="fg"><label class="fl">Transferências não previstas que fiz</label><div class="ip"><span>R$</span><input class="fi" type="number" id="fe_transf_out" value="0" step="0.01" oninput="calcF()"></div>
-              <div style="font-size:10px;color:var(--tx3);margin-top:4px">Saídas que aconteceram durante o mês e não estavam no plano</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:12px">Valores pagos no início do mês referentes ao mês anterior</div>
+
+            <div id="cartoes-lista-fec"></div>
+            <button onclick="adicionarCartao()" style="width:100%;background:var(--s2);border:0.5px dashed var(--brd2);color:var(--tx3);border-radius:7px;padding:8px;font-size:11px;cursor:pointer;font-family:var(--font);margin-top:6px">+ Adicionar cartão</button>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;margin-top:6px;border-top:0.5px solid var(--brd)">
+              <span style="font-size:11px;color:var(--tx3)">Subtotal faturas</span>
+              <span style="font-size:13px;font-weight:600;color:var(--red)" id="subtotal_faturas">R$ 0,00</span>
             </div>
           </div>
 
           <div class="card">
-            <div class="ct"><i class="ti ti-calculator"></i> Resultado do mês</div>
-            <div style="background:var(--s2);border-radius:8px;padding:12px 14px;margin-bottom:14px">
-              <div class="fc-row"><span style="color:var(--tx2)">Total entradas</span><span id="fc_re" style="color:var(--green)">—</span></div>
-              <div class="fc-row"><span style="color:var(--tx2)">Faturas pagas</span><span id="fc_fat_pagas" style="color:var(--red)">—</span></div>
-              <div class="fc-row"><span style="color:var(--tx2)">Transferências não previstas</span><span id="fc_transf_out_show" style="color:var(--red)">—</span></div>
-              <div style="height:0.5px;background:var(--brd);margin:6px 0"></div>
-              <div class="fc-row tot">
-                <span>Guardou / Sobrou</span>
-                <span id="fc_saldo_real" style="color:var(--green);font-size:16px">—</span>
-              </div>
+            <div class="ct"><i class="ti ti-arrows-transfer-down"></i> Outras saídas do mês</div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">Transferências, pagamentos e gastos não cobertos pelas faturas</div>
+
+            <!-- Mini-soma de saídas -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <label class="fl" style="margin-bottom:0">Saídas avulsas</label>
+              <button onclick="adicionarSaida()" style="background:var(--redd);border:0.5px solid rgba(239,68,68,0.3);color:var(--red);border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;font-family:var(--font)">+ Adicionar</button>
             </div>
-            <div id="fec_vrd"></div>
-            <div class="sec-cta" onclick="go('hist')" style="margin-top:14px">
-              <i class="ti ti-chart-line" style="color:var(--gold)"></i>
-              <span>Ver evolução no histórico</span>
-              <i class="ti ti-arrow-right" style="color:var(--gold)"></i>
+            <div id="saidas-lista" style="display:flex;flex-direction:column;gap:6px"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;margin-top:4px;border-top:0.5px solid var(--brd)">
+              <span style="font-size:11px;color:var(--tx3)">Subtotal outras saídas</span>
+              <span style="font-size:13px;font-weight:600;color:var(--red)" id="subtotal_saidas">R$ 0,00</span>
+            </div>
+
+            <div class="div"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12px;color:var(--tx2);font-weight:600">Total saídas</span>
+              <span style="font-size:16px;font-weight:700;color:var(--red)" id="fc_tot_s">R$ 0,00</span>
             </div>
           </div>
+
+          <!-- Onde o dinheiro foi -->
+          <div class="card" id="card-distribuicao" style="display:none">
+            <div class="ct"><i class="ti ti-chart-donut"></i> Onde o dinheiro foi</div>
+            <div id="distribuicao-body"></div>
+          </div>
+
         </div>
       </div>
+
+      <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="go('hist')"><i class="ti ti-chart-line"></i>Ver histórico</button>
+        <button class="btn btn-gold btn-sm" onclick="fecharMes()" id="btn-fechar2">
+          <i class="ti ti-check"></i><span id="btn-fechar-txt2">Fechar mês</span>
+        </button>
+      </div>
+
     </div>
 
     <!-- ======= HISTÓRICO ======= -->
@@ -1203,15 +1211,24 @@ function calcC() {
 }
 
 // ─────────────────────────────────────────────
-//  CONTROLE MENSAL — dados locais + sync Sheets
+//  CONTROLE MENSAL — fechamento real
 // ─────────────────────────────────────────────
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const ANO_ATUAL = 25, MES_ATUAL = new Date().getMonth(); // 0-indexed
-let currentMes = MES_ATUAL; // 0-indexed
-let histData = []; // carregado do Sheets
+let currentMes = MES_ATUAL;
+let histData = [];
+
+// Estado do fechamento atual (listas dinâmicas)
+let transfRecLista = [];   // [{id, desc, valor}]
+let saidasLista    = [];   // [{id, desc, valor}]
+let cartoesFec     = [     // cartões padrão + extras
+  { id:1, nome:'Nubank',  cor:'#8b5cf6', valor:0 },
+  { id:2, nome:'XP',      cor:'#d4a843', valor:0 },
+  { id:3, nome:'Itaú',    cor:'#3b82f6', valor:0 },
+];
+let itemNextId = 100;
 
 function mesLabel(m) { return MESES[m] + '/' + ANO_ATUAL; }
-
 function getMesData(m) { return histData.find(d => d.mes === m && d.ano === ANO_ATUAL) || null; }
 
 function navMes(dir) {
@@ -1230,7 +1247,7 @@ function loadMes(m) {
 
   const d = getMesData(m);
   const isClosed = d && d.status === 'Fechado';
-  const isPast = m < MES_ATUAL;
+  const isPast   = m < MES_ATUAL;
 
   $('month-status').textContent = isClosed ? 'Fechado' : 'Em aberto';
   $('month-status').className = 'ms ' + (isClosed ? 'ms-fechado' : 'ms-aberto');
@@ -1239,205 +1256,255 @@ function loadMes(m) {
     ? `<div class="edit-banner"><i class="ti ti-edit"></i><span>Editando mês já fechado (${label}). Salvar substitui os dados no Google Sheets.</span></div>`
     : '';
 
-  // Contexto do mês seguinte no subtítulo e nas labels
-  const proxMes = MESES[(m + 1) % 12] + '/' + ANO_ATUAL;
-  $('ph-sub').textContent = isPast && isClosed
-    ? `Editando dados de ${label}.`
-    : `Planejando as movimentações de ${proxMes} — lançadas agora em ${label}.`;
-  if ($('faturas-sub')) $('faturas-sub').textContent = `Faturas que vencem em ${proxMes}`;
-  if ($('transf-sub'))  $('transf-sub').textContent  = `Ex: poupança programada, envio para familiar`;
-  if ($('entradas-sub')) $('entradas-sub').textContent = `O que deve entrar em ${proxMes}`;
+  const btnTxt = isClosed ? 'Atualizar fechamento' : 'Fechar mês';
+  if ($('btn-fechar-txt'))  $('btn-fechar-txt').textContent  = btnTxt;
+  if ($('btn-fechar-txt2')) $('btn-fechar-txt2').textContent = btnTxt;
 
-  // Labels do fechamento refletem nomes dos cartões
-  const c1=$('cfg_c1').value||'Cartão 1', c2=$('cfg_c2').value||'Cartão 2', c3=$('cfg_c3').value||'Cartão 3';
-  if($('fc_label_c1')) $('fc_label_c1').textContent = c1;
-  if($('fc_label_c2')) $('fc_label_c2').textContent = c2;
-  if($('fc_label_c3')) $('fc_label_c3').textContent = c3;
-
-  // Preenche campos planejamento
+  // Carrega dados salvos
   if (d) {
-    $('m_sal').value    = d.sal    ?? 0;
-    $('m_ext').value    = d.ext    ?? 0;
-    $('m_fixas').value  = d.fixas  ?? 0;
-    $('m_transf').value = d.transf ?? 0;
-    $('m_pct_s').value  = d.pct    ?? 20;
-    $('m_laz_v').value  = d.laz    ?? 0;
-    $('f1').value       = d.f1     ?? 0;
-    $('f2').value       = d.f2     ?? 0;
-    $('f3').value       = d.f3     ?? 0;
-    // fechamento
-    $('fe_sal').value         = d.fe_sal         ?? 0;
-    $('fe_transf_rec').value  = d.fe_transf_rec  ?? 0;
-    $('fe_f1').value          = d.fe_f1          ?? 0;
-    $('fe_f2').value          = d.fe_f2          ?? 0;
-    $('fe_f3').value          = d.fe_f3          ?? 0;
-    $('fe_transf_out').value  = d.fe_transf_out  ?? 0;
+    $('fe_sal').value = d.fe_sal ?? 0;
+    transfRecLista = d.transf_rec_lista || [];
+    cartoesFec     = d.cartoes_fec || cartoesFec;
+    saidasLista    = d.saidas_lista || [];
   } else {
-    ['m_sal','m_ext','m_fixas','m_transf','m_laz_v','f1','f2','f3',
-     'fe_sal','fe_transf_rec','fe_f1','fe_f2','fe_f3','fe_transf_out']
-      .forEach(id => $(id).value = 0);
+    $('fe_sal').value = 0;
+    transfRecLista = [];
+    saidasLista    = [];
+    cartoesFec = [
+      { id:1, nome:'Nubank', cor:'#8b5cf6', valor:0 },
+      { id:2, nome:'XP',     cor:'#d4a843', valor:0 },
+      { id:3, nome:'Itaú',   cor:'#3b82f6', valor:0 },
+    ];
   }
 
-  $('btn-fechar-txt').textContent = isClosed ? 'Atualizar fechamento' : 'Fechar mês';
-  calcM();
+  renderCartoesFec();
+  renderTransfRec();
+  renderSaidas();
+  mostrarComparativo(m, d);
+  calcFechamento();
 }
 
-function calcM() {
-  const sal    = parseFloat($('m_sal').value)    || 0;
-  const ext    = parseFloat($('m_ext').value)    || 0;
-  const fixas  = parseFloat($('m_fixas').value)  || 0;
-  const transf = parseFloat($('m_transf').value) || 0;
-  const pct    = parseInt($('m_pct_s').value)    || 0;
-  const laz    = parseFloat($('m_laz_v').value)  || 0;
-  const f1=parseFloat($('f1').value)||0, f2=parseFloat($('f2').value)||0, f3=parseFloat($('f3').value)||0;
-  $('m_pct_sv').textContent = pct;
-
-  const totE   = sal + ext;
-  const totF   = f1 + f2 + f3;
-  const totFix = fixas + transf;
-  const savM   = Math.round(sal * (pct / 100));
-  const saldo  = totE - totF - totFix - savM - laz;
-
-  // KPIs
-  $('m_tot_e').textContent  = fmt(totE);
-  $('m_tot_f').textContent  = fmt(totF);
-  $('m_fat').textContent    = fmt(totF);
-  $('m_saldo').textContent  = fmt(saldo);
-  $('m_saldo_sub').textContent = saldo >= 0 ? 'disponível p/ gastar no cartão' : '⚠️ orçamento estourado';
-  $('m_saldo').style.color  = saldo >= 0 ? 'var(--green)' : 'var(--red)';
-  $('m_sav').textContent    = fmt(savM);
-  $('m_laz').textContent    = fmt(laz);
-
-  // Barras de distribuição das faturas
-  const cores  = ['#3b82f6','#d4a843','#22c55e'];
-  const vals   = [f1, f2, f3];
-  const names  = [$('cfg_c1').value||'Cartão 1', $('cfg_c2').value||'Cartão 2', $('cfg_c3').value||'Cartão 3'];
-  let dist = '';
-  vals.forEach((v,i) => {
-    const p = totF > 0 ? (v/totF*100) : 0;
-    dist += `<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:var(--tx2)">${names[i]}</span><span style="color:${cores[i]};font-weight:600">${fmt(v)} <span style="color:var(--tx3)">(${p.toFixed(0)}%)</span></span></div><div class="pb"><div class="pf" style="width:${p.toFixed(1)}%;background:${cores[i]}"></div></div></div>`;
-  });
-  $('dist_b').innerHTML = dist;
-
-  // Card de resumo de projeção
-  const proxMes = MESES[(currentMes+1)%12]+'/'+ANO_ATUAL;
-  $('m_ctx_txt').textContent = `Com base no planejado para ${proxMes}`;
-  $('rp_e').textContent  = fmt(totE);
-  $('rp_f').textContent  = fmt(totF);
-  $('rp_fx').textContent = fmt(totFix);
-  $('rp_s').textContent  = fmt(savM);
-  $('rp_l').textContent  = fmt(laz);
-  $('rp_disp').textContent = fmt(saldo);
-  $('rp_disp').style.color = saldo >= 0 ? 'var(--green)' : 'var(--red)';
-  $('m_proj_txt').textContent = saldo >= 0
-    ? `✅ Você ainda pode gastar ${fmt(saldo)} no cartão este mês sem comprometer ${proxMes}`
-    : `⚠️ As saídas previstas superam as entradas em ${fmt(Math.abs(saldo))} — revise os valores`;
-
-  calcF();
+// ── Cartões ──
+function renderCartoesFec() {
+  $('cartoes-lista-fec').innerHTML = cartoesFec.map(c => `
+    <div class="cr" style="align-items:center">
+      <div class="cdot" style="background:${c.cor}"></div>
+      <span style="flex:1;font-size:13px">${c.nome}</span>
+      <div class="ip" style="width:130px">
+        <span>R$</span>
+        <input class="fi" type="number" value="${c.valor}" step="0.01"
+          style="padding-left:32px;font-size:12px"
+          onchange="editarCartao(${c.id},this.value)">
+      </div>
+      ${cartoesFec.length > 1 && c.id > 3
+        ? `<button onclick="removerCartao(${c.id})" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:14px;padding:0 4px">✕</button>`
+        : '<span style="width:18px"></span>'}
+    </div>`).join('');
 }
 
-function showTab(t) {
-  $('tab_plan').classList.toggle('active', t==='plan'); $('tab_fec').classList.toggle('active', t==='fec');
-  $('tab_plan_c').style.display = t==='plan'?'block':'none';
-  $('tab_fec_c').style.display  = t==='fec'?'block':'none';
-  if(t==='fec') calcF();
+function editarCartao(id, val) {
+  const c = cartoesFec.find(x => x.id === id);
+  if (c) c.valor = parseFloat(val) || 0;
+  calcFechamento();
 }
 
-function calcF() {
-  if (!$('fe_sal')) return; // elementos do fechamento não carregaram ainda
-  const sal   = parseFloat($('m_sal').value)  || 0;
-  const pct   = parseInt($('m_pct_s').value)  || 0;
-  const metaSaving = Math.round(sal * (pct / 100));
+function adicionarCartao() {
+  const nome = prompt('Nome do novo cartão:');
+  if (!nome) return;
+  const cores = ['#22c55e','#ef4444','#06b6d4','#f97316','#ec4899'];
+  cartoesFec.push({ id: ++itemNextId, nome, cor: cores[itemNextId % cores.length], valor: 0 });
+  renderCartoesFec();
+}
 
-  // Entradas reais
-  const feSal       = parseFloat($('fe_sal').value)        || 0;
-  const feTransfRec = parseFloat($('fe_transf_rec').value) || 0;
-  const totalEntrada = feSal + feTransfRec;
+function removerCartao(id) {
+  cartoesFec = cartoesFec.filter(c => c.id !== id);
+  renderCartoesFec(); calcFechamento();
+}
 
-  // Saídas reais
-  const fef1       = parseFloat($('fe_f1').value)         || 0;
-  const fef2       = parseFloat($('fe_f2').value)         || 0;
-  const fef3       = parseFloat($('fe_f3').value)         || 0;
-  const feTransfOut= parseFloat($('fe_transf_out').value) || 0;
-  const totalSaidas = fef1 + fef2 + fef3 + feTransfOut;
+// ── Transferências recebidas ──
+function renderTransfRec() {
+  $('transf-rec-lista').innerHTML = transfRecLista.map(t => `
+    <div style="display:flex;gap:8px;align-items:center">
+      <input class="fi" type="text" value="${t.desc}" placeholder="Descrição"
+        style="flex:1;font-size:12px" onchange="editarItem('rec',${t.id},'desc',this.value)">
+      <div class="ip" style="width:120px">
+        <span>R$</span>
+        <input class="fi" type="number" value="${t.valor}" step="0.01"
+          style="padding-left:28px;font-size:12px"
+          onchange="editarItem('rec',${t.id},'valor',this.value)">
+      </div>
+      <button onclick="removerItem('rec',${t.id})"
+        style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:14px;padding:0 4px">✕</button>
+    </div>`).join('');
+  const total = transfRecLista.reduce((a,t) => a + t.valor, 0);
+  $('subtotal_transf_rec').textContent = fmt(total);
+  calcFechamento();
+}
 
-  // Resultado: o que sobrou/guardou
-  const saldoReal = totalEntrada - totalSaidas;
+function adicionarTransfRec() {
+  transfRecLista.push({ id: ++itemNextId, desc: '', valor: 0 });
+  renderTransfRec();
+}
 
-  // Atualiza UI
-  $('fc_tot_e').textContent          = fmt(totalEntrada);
-  $('fc_re').textContent             = fmt(totalEntrada);
-  $('fc_fat_pagas').textContent      = fmt(fef1+fef2+fef3);
-  $('fc_transf_out_show').textContent= feTransfOut > 0 ? fmt(feTransfOut) : 'R$ 0,00';
-  $('fc_saldo_real').textContent     = fmt(saldoReal);
-  $('fc_saldo_real').style.color     = saldoReal >= 0 ? 'var(--green)' : 'var(--red)';
+// ── Saídas avulsas ──
+function renderSaidas() {
+  $('saidas-lista').innerHTML = saidasLista.map(s => `
+    <div style="display:flex;gap:8px;align-items:center">
+      <input class="fi" type="text" value="${s.desc}" placeholder="Descrição"
+        style="flex:1;font-size:12px" onchange="editarItem('out',${s.id},'desc',this.value)">
+      <div class="ip" style="width:120px">
+        <span>R$</span>
+        <input class="fi" type="number" value="${s.valor}" step="0.01"
+          style="padding-left:28px;font-size:12px"
+          onchange="editarItem('out',${s.id},'valor',this.value)">
+      </div>
+      <button onclick="removerItem('out',${s.id})"
+        style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:14px;padding:0 4px">✕</button>
+    </div>`).join('');
+  const total = saidasLista.reduce((a,s) => a + s.valor, 0);
+  $('subtotal_saidas').textContent = fmt(total);
+  calcFechamento();
+}
 
-  // Veredicto
-  const bateuMeta = saldoReal >= metaSaving;
-  const icone = saldoReal >= 0 ? (bateuMeta ? '🏆' : '✅') : '⚠️';
-  let titulo, sub;
-  if (saldoReal < 0) {
-    titulo = 'Mês no negativo';
-    sub    = `Suas saídas superaram as entradas em ${fmt(Math.abs(saldoReal))}`;
-  } else if (bateuMeta) {
-    titulo = 'Meta de saving atingida!';
-    sub    = `Você guardou ${fmt(saldoReal)} — meta era ${fmt(metaSaving)}`;
+function adicionarSaida() {
+  saidasLista.push({ id: ++itemNextId, desc: '', valor: 0 });
+  renderSaidas();
+}
+
+function editarItem(tipo, id, campo, val) {
+  const lista = tipo === 'rec' ? transfRecLista : saidasLista;
+  const item = lista.find(x => x.id === id);
+  if (item) item[campo] = campo === 'valor' ? (parseFloat(val) || 0) : val;
+  if (tipo === 'rec') { $('subtotal_transf_rec').textContent = fmt(transfRecLista.reduce((a,t)=>a+t.valor,0)); }
+  else { $('subtotal_saidas').textContent = fmt(saidasLista.reduce((a,s)=>a+s.valor,0)); }
+  calcFechamento();
+}
+
+function removerItem(tipo, id) {
+  if (tipo === 'rec') { transfRecLista = transfRecLista.filter(x => x.id !== id); renderTransfRec(); }
+  else { saidasLista = saidasLista.filter(x => x.id !== id); renderSaidas(); }
+}
+
+// ── Cálculo principal ──
+function calcFechamento() {
+  const sal         = parseFloat($('fe_sal').value) || 0;
+  const totTransfRec= transfRecLista.reduce((a,t) => a+t.valor, 0);
+  const totalEntrada= sal + totTransfRec;
+
+  const totFaturas  = cartoesFec.reduce((a,c) => a+c.valor, 0);
+  const totSaidas   = saidasLista.reduce((a,s) => a+s.valor, 0);
+  const totalSaiu   = totFaturas + totSaidas;
+
+  const saldo = totalEntrada - totalSaiu;
+
+  // Subtotais
+  $('fc_tot_e').textContent = fmt(totalEntrada);
+  $('fc_tot_s').textContent = fmt(totalSaiu);
+  $('subtotal_faturas').textContent = fmt(totFaturas);
+
+  // Cards de resultado
+  $('res_entrou').textContent = fmt(totalEntrada);
+  $('res_saiu').textContent   = fmt(totalSaiu);
+  $('res_saldo').textContent  = fmt(saldo);
+
+  const saldoCard = $('res_saldo_card');
+  $('res_saldo').style.color = saldo >= 0 ? 'var(--green)' : 'var(--red)';
+  $('res_saldo_sub').textContent = saldo >= 0 ? '✅ Você ficou positivo!' : '⚠️ Mês no negativo';
+  saldoCard.style.borderColor = saldo >= 0 ? 'rgba(34,197,94,0.25)' : 'rgba(239,68,68,0.25)';
+  saldoCard.style.background  = saldo >= 0 ? 'var(--greend)' : 'var(--redd)';
+
+  // Distribuição onde foi o dinheiro
+  if (totalSaiu > 0) {
+    $('card-distribuicao').style.display = 'block';
+    const itens = [
+      ...cartoesFec.map(c => ({ label: c.nome, val: c.valor, cor: c.cor })),
+      ...saidasLista.filter(s=>s.valor>0).map(s => ({ label: s.desc||'Saída', val: s.valor, cor: '#8b92a8' }))
+    ].filter(i => i.val > 0);
+    $('distribuicao-body').innerHTML = itens.map(i => {
+      const pct = totalSaiu > 0 ? (i.val/totalSaiu*100) : 0;
+      return `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span style="color:var(--tx2)">${i.label}</span>
+          <span style="color:${i.cor};font-weight:600">${fmt(i.val)} <span style="color:var(--tx3)">(${pct.toFixed(0)}%)</span></span>
+        </div>
+        <div class="pb"><div class="pf" style="width:${pct.toFixed(1)}%;background:${i.cor}"></div></div>
+      </div>`;
+    }).join('');
   } else {
-    titulo = 'Mês positivo, saving abaixo da meta';
-    sub    = `Sobrou ${fmt(saldoReal)}, mas a meta era guardar ${fmt(metaSaving)}`;
+    $('card-distribuicao').style.display = 'none';
   }
-  $('fec_vrd').innerHTML = `<div class="vrd ${saldoReal>=0&&bateuMeta?'win':'neu'}"><div class="vrd-ic">${icone}</div><div><div class="vrd-t">${titulo}</div><div class="vrd-s">${sub}</div></div></div>`;
+}
+
+// ── Comparativo com Meu Orçamento ──
+function mostrarComparativo(mesIdx, d) {
+  const label = mesLabel(mesIdx);
+  const plano = planoReais && planoReais[label];
+  if (!plano) { $('comparativo-plano').style.display = 'none'; return; }
+
+  const params = { salario:10800, fixasTotal:3460.80, fixasCartao:990.48, metaInv:4000, metaViagem:1500, pgblMax:1800, pgblInicio:'1-2027' };
+  const salP   = plano.sal ?? params.salario;
+  const entP   = (plano.transf ?? 0) + salP;
+  const fatP   = (plano.parcelas ?? 0) + (plano.fixasCartao ?? params.fixasCartao);
+  const fixP   = plano.fixasPix ?? (params.fixasTotal - params.fixasCartao);
+  const saidP  = fatP + fixP;
+  const metaP  = plano.metaInv ?? 4000;
+  const viagP  = plano.caixViagem ?? 0;
+  const livreP = entP - saidP - metaP - viagP;
+
+  $('comparativo-plano').style.display = 'block';
+  $('comparativo-body').innerHTML = [
+    { l:'Entradas',         plan: entP,  real: null },
+    { l:'Total saídas',     plan: saidP, real: null },
+    { l:'Meta investimento',plan: metaP, real: null },
+    { l:'Livre planejado',  plan: livreP,real: null, destaque:true },
+  ].map(row => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--brd)">
+      <span style="font-size:12px;color:${row.destaque?'var(--tx)':'var(--tx2)'};${row.destaque?'font-weight:600':''}">${row.l}</span>
+      <div style="display:flex;gap:20px;align-items:center">
+        <span style="font-size:11px;color:var(--tx3)">Planejado: <span style="color:var(--gold)">${fmt(row.plan)}</span></span>
+      </div>
+    </div>`).join('') +
+    `<div style="font-size:10px;color:var(--tx3);margin-top:8px">Referência do Meu orçamento — <span style="color:var(--gold)">preencha os valores reais acima</span> para ver o comparativo.</div>`;
 }
 
 async function fecharMes() {
-  const sal    = parseFloat($('m_sal').value)    || 0;
-  const ext    = parseFloat($('m_ext').value)    || 0;
-  const fixas  = parseFloat($('m_fixas').value)  || 0;
-  const transf = parseFloat($('m_transf').value) || 0;
-  const pct    = parseInt($('m_pct_s').value)    || 0;
-  const laz    = parseFloat($('m_laz_v').value)  || 0;
-  const f1=parseFloat($('f1').value)||0, f2=parseFloat($('f2').value)||0, f3=parseFloat($('f3').value)||0;
-
-  const fe_sal        = parseFloat($('fe_sal').value)        || 0;
-  const fe_transf_rec = parseFloat($('fe_transf_rec').value) || 0;
-  const fe_f1         = parseFloat($('fe_f1').value)         || 0;
-  const fe_f2         = parseFloat($('fe_f2').value)         || 0;
-  const fe_f3         = parseFloat($('fe_f3').value)         || 0;
-  const fe_transf_out = parseFloat($('fe_transf_out').value) || 0;
-
-  const totalEntrada = fe_sal + fe_transf_rec;
-  const totalSaidas  = fe_f1 + fe_f2 + fe_f3 + fe_transf_out;
-  const saldoReal    = totalEntrada - totalSaidas;
-  const meta         = Math.round(sal * (pct / 100));
+  const sal         = parseFloat($('fe_sal').value) || 0;
+  const totTransfRec= transfRecLista.reduce((a,t) => a+t.valor, 0);
+  const totalEntrada= sal + totTransfRec;
+  const totFaturas  = cartoesFec.reduce((a,c) => a+c.valor, 0);
+  const totSaidas   = saidasLista.reduce((a,s) => a+s.valor, 0);
+  const totalSaiu   = totFaturas + totSaidas;
+  const saldoReal   = totalEntrada - totalSaiu;
 
   const payload = {
     action: 'salvarMes',
     data: {
       mes: currentMes, ano: ANO_ATUAL,
-      sal, ext, fixas, transf, pct, laz, f1, f2, f3,
-      fe_sal, fe_transf_rec, fe_f1, fe_f2, fe_f3, fe_transf_out,
+      fe_sal: sal,
+      fe_transf_rec: totTransfRec,
+      fe_f1: cartoesFec[0]?.valor || 0,
+      fe_f2: cartoesFec[1]?.valor || 0,
+      fe_f3: cartoesFec[2]?.valor || 0,
+      fe_transf_out: totSaidas,
+      transf_rec_lista: transfRecLista,
+      cartoes_fec: cartoesFec,
+      saidas_lista: saidasLista,
       closed: true
     }
   };
 
-  // Salva localmente
   const existIdx = histData.findIndex(d => d.mes===currentMes && d.ano===ANO_ATUAL);
-  const entry = {
-    ...payload.data, status: 'Fechado',
-    e: totalEntrada, g: totalSaidas, s: saldoReal,
-    meta, desvio: totalSaidas - (sal+ext-fixas-transf-meta-laz)
-  };
+  const entry = { ...payload.data, status:'Fechado', e:totalEntrada, g:totalSaiu, s:saldoReal, meta:0, desvio:0 };
   if (existIdx>=0) histData[existIdx]=entry; else histData.push(entry);
   $('nb-hist').textContent = histData.filter(d=>d.status==='Fechado').length;
   loadMes(currentMes);
   showNotif('Salvo localmente ✓');
 
-  // Sincroniza com Sheets
   try {
     setSyncStatus('Sincronizando…', 'wait');
     await apiPost(payload);
     setSyncStatus('Salvo no Sheets ✓', 'ok');
-    showNotif('Salvo no Google Sheets ✓');
+    showNotif('Fechamento salvo no Google Sheets ✓');
   } catch(e) {
     setSyncStatus('Erro no Sheets', 'err');
     showNotif('Local salvo, Sheets falhou: '+e.message, 'err');
