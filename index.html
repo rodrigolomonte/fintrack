@@ -488,6 +488,38 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
         </button>
       </div>
 
+      <!-- META DE SAVING DO MÊS -->
+      <div class="card" style="margin-top:14px;border-color:rgba(212,168,67,0.2)">
+        <div class="ct"><i class="ti ti-target"></i> Meta de saving — <span id="meta-mes-label">este mês</span></div>
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:14px">
+          Defina quanto quer guardar este mês. A meta global é <strong style="color:var(--gold)" id="meta-global-ref">35%</strong> do salário.
+          Ajuste aqui apenas se quiser um valor diferente para este mês específico.
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="font-size:12px;color:var(--tx2)">Meta global (todos os meses)</label>
+            <div style="display:flex;align-items:center;gap:4px">
+              <input type="number" id="meta-global-pct" value="35" min="0" max="100" step="1"
+                style="width:55px;background:var(--s2);border:0.5px solid var(--brd2);border-radius:6px;padding:5px 8px;font-size:13px;color:var(--gold);outline:none;text-align:center;font-family:var(--font)"
+                oninput="salvarMetaGlobal()">
+              <span style="font-size:12px;color:var(--tx3)">%</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="font-size:12px;color:var(--tx2)">Override só para este mês</label>
+            <div style="display:flex;align-items:center;gap:4px">
+              <input type="number" id="meta-override-pct" placeholder="—" min="0" max="100" step="1"
+                style="width:55px;background:var(--s2);border:0.5px solid var(--brd2);border-radius:6px;padding:5px 8px;font-size:13px;color:var(--blue);outline:none;text-align:center;font-family:var(--font)"
+                oninput="salvarMetaOverride()">
+              <span style="font-size:12px;color:var(--tx3)">%</span>
+            </div>
+            <button onclick="limparMetaOverride()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:11px;text-decoration:underline">Usar global</button>
+          </div>
+          <div style="font-size:13px;font-weight:600">
+            Meta: <span style="color:var(--gold)" id="meta-valor-calculado">R$ 0,00</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ======= HISTÓRICO ======= -->
@@ -1319,6 +1351,7 @@ function loadMes(m) {
   renderSaidas();
   mostrarComparativo(m, d);
   calcFechamento();
+  atualizarCardMeta();
 }
 
 // ── Cartões ──
@@ -1569,12 +1602,90 @@ function getClosedSlice() {
 }
 
 // Para um mês fechado M, a meta vem do planejamento de M-1
+// ── Sistema de metas de saving ──
+// metaGlobal: { pct: 35 } — padrão 35% do salário
+// metasOverride: { 'Set/25': { pct: 40 }, 'Out/25': { pct: 30 } } — overrides por mês
+let metaGlobal   = { pct: 35 };
+let metasOverride = {};
+
 function getMetaParaMes(mesIdx) {
-  const planMesAnterior = histData.find(d => d.mes === mesIdx - 1 && d.ano === ANO_ATUAL);
-  if (!planMesAnterior) return null;
-  return Math.round(planMesAnterior.sal * (planMesAnterior.pct / 100));
+  const label = mesLabel(mesIdx);
+  const d = histData.find(d => d.mes === mesIdx && d.ano === ANO_ATUAL);
+  if (!d) return null;
+
+  // Override específico para este mês tem prioridade
+  const override = metasOverride[label];
+  const pct = override !== undefined ? override.pct : metaGlobal.pct;
+
+  // Base: salário real lançado no fechamento, ou salário do orçamento, ou 10800
+  const plano = planoReais && planoReais[label];
+  const salBase = d.fe_sal || (plano && plano.sal) || 10800;
+  return Math.round(salBase * (pct / 100));
 }
 
+function salvarMetasSavingLocal() {
+  localStorage.setItem('fintrack_meta_global',    JSON.stringify(metaGlobal));
+  localStorage.setItem('fintrack_metas_override', JSON.stringify(metasOverride));
+}
+
+function carregarMetasSavingLocal() {
+  const g = localStorage.getItem('fintrack_meta_global');
+  const o = localStorage.getItem('fintrack_metas_override');
+  if (g) metaGlobal    = JSON.parse(g);
+  if (o) metasOverride = JSON.parse(o);
+}
+
+function salvarMetasSavingLocal() {
+  localStorage.setItem('fintrack_meta_global',    JSON.stringify(metaGlobal));
+  localStorage.setItem('fintrack_metas_override', JSON.stringify(metasOverride));
+}
+
+function carregarMetasSavingLocal() {
+  const g = localStorage.getItem('fintrack_meta_global');
+  const o = localStorage.getItem('fintrack_metas_override');
+  if (g) metaGlobal    = JSON.parse(g);
+  if (o) metasOverride = JSON.parse(o);
+}
+
+function salvarMetaGlobal() {
+  const pct = parseFloat($('meta-global-pct').value) || 35;
+  metaGlobal.pct = pct;
+  salvarMetasSavingLocal();
+  atualizarCardMeta();
+}
+
+function salvarMetaOverride() {
+  const pct = parseFloat($('meta-override-pct').value);
+  const label = mesLabel(currentMes);
+  if (!isNaN(pct) && $('meta-override-pct').value !== '') {
+    metasOverride[label] = { pct };
+  }
+  salvarMetasSavingLocal();
+  atualizarCardMeta();
+}
+
+function limparMetaOverride() {
+  const label = mesLabel(currentMes);
+  delete metasOverride[label];
+  if ($('meta-override-pct')) $('meta-override-pct').value = '';
+  salvarMetasSavingLocal();
+  atualizarCardMeta();
+}
+
+function atualizarCardMeta() {
+  const label = mesLabel(currentMes);
+  const override = metasOverride[label];
+  const pctAtivo = override !== undefined ? override.pct : metaGlobal.pct;
+  if ($('meta-global-pct'))       $('meta-global-pct').value = metaGlobal.pct;
+  if ($('meta-override-pct'))     $('meta-override-pct').value = override !== undefined ? override.pct : '';
+  if ($('meta-global-ref'))       $('meta-global-ref').textContent = metaGlobal.pct + '%';
+  if ($('meta-mes-label'))        $('meta-mes-label').textContent = label;
+  const sal     = parseFloat($('fe_sal') ? $('fe_sal').value : 0) || 0;
+  const plano   = planoReais && planoReais[label];
+  const salBase = sal || (plano && plano.sal) || 10800;
+  const metaVal = Math.round(salBase * (pctAtivo / 100));
+  if ($('meta-valor-calculado'))  $('meta-valor-calculado').textContent = fmt(metaVal);
+}
 const gc = 'rgba(255,255,255,0.05)', tc = '#5a6077';
 const baseO = {
   responsive: true, maintainAspectRatio: false,
@@ -2816,6 +2927,7 @@ document.getElementById('nav-calc').classList.add('active');
 
 try { carregarConfigLocal();      } catch(e) { console.warn('carregarConfigLocal:', e); }
 try { carregarMetasLocal();       } catch(e) { console.warn('carregarMetasLocal:', e); }
+try { carregarMetasSavingLocal(); } catch(e) { console.warn('carregarMetasSavingLocal:', e); }
 try { carregarPlanoLocal();       } catch(e) { console.warn('carregarPlanoLocal:', e); }
 try { lcCarregarLocal();          } catch(e) { console.warn('lcCarregarLocal:', e); }
 try { calcC();                    } catch(e) { console.warn('calcC:', e); }
